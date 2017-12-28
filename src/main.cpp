@@ -31,11 +31,13 @@ int main()
 
 	b.onTick([](char* message, size_t len){
 		message[len] = 0;
+		std::cout<<" I am in onTick !"<<std::endl;
 		std::cout<<message<<std::endl;
 	});
 
 	b.onBars([](char* message, size_t len){
 		message[len] = 0;
+		std::cout<<" I am in onBars !"<<std::endl;
 		std::cout<<message<<std::endl;
 	});
 

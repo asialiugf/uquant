@@ -60,7 +60,6 @@ void Base::MainHubInit()
 		ws->send("hhhhhhhaaaaaaaaaa!!");
     });
 
-    std::cout << "enter into MainHubInit !!\n";
     // 客户端打印接收到的消息
 	Base::onMessageInit();
 	/*
@@ -77,13 +76,11 @@ void Base::MainHubInit()
     });
 	*/
 
-    std::cout << "enter into MainHubInit !!\n";
     mainHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
         this->mainHub.getDefaultGroup<uWS::SERVER>().close();
         this->mainHub.getDefaultGroup<uWS::CLIENT>().close();
     });
 
-    std::cout << "enter into MainHubInit !!\n";
     mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
     mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
     mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
