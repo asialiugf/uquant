@@ -1,3 +1,5 @@
 g++ -std=c++11 -c Base.cpp 
+mv Base.o ./obj
 g++ -std=c++11 -c ErrLog.cpp 
-g++ -std=c++11 -O3 -I ../src -fPIC -o main main.cpp -L/home/riddle/uws -luWS -lssl -lz -lpthread Base.o ErrLog.o
+mv ErrLog.o ./obj
+g++ -std=c++11 -O3 -I ../src -fPIC -o main main.cpp -L/home/riddle/uws -luWS -lssl -lz -lpthread ./obj/Base.o ./obj/ErrLog.o
