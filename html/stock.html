@@ -542,7 +542,7 @@ function green_price(brand, value, counts, range){
 
 
 // new Websocket
-var s = new WebSocket('ws://121.199.28.62:80/api/push/ws');
+var s = new WebSocket('ws://47.93.37.54:80/api/push/ws');
 
 // register my topic
 s.onopen = function(){
@@ -556,7 +556,7 @@ s.onopen = function(){
 // handle my data
 s.onmessage = function(v){
     //alert(v.data);
-    //console.log(v.data);
+    console.log(v.data);
     obj = JSON.parse(v.data)
     ary = new Array();
     ary = obj['data'].split(',');
@@ -685,16 +685,6 @@ s.onmessage = function(v){
 // ping/pong heartbeat
 job = setInterval('s.send(\'{"action":"ping"}\')' , 5000);
 </script>
-
-
-
-
-
-
-
-
-
-
 
 
 

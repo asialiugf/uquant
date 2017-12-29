@@ -13,45 +13,45 @@
   ];
 
   /* ------------------------------------------- data defined here ---------------------------------- */
-  /* 
-    下面的 let option = {}
-    是一个option的例子，在 index.html 中 let op =  new barCharts();之后,会用到
-    op.update(option),就是 this.update(opt)的参数。
+  /*
+	下面的 let option = {}
+	是一个option的例子，在 index.html 中 let op =  new barCharts();之后,会用到
+	op.update(option),就是 this.update(opt)的参数。
 
-    其中要注意的是 大Y，是整个Y轴数据，Y.data[0]... Y.data[n]，data数组，表示有多个显示块
-    可以分为 main, sub 两种类型，其中 main 块，主要显示K柱，及相应的指标， sub主要显示副
-    图指标，比如显示：MACD，KDJ等。可以有多个sub类型。
+	其中要注意的是 大Y，是整个Y轴数据，Y.data[0]... Y.data[n]，data数组，表示有多个显示块
+	可以分为 main, sub 两种类型，其中 main 块，主要显示K柱，及相应的指标， sub主要显示副
+	图指标，比如显示：MACD，KDJ等。可以有多个sub类型。
 
-    每个Y.data[0].y，就是每个data的小y,也会有多个数据，比如 主图中的 K柱就要有 open
-    close highest lowest数据，最少四组。 
-    
-    要注意： 在javascript中，数组的let oo = []; let xx = oo ; 这里的 oo 和 xx 是同一组数据，
-    如果更改了oo，则xx 也被更改了。 所以要注意，小y里面有多组数据，其中有几组数据的来源相
-    同的话，注意在程序中要小心，只需要更新一个即可。
+	每个Y.data[0].y，就是每个data的小y,也会有多个数据，比如 主图中的 K柱就要有 open
+	close highest lowest数据，最少四组。
 
-    另外，this.update的输入的option，只需要将更新的数据放在option中，不需要所有的数据。
-    比如，初始化时，输入了1000个K柱数据，每次新来一个K柱的数据，则不需要在option 放入1001个数
-    据，只需要放最后一个K柱数据即可。
+	要注意： 在javascript中，数组的let oo = []; let xx = oo ; 这里的 oo 和 xx 是同一组数据，
+	如果更改了oo，则xx 也被更改了。 所以要注意，小y里面有多组数据，其中有几组数据的来源相
+	同的话，注意在程序中要小心，只需要更新一个即可。
 
-    还要注意： 不管main, sub，所有的数据来源，其长度必须一致。比如 open close ... 包括
-    MACD的每条线，当前显示第 1001，下一个显示 第1002，所有的数据当前必须是1001长，下一个必须
-    是1002长。即 open.length 和 close.length 还有 sub里面的所有的数据长度，都必须一样长。
+	另外，this.update的输入的option，只需要将更新的数据放在option中，不需要所有的数据。
+	比如，初始化时，输入了1000个K柱数据，每次新来一个K柱的数据，则不需要在option 放入1001个数
+	据，只需要放最后一个K柱数据即可。
 
-    this.update()参数 option.type有三种类型：0，1，2。在后端从服务器送过来的的option数据
-    必须设定type值。具体参看 this.update() 的说明。
+	还要注意： 不管main, sub，所有的数据来源，其长度必须一致。比如 open close ... 包括
+	MACD的每条线，当前显示第 1001，下一个显示 第1002，所有的数据当前必须是1001长，下一个必须
+	是1002长。即 open.length 和 close.length 还有 sub里面的所有的数据长度，都必须一样长。
 
-    关于数据的说明：
+	this.update()参数 option.type有三种类型：0，1，2。在后端从服务器送过来的的option数据
+	必须设定type值。具体参看 this.update() 的说明。
 
-    1、下面的option 中的数据，将会一直保存。
-    2、由于javascript 数组赋值时，其数据只是一份，也就是公用原型数据，因此 需要特别注意数据的修改。
-       比如：
-       let aa = [];
-       let bb = aa;
-       如果修改了 aa，则 bb 也变了。
-  */
+	关于数据的说明：
+
+	1、下面的option 中的数据，将会一直保存。
+	2、由于javascript 数组赋值时，其数据只是一份，也就是公用原型数据，因此 需要特别注意数据的修改。
+	   比如：
+	   let aa = [];
+	   let bb = aa;
+	   如果修改了 aa，则 bb 也变了。
+	   */
   let opt_oo = [];
   let opt_hh = [];
-  let opt_ll = []; // 
+  let opt_ll = []; //
   let opt_cc = [];
   let opt_tt = []; // X轴的时间，是字串类型
 
@@ -295,55 +295,55 @@
         height: subFH
       },
       /*
-      sub1B: {
-        backgroundColor: "transparent",
-        zIndex: 94,
-        top: topH + H1 + scrollFH,
-        left: 0,
-        width: subBW,
-        height: subBH
-      },
-      sub1F: {
-        backgroundColor: "transparent",
-        zIndex: 95,
-        top: topH + H1 + scrollFH,
-        left: leftW,
-        width: subFW,
-        height: subFH
-      },
-      sub2B: {
-        backgroundColor: "transparent",
-        zIndex: 12,
-        top: topH + H1 + scrollFH + H2,
-        left: 0,
-        width: subBW,
-        height: subBH
-      },
-      sub2F: {
-        backgroundColor: "transparent",
-        zIndex: 12,
-        top: topH + H1 + scrollFH + H2,
-        left: leftW,
-        width: subFW,
-        height: subFH
-      },
-      sub3B: {
-        backgroundColor: "transparent",
-        zIndex: 12,
-        top: topH + H1 + scrollFH + H2 * 2,
-        left: 0,
-        width: subBW,
-        height: subBH
-      },
-      sub3F: {
-        backgroundColor: "transparent",
-        zIndex: 12,
-        top: topH + H1 + scrollFH + H2 * 2,
-        left: leftW,
-        width: subFW,
-        height: subFH
-      },
-      */
+	  sub1B: {
+		backgroundColor: "transparent",
+		zIndex: 94,
+		top: topH + H1 + scrollFH,
+		left: 0,
+		width: subBW,
+		height: subBH
+	  },
+	  sub1F: {
+		backgroundColor: "transparent",
+		zIndex: 95,
+		top: topH + H1 + scrollFH,
+		left: leftW,
+		width: subFW,
+		height: subFH
+	  },
+	  sub2B: {
+		backgroundColor: "transparent",
+		zIndex: 12,
+		top: topH + H1 + scrollFH + H2,
+		left: 0,
+		width: subBW,
+		height: subBH
+	  },
+	  sub2F: {
+		backgroundColor: "transparent",
+		zIndex: 12,
+		top: topH + H1 + scrollFH + H2,
+		left: leftW,
+		width: subFW,
+		height: subFH
+	  },
+	  sub3B: {
+		backgroundColor: "transparent",
+		zIndex: 12,
+		top: topH + H1 + scrollFH + H2 * 2,
+		left: 0,
+		width: subBW,
+		height: subBH
+	  },
+	  sub3F: {
+		backgroundColor: "transparent",
+		zIndex: 12,
+		top: topH + H1 + scrollFH + H2 * 2,
+		left: leftW,
+		width: subFW,
+		height: subFH
+	  },
+	  */
       sttB: {
         backgroundColor: "#222222",
         zIndex: 99,
@@ -495,9 +495,9 @@
 
     /* set G._curLevel and modify Begin and End index */
     /*
-       function setCurLevel(x) 会在 G.curLevel = x 时，被调用，它会修改 G._barB,
-       G._barE的值。
-    */
+	   function setCurLevel(x) 会在 G.curLevel = x 时，被调用，它会修改 G._barB,
+	   G._barE的值。
+	   */
     function setCurLevel(x) {
       if (x < 0) {
         G._curLevel = 0;
@@ -532,9 +532,9 @@
       G._curLen = G._barE - G._barB;
     }
     /*
-       function setBE(m = 0) 在G.barB = 9; 给G.barB赋值时会调用，如果你想把显示的起始
-       位置向前提5个K柱，那可以这样： G.barB = G.barB -5 ;
-    */
+	   function setBE(m = 0) 在G.barB = 9; 给G.barB赋值时会调用，如果你想把显示的起始
+	   位置向前提5个K柱，那可以这样： G.barB = G.barB -5 ;
+	   */
     function setBE(m = 0) {
       let y;
       let x = m - G._barB;
@@ -549,13 +549,13 @@
       }
       G._disLast = G._barE == G._datLen ? 1 : 0;
       /*
-      G._disLast表示当前是否显示最后一个K柱,最后一个K柱在实际中，可能会因为一直从服务
-      器上收到信息而增加。
-      上面 这一条语句，表示，如果当前显示到最后一个K柱（即 G._barE == G._datLen），则
-      以后一直会显示到最后。  
-      其作用，主要用于：生产环境中，可能会静态观察中间某一段，看完后，又需要回到 一直
-      显示最后一个K柱的变化，G._disLast = 1,能保证 最后一个K柱的变化一直能被显示出来。
-      */
+	  G._disLast表示当前是否显示最后一个K柱,最后一个K柱在实际中，可能会因为一直从服务
+	  器上收到信息而增加。
+	  上面 这一条语句，表示，如果当前显示到最后一个K柱（即 G._barE == G._datLen），则
+	  以后一直会显示到最后。
+	  其作用，主要用于：生产环境中，可能会静态观察中间某一段，看完后，又需要回到 一直
+	  显示最后一个K柱的变化，G._disLast = 1,能保证 最后一个K柱的变化一直能被显示出来。
+	  */
     }
 
     function levelInit() {
@@ -700,10 +700,10 @@
         }
       }
 
-      /* 
-        drawCandle() 必须先调用之后，才会修改 this.mn 和 this.PP 
-        其它的显示会依赖 this.mn 和 this.PP
-      */
+      /*
+		drawCandle() 必须先调用之后，才会修改 this.mn 和 this.PP
+		其它的显示会依赖 this.mn 和 this.PP
+		*/
       this.drawCandle = function() { //采用this.aaa = function() 这种方式，内部可以使用this.xx变量。
         calcPosition();
         if (G.barB == G.barE) {
@@ -805,11 +805,11 @@
       this.initScale();
       this.dispScale();
 
-      /* 
-        dispYdata() :
-        当鼠标移动时，Y轴显示鼠标Y所表示的股票的价格，显示在mainB的左边。
-        其中，需要使用到mainF中的mn数据。
-      */
+      /*
+		dispYdata() :
+		当鼠标移动时，Y轴显示鼠标Y所表示的股票的价格，显示在mainB的左边。
+		其中，需要使用到mainF中的mn数据。
+		*/
       this.dispYdata = function(y) {
         if (y < frame[0][0].mn[4] || y > (this.cvs.height - frame[0][0].mn[5])) {
           return;
@@ -920,8 +920,8 @@
       this.ctx = c[1];
 
       /*
-        显示cross 以及 K柱相关数据
-      */
+		显示cross 以及 K柱相关数据
+		*/
       this.dispXdata = function(x, y) {
         if (G.XX[x] == undefined) {
           return;
@@ -972,48 +972,48 @@
       this.init = function() {}
     }
     /*
-    let topNav = new _topNav();
-    let rightNav = new _rightNav();
-    let botNav = new _botNav();
-    let mainF11 = new _mainF();
-    let mainB11 = new _mainB();
+	let topNav = new _topNav();
+	let rightNav = new _rightNav();
+	let botNav = new _botNav();
+	let mainF11 = new _mainF();
+	let mainB11 = new _mainB();
 
-    mainF11.oo = opt.Y.data[0].y[0].data;
-    mainF11.hh = opt.Y.data[0].y[1].data;
-    mainF11.ll = opt.Y.data[0].y[2].data;
-    mainF11.cc = opt.Y.data[0].y[3].data;
-    mainF11.xx = opt.Y.data[0].y[3].data;
+	mainF11.oo = opt.Y.data[0].y[0].data;
+	mainF11.hh = opt.Y.data[0].y[1].data;
+	mainF11.ll = opt.Y.data[0].y[2].data;
+	mainF11.cc = opt.Y.data[0].y[3].data;
+	mainF11.xx = opt.Y.data[0].y[3].data;
 
-    G.datLen = mainF11.oo.length;
-    G.curLevel = 0;
-    mainF11.line[0] = mainF11.oo; //对于line, bar等属性，请在外部赋值。
-    mainF11.line[1] = mainF11.hh;
-    */
-
-    /*
-    console.log("length:::::::::::::::::::   " + mainF11.oo.length);
-    //alert("this.line.length:  " + mainF11.line.length + " " + mainF11.line[0].length);
-    //alert(mainF11.oo[100]);
-    //alert(mainF11.line[0][100]);
-    //mainF11.hh[100] = 100000;
-    //alert(mainF11.line[1][100]);
-    //mainF11.drawCandle();
-    //console.log(mainF11.PP);
-    */
+	G.datLen = mainF11.oo.length;
+	G.curLevel = 0;
+	mainF11.line[0] = mainF11.oo; //对于line, bar等属性，请在外部赋值。
+	mainF11.line[1] = mainF11.hh;
+	*/
 
     /*
-    let scrollB = new _scrollB();
-    let scrollF = new _scrollF();
-    let sub1B11 = new _subB();
-    let sub1F11 = new _subF();
-    let backF = new _backF();
-    let backB = new _backB();
+	console.log("length:::::::::::::::::::   " + mainF11.oo.length);
+		//alert("this.line.length:  " + mainF11.line.length + " " + mainF11.line[0].length);
+		//alert(mainF11.oo[100]);
+		//alert(mainF11.line[0][100]);
+		//mainF11.hh[100] = 100000;
+		//alert(mainF11.line[1][100]);
+		//mainF11.drawCandle();
+		//console.log(mainF11.PP);
+		*/
 
-    frame.push([mainF11, mainB11]);
-    frame.push([sub1F11, sub1B11]);
-    frame.push([backF, backB]);
-    frame.push([rightNav, botNav]);
-    */
+    /*
+	let scrollB = new _scrollB();
+	let scrollF = new _scrollF();
+	let sub1B11 = new _subB();
+	let sub1F11 = new _subF();
+	let backF = new _backF();
+	let backB = new _backB();
+
+	frame.push([mainF11, mainB11]);
+	frame.push([sub1F11, sub1B11]);
+	frame.push([backF, backB]);
+	frame.push([rightNav, botNav]);
+	*/
 
     function frameInit() {
       let topNav = new _topNav();
@@ -1048,23 +1048,23 @@
     frameInit();
 
     /*
-        frameChange(x) 参数：
-        n：表示处理的 第几个sub。 n = 1 第一个sub , n=2 第2个sub
-        x: 表示删除，还是增加，还是改动。
-           其中，改动分为 放大和缩小。
-           x == 1,2  增加 (在第n个位置增加)
-           x == -1   删除
-           x == 10   放大
-           x == 0    缩小
-            n :              0             1           2           3
-        frame 的格式：[ [mainF,mainB],[subF,subB],[subF,subB],[subF,subB] ]
-        操作上:
-        frameChange(2,1) : 在第2个sub前插入一个sub
-        frameChange(2,2) : 在第2个sub后插入一个sub
-        frameChange(1,-1) : 删除第1个sub
-        frameChange(3,10)  : 第3个sub放大
-        frameChange(1,0)  : 第1个sub缩小
-    */
+		frameChange(x) 参数：
+		n：表示处理的 第几个sub。 n = 1 第一个sub , n=2 第2个sub
+		x: 表示删除，还是增加，还是改动。
+		   其中，改动分为 放大和缩小。
+		   x == 1,2  增加 (在第n个位置增加)
+		   x == -1   删除
+		   x == 10   放大
+		   x == 0    缩小
+			n :              0             1           2           3
+		frame 的格式：[ [mainF,mainB],[subF,subB],[subF,subB],[subF,subB] ]
+		操作上:
+		frameChange(2,1) : 在第2个sub前插入一个sub
+		frameChange(2,2) : 在第2个sub后插入一个sub
+		frameChange(1,-1) : 删除第1个sub
+		frameChange(3,10)  : 第3个sub放大
+		frameChange(1,0)  : 第1个sub缩小
+		*/
     function frameChange(n, x) {
       let i = 0;
       //alert( "frame.length "  + frame.length ) ;
@@ -1229,11 +1229,11 @@
           }
           if (opt.Y.data[i].position == 'sub') {
             /*
-            let subF = new _subF();
-            let subB = new _subB();
-            subF.Y = opt.Y.data[i].y;
-            cD.push([subF, subB]);
-            */
+			let subF = new _subF();
+			let subB = new _subB();
+			subF.Y = opt.Y.data[i].y;
+			cD.push([subF, subB]);
+			*/
           }
         }
         G.curLevel = 0;
@@ -1247,14 +1247,14 @@
     } /* end of this.update() */
     //let updateOO = this.update() ;
 
-    /* 
-      下面this.update(opt);的参数opt是从 function stockcharts(opt, theme) 中来的。
-      stockcharts(); 是在index.html的<script>中，调用 new barCharts()产生的。
-      在index.html中的opt.type = 0, 
-      然后 this.update(opt) 根据 opt.tpye=0 对 cD[] 进行初始化。cD[]，即canvas Display array !!
-    */
+    /*
+	  下面this.update(opt);的参数opt是从 function stockcharts(opt, theme) 中来的。
+	  stockcharts(); 是在index.html的<script>中，调用 new barCharts()产生的。
+	  在index.html中的opt.type = 0,
+	  然后 this.update(opt) 根据 opt.tpye=0 对 cD[] 进行初始化。cD[]，即canvas Display array !!
+	  */
     //update1(opt);
-    //let mF = cD[0][0]; //mainF  main front 
+    //let mF = cD[0][0]; //mainF  main front
     //let mB = cD[0][1]; //mainB  main back
     //let s1F = cD[1][0]; // s1F sub1F  sub1 front
     //let s1B = cD[1][1]; // s1B sub1B  sub1 back
@@ -1325,7 +1325,7 @@
       let r = new _initMA(N, cc);
       this.MA = r.MA;
       this.sum = r.sum;
-      this.idx = r.idx; // length-1 
+      this.idx = r.idx; // length-1
       this.calcMA = function(x) { // x should be length-1
         if (x <= 0 || cc.length == 0) {
           return;
@@ -1348,10 +1348,10 @@
           this.idx = x;
           this.sum = this.sum - cc[x]; // this.sum 的值会少加最后一个，即cc[x]，因为cc[x]会一直变化。
           /*
-             比如，当前是显示的1f的图表，最后一个1钟的K柱没有定型，收到的数据，是要每次更新最后
-             一个1分钟的K柱，直到第60秒结束，这个K柱才定型。新一个K柱会开始。
-             所以在现实的图上，会看到最后一个K柱一直在变化，等时间到，本K柱结束，新一个K柱开始。
-          */
+			 比如，当前是显示的1f的图表，最后一个1钟的K柱没有定型，收到的数据，是要每次更新最后
+			 一个1分钟的K柱，直到第60秒结束，这个K柱才定型。新一个K柱会开始。
+			 所以在现实的图上，会看到最后一个K柱一直在变化，等时间到，本K柱结束，新一个K柱开始。
+			 */
         }
       }
     }
@@ -1400,18 +1400,18 @@
     /*---------------------------------------------------------------------------------------------- */
 
     /*
-    let MA5 = new _MA(5, mF.cc);
-    let MA10 = new _MA(10, mF.cc);
-    let MA20 = new _MA(20, mF.cc);
-    let MA30 = new _MA(30, mF.cc);
-    let MA40 = new _MA(40, mF.cc);
-    let MA60 = new _MA(60, mF.cc);
-    let MA89 = new _MA(89, mF.cc);
-    let MA144 = new _MA(144, mF.cc);
-    let MA233 = new _MA(233, mF.cc);
-    let MA377 = new _MA(377, mF.cc);
-    let MA610 = new _MA(610, mF.cc);
-    */
+	let MA5 = new _MA(5, mF.cc);
+	let MA10 = new _MA(10, mF.cc);
+	let MA20 = new _MA(20, mF.cc);
+	let MA30 = new _MA(30, mF.cc);
+	let MA40 = new _MA(40, mF.cc);
+	let MA60 = new _MA(60, mF.cc);
+	let MA89 = new _MA(89, mF.cc);
+	let MA144 = new _MA(144, mF.cc);
+	let MA233 = new _MA(233, mF.cc);
+	let MA377 = new _MA(377, mF.cc);
+	let MA610 = new _MA(610, mF.cc);
+	*/
 
     /* ----------------------------------------------------------------------------------------------------*/
 
@@ -1440,11 +1440,11 @@
       y1 = v + 0.5;
       ctx.moveTo(x1, y1);
       for (let i = start + 1; i < G.barE; i++) {
-        /* 
-           while (P[i - G.barB] == P[start - G.barB]) {
-             i++;
-           }
-           */
+        /*
+		   while (P[i - G.barB] == P[start - G.barB]) {
+			 i++;
+		   }
+		   */
 
         v = R(obj.mn[0] * dd[i] + obj.mn[1]);
         x2 = P[i - G.barB] + 0.5;
@@ -1545,18 +1545,18 @@
       }
 
       /*
-      drawLine(obj, MA5.MA, "#E7E7E7");
-      drawLine(obj, MA10.MA, "#DCDC0A");
-      drawLine(obj, MA20.MA, "#FF00FF");
-      drawLine(obj, MA30.MA, "#FF0000");
-      drawLine(obj, MA40.MA, "#00F000");
-      drawLine(obj, MA60.MA, "#787878");
-      drawLine(obj, MA89.MA, "#FF0000");
-      drawLine(obj, MA144.MA, "#FF8000");
-      drawLine(obj, MA233.MA, "#808000");
-      drawLine(obj, MA377.MA, "#800080");
-      drawLine(obj, MA610.MA, "#008080");
-      */
+	  drawLine(obj, MA5.MA, "#E7E7E7");
+	  drawLine(obj, MA10.MA, "#DCDC0A");
+	  drawLine(obj, MA20.MA, "#FF00FF");
+	  drawLine(obj, MA30.MA, "#FF0000");
+	  drawLine(obj, MA40.MA, "#00F000");
+	  drawLine(obj, MA60.MA, "#787878");
+	  drawLine(obj, MA89.MA, "#FF0000");
+	  drawLine(obj, MA144.MA, "#FF8000");
+	  drawLine(obj, MA233.MA, "#808000");
+	  drawLine(obj, MA377.MA, "#800080");
+	  drawLine(obj, MA610.MA, "#008080");
+	  */
 
     }
 
@@ -1564,29 +1564,29 @@
     this.drawCandle0 = function() {
       //   position = F(F(x * G.AB[G.curLevel][2] / mainFW) * mainFW / G.AB[G.curLevel][2]);
       /*
-         反求：
-         如果 G.AB[G.curLevel][2] 比 mainFW 小的话：
-         position = F(F(x * G.AB[G.curLevel][2] / mainFW) * mainFW / G.AB[G.curLevel][2]);
-         x:在屏上取得的X坐标
-      */
+		 反求：
+		 如果 G.AB[G.curLevel][2] 比 mainFW 小的话：
+		 position = F(F(x * G.AB[G.curLevel][2] / mainFW) * mainFW / G.AB[G.curLevel][2]);
+		 x:在屏上取得的X坐标
+		 */
     }
 
     function drawAll() {
 
       /*
-      MA5.calcMA(G.datLen);
-      MA10.calcMA(G.datLen);
-      MA20.calcMA(G.datLen);
-      MA30.calcMA(G.datLen);
-      MA40.calcMA(G.datLen);
-      MA60.calcMA(G.datLen);
-      MA89.calcMA(G.datLen);
-      MA144.calcMA(G.datLen);
-      MA233.calcMA(G.datLen);
-      MA377.calcMA(G.datLen);
-      MA610.calcMA(G.datLen);
-      //drawCandle(cD[0][0]);
-      */
+	  MA5.calcMA(G.datLen);
+	  MA10.calcMA(G.datLen);
+	  MA20.calcMA(G.datLen);
+	  MA30.calcMA(G.datLen);
+	  MA40.calcMA(G.datLen);
+	  MA60.calcMA(G.datLen);
+	  MA89.calcMA(G.datLen);
+	  MA144.calcMA(G.datLen);
+	  MA233.calcMA(G.datLen);
+	  MA377.calcMA(G.datLen);
+	  MA610.calcMA(G.datLen);
+						//drawCandle(cD[0][0]);
+						*/
 
       frame[0][0].clear();
       frame[0][0].drawCandle();
@@ -1595,20 +1595,20 @@
       //console.log(G.XX);
 
       /*
-      let uu = MA5.MA.slice(G.barB, G.barE);
-      s1F.mn = calcYkedu0(s1F.cvs.height, uu, uu);
-      s1F.ctx.clearRect(0, 0, subFW, subFH);
-      //drawLine(sub1F, MA60.MA, "#787878");
-      //drawLine(sub1F, MA30.MA, "#787878");
-      //drawLine(cD[1][0], MA10.MA, "#787878");
-      drawLine(s1F, MA10.MA, "#787878");
-      */
+	  let uu = MA5.MA.slice(G.barB, G.barE);
+	  s1F.mn = calcYkedu0(s1F.cvs.height, uu, uu);
+	  s1F.ctx.clearRect(0, 0, subFW, subFH);
+						//drawLine(sub1F, MA60.MA, "#787878");
+						//drawLine(sub1F, MA30.MA, "#787878");
+						//drawLine(cD[1][0], MA10.MA, "#787878");
+	  drawLine(s1F, MA10.MA, "#787878");
+	  */
 
     }
 
     /* ------------ websocket ------------------------------------------------------------------------- */
 
-    const sock = new WebSocket('ws://121.199.28.62:80/api/push/ws');
+    const sock = new WebSocket('ws://47.93.37.54:80/api/push/ws');
 
     // Connection opened
     sock.addEventListener('open', function(e) {
@@ -1676,11 +1676,11 @@
       }
       if (keyID === 39 || keyID === 68) { // right arrow and D
         /*
-            if (G.barE < O.hh.length) {
-           G.barE++;
-           G.barB++;
-          };
-         */
+			if (G.barE < O.hh.length) {
+		   G.barE++;
+		   G.barB++;
+		  };
+		  */
         //setBE(G.curLevel);
         G.barB = G.barB + G.curLevel;
         drawAll();
@@ -1708,8 +1708,8 @@
       backF.clear();
       backF.dispXdata(mousePos.x, mousePos.y);
       /*
-        frame[0][1] 指mainB.
-      */
+		frame[0][1] 指mainB.
+		*/
       frame[0][1].clear();
       frame[0][1].dispScale();
       frame[0][1].dispYdata(mousePos.y);
