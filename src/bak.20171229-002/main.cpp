@@ -10,7 +10,7 @@ int main()
     struct  timeval start;
     struct  timeval end;
 
-    uGG::Base b;
+    uBEE::Base b;
 
     //std::thread t(b.MainHubInit);
     //t.detach();

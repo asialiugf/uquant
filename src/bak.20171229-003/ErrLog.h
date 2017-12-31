@@ -1,7 +1,7 @@
 #ifndef UGG_ERRLOG_H
 #define UGG_ERRLOG_H
 
-namespace uGG
+namespace uBEE
 {
 int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long length);
 

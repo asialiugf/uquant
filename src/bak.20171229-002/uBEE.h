@@ -1,7 +1,7 @@
 #ifndef UGG_UGG_H
 #define UGG_UGG_H
 
-namespace uGG
+namespace uBEE
 {
 typedef enum MdMode {
     Md_Null        = 1,  // 不接收行情流
@@ -31,7 +31,7 @@ struct Block : public Md, public Td {
 
 } // end struct Block
 
-} // end namespace uGG
+} // end namespace uBEE
 
 
 #endif // UGG_UGG_H

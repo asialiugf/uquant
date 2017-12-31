@@ -1,7 +1,7 @@
 #ifndef UGG_ECHO_H
 #define UGG_ECHO_H
 
-namespace uGG
+namespace uBEE
 {
 typedef struct {
   char who;

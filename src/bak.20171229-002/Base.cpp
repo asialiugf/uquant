@@ -3,7 +3,7 @@
 #include <thread>
 #include <unistd.h>
 
-namespace uGG
+namespace uBEE
 {
 Base::Base():cs(4,nullptr)
 {

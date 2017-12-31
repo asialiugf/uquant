@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-namespace uGG
+namespace uBEE
 {
 
 static char LOG_FILE_NAME[100]= {"./errlog"} ;

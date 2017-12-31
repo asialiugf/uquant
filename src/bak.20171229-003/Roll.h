@@ -6,7 +6,7 @@
 #include <mutex>
 #include <map>
 
-namespace uGG
+namespace uBEE
 {
 
 struct ROLL {

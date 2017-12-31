@@ -1,4 +1,4 @@
-#include "uGG.h"
+#include "uBEE.h"
 //#include <Base.h>
 #include <thread>
 #include <unistd.h>
@@ -11,7 +11,7 @@ int main()
   struct  timeval start;
   struct  timeval end;
 
-  uGG::Base b;
+  uBEE::Base b;
 
   //std::thread t(b.MainHubInit);
   //t.detach();
@@ -30,9 +30,9 @@ int main()
   diff = diff/10000;
   printf("thedifference is %ld\n",diff);
   diff = 8;
-  uGG::ErrLog(1000,"kkkk",1,(const char*)&diff,sizeof(unsigned  long));
-  uGG::ErrLog(1000,"notttttttttttttt",1,0,0);
-  uGG::ErrLog(1000,"kkkk",1,(const char*)"kkqddddddddddddddddddddddddddddddddddddddddfffffffffffffffffffff888888888888888888888888888ddddddddddpweruqrew",40);
+  uBEE::ErrLog(1000,"kkkk",1,(const char*)&diff,sizeof(unsigned  long));
+  uBEE::ErrLog(1000,"notttttttttttttt",1,0,0);
+  uBEE::ErrLog(1000,"kkkk",1,(const char*)"kkqddddddddddddddddddddddddddddddddddddddddfffffffffffffffffffff888888888888888888888888888ddddddddddpweruqrew",40);
 
   b.onTick([](char* message, size_t len) {
     message[len] = 0;

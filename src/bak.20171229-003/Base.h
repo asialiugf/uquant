@@ -9,7 +9,7 @@
 #include <vector>
 #include <queue>
 
-namespace uGG
+namespace uBEE
 {
 
 #define ON_TICK      '1'

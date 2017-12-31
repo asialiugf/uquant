@@ -1,7 +1,7 @@
 #ifndef UGG_STRATEGY_H
 #define UGG_STRATEGY_H
 
-namespace uGG
+namespace uBEE
 {
 
 }
