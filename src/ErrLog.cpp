@@ -19,7 +19,6 @@ static int MAX_BAK_LOG_SIZE = 20*1024*1024 ;
 // int chglog(char cChgCode,char *pcChgStr);
 int ErrLog(int iErrCode,char const*message,char device,char const*buf,long length);
 void disp_errmsg(int iFileId,char const*message,char const*buf,long length);
-void mem_dump(int iFileId,char const*buf,long length);
 void DumpHex(int ifile,char const*buf, int len) ;
 void DumpLine(int ifile,int addr, char const*buf, int len) ;
 
@@ -65,9 +64,9 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
     }
 
     if(iErrCode == NO_ERR) {
-      write(iUcpErLog,"@MSG:",5);
-      write(iUcpErLog,message,strlen(message));
-      write(iUcpErLog,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
+      iRc = write(iUcpErLog,"@MSG:",5);
+      iRc = write(iUcpErLog,message,strlen(message));
+      iRc = write(iUcpErLog,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
     } else {
         disp_errmsg(iUcpErLog,message,buf,length);
     }
@@ -89,9 +88,9 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
   if(device & RPT_TO_TTY) {      /* output to tty */
     iTtyDev = 1;
     if(iErrCode == NO_ERR) {
-      write(iTtyDev,"@MSG:",5);
-      write(iTtyDev,message,strlen(message));
-      write(iTtyDev,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
+      iRc = write(iTtyDev,"@MSG:",5);
+      iRc = write(iTtyDev,message,strlen(message));
+      iRc = write(iTtyDev,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
     } else {
         disp_errmsg(iTtyDev,message,buf,length);
     }
@@ -104,9 +103,9 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
       /* exit(1);*/
     } else {
       if(iErrCode == NO_ERR) {
-        write(iConsole,"@MSG:",5);
-        write(iConsole,message,strlen(message));
-        write(iConsole,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
+        iRc = write(iConsole,"@MSG:",5);
+        iRc = write(iConsole,message,strlen(message));
+        iRc = write(iConsole,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
       } else {
           disp_errmsg(iConsole,message,buf,length);
       }
@@ -120,6 +119,7 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
 void
 disp_errmsg(int iFileId,char const*message,char const*buf,long length)
 {
+  size_t iRc;
   long lTLoc;
   long lCurTime;
   char caStrBuf[300];
@@ -128,26 +128,19 @@ disp_errmsg(int iFileId,char const*message,char const*buf,long length)
   memset(caStrBuf,'0',300);
   sprintf(caStrBuf,"^(oo)^|%d|%d|%.24s\n<mark>:%s\n",
           getpid(),1000,ctime(&lCurTime),message);
-  write(iFileId,caStrBuf,strlen(caStrBuf));
+  iRc = write(iFileId,caStrBuf,strlen(caStrBuf));
 
   /* dump memory to fd */
   if((buf != 0)&&(length > 0)) {
-    // mem_dump(iFileId,buf,length);
     DumpHex(iFileId,buf,length);
   }
-  write(iFileId,"\n",1);
+  iRc = write(iFileId,"\n",1);
 }
-
-
-void
-mem_dump(int iFileId,char const*buf,long length)
-{
-  write(iFileId,buf,length);
-} /* end of mem_dump   */
 
 void DumpLine(int ifile,int addr, char const*buf, int len)
 {
   int i, pos;
+  size_t iRc =0 ;
   char line[80+1];
 
   // Address field
@@ -167,14 +160,12 @@ void DumpLine(int ifile,int addr, char const*buf, int len)
   }
   pos += sprintf(&line[pos], "  |");
 
-  // Printable content
   for(i = 0; i < len; ++i) {
     line[pos++] = isprint(buf[i]) ? buf[i] : '.';
   }
 
   sprintf(&line[pos], "|\n");
-//  fprintf(stderr, "%s", line);
-  write(ifile,line,strlen(line)) ;
+  iRc = write(ifile,line,strlen(line)) ;
 
 }
 
