@@ -1,8 +1,9 @@
-#ifndef UGG_UGG_H
-#define UGG_UGG_H
+#ifndef UBEE_UBEE_H
+#define UBEE_UBEE_H
 
 #include <Echo.h>
 #include <Base.h>
+#include <File.h>
 #include <ErrLog.h>
 
-#endif //UGG_UGG_H
+#endif //UBEE_UBEE_H

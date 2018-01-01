@@ -17,30 +17,18 @@ int main()
   });
 
   h.onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
-    //char tmp[256];
-    //memcpy(tmp, message, length);
-    //tmp[length] = 0;
-    //message[0] = '0';
-	uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
-	message[length-1] = 0;
-    printf("Server onMessage receive: %s\n", message);
+    if(length>0) {
+	  //message[length] = 0;
+      //uBEE::SaveLine("tick.json",(const char*)message);
+      uBEE::SaveBin("tick.json",(const char*)message,length);
+      uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
+      //printf("Server onMessage receive: %s\n", message);
+    }
     //ws->send(message, length, opCode);
     //std::printf("Server onMessage send: %s\n", tmp);
   });
 
   bool k = h.listen(3000) ;
-  if(!k) {
-    std::cout << " listen error !!" << std::endl;
-  }
-  k = h.listen(4000) ;
-  if(!k) {
-    std::cout << " listen error !!" << std::endl;
-  }
-  k = h.listen(5000) ;
-  if(!k) {
-    std::cout << " listen error !!" << std::endl;
-  }
-  k = h.listen(6000) ;
   if(!k) {
     std::cout << " listen error !!" << std::endl;
   }
