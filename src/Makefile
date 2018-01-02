@@ -1,6 +1,6 @@
 CC = g++
 CPPFLAGS =  -std=c++11  -O2
-CFLAGS =  -std=c++11 -O2 -fPIC  -luWS -lssl -lz -lpthread -Wunused-result
+CFLAGS =  -std=c++11 -O2 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-result
 LIBPATH = -L/home/riddle/uws 
 LINK =  $(CC)
 
@@ -20,6 +20,7 @@ DEPS = ../inc/Base.h \
         ../inc/Psqlconn.h \
         ../inc/Roll.h \
         ../inc/File.h \
+        ../inc/Json.h \
         ../inc/strategy.h \
         ../inc/uBEE.h
 
@@ -33,6 +34,7 @@ exes: $(EXE)main.x \
 
 objs: $(OBJ)Base.o \
 	$(OBJ)File.o \
+	$(OBJ)Json.o \
 	$(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
@@ -42,6 +44,7 @@ objs: $(OBJ)Base.o \
 OBJS:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
+	$(OBJ)Json.o \
     $(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
@@ -57,6 +60,7 @@ MAINOBJS:= \
 DATASERVER:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
+	$(OBJ)Json.o \
     $(OBJ)ErrLog.o \
 	$(OBJ)Dataserver.o 
 
@@ -70,7 +74,7 @@ $(EXE)main.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) -luWS -lssl -lz -lpthread
 
 $(EXE)dserver.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) -luWS -lssl -lz -lpthread
+	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)wserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread
@@ -89,6 +93,9 @@ $(OBJ)Base.o: $(DEPS) $(SRC)Base.cpp
 
 $(OBJ)File.o: $(DEPS) $(SRC)File.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)File.o  $(SRC)File.cpp
+
+$(OBJ)Json.o: $(DEPS) $(SRC)Json.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Json.o  $(SRC)Json.cpp
 
 $(OBJ)ErrLog.o: $(DEPS) $(SRC)ErrLog.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)ErrLog.o  $(SRC)ErrLog.cpp

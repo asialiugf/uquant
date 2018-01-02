@@ -57,7 +57,7 @@ int SaveBin(const char * FileName, const char *buf, size_t len)
   }
 
   iRc = write(fd,buf,len);
-  iRc = write(fd,"\n\n",2);
+  iRc = write(fd,"\n",1);
   close(fd);
   return iRc ;
 }
