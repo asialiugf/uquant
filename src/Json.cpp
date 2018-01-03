@@ -11,7 +11,6 @@ int Tqjson(const char*message)
   cJSON   *root ;
   cJSON   *json ;
   cJSON   *temp ;
-  cJSON   *temp1 ;
   cJSON   *item ;
   cJSON   *data ;
   cJSON   *futu ;
@@ -125,35 +124,56 @@ int Klines(cJSON *klines)
 
   char * buf=NULL;
   char * pd=NULL;
+  char * js=NULL;
 
   uBEE::ErrLog(1000," enter into Klines()!",1,0,0);
   ii = cJSON_GetArraySize(klines);
   if(ii<=0) {
-    uBEE::ErrLog(1000,"-K---- num = cJSON_GetArraySize(klines); ----  error!",1,0,0);
+    uBEE::ErrLog(1000,"-K---- ii = cJSON_GetArraySize(klines) ----  error!",1,0,0);
+    js = cJSON_Print(klines);
+      SaveLine(klines->string, "-K ----  ii = cJSON_GetArraySize(klines)  ---- error!\n");
+    SaveBin(klines->string, js, strlen(js));
+    free(js);
     return -1;
   };
   for(i=0; i<ii; i++) {
     futu = cJSON_GetArrayItem(klines,i);  // get future 1,2,3...
     if(!futu) {
-      uBEE::ErrLog(1000,"int Klines 1111111",1,0,0);
+      uBEE::ErrLog(1000,"-K ----  cJSON_GetArrayItem(klines,i) ---- error! ",1,0,0);
+      js = cJSON_Print(klines);
+      SaveLine(klines->string, "-K ----  cJSON_GetArrayItem(klines,i)  ---- error!\n");
+      SaveBin(klines->string, js, strlen(js));
+      free(js);
       continue;
     }
 
     jj = cJSON_GetArraySize(futu);
     if(jj <=0) {
-      uBEE::ErrLog(1000,"-K---- num = cJSON_GetArraySize(klines); ----  error!",1,0,0);
+      uBEE::ErrLog(1000,"-K---- jj = cJSON_GetArraySize(futu) ----  error!",1,0,0);
+      js = cJSON_Print(klines);
+      SaveLine(klines->string, "-K ---- jj = cJSON_GetArraySize(futu) ---- error!\n");
+      SaveBin(klines->string, js, strlen(js));
+      free(js);
       continue;
     };
     for(j=0; j<jj; j++) {
       period = cJSON_GetArrayItem(futu,j);   // get period 3s 1m 5m ...
       if(!period) {
-        uBEE::ErrLog(1000,"int Klines 3333333333",1,0,0);
+        uBEE::ErrLog(1000,"-K---- period = cJSON_GetArrayItem(futu,j) ---- error!",1,0,0);
+        js = cJSON_Print(klines);
+        SaveLine(klines->string, "-K ---- period = cJSON_GetArrayItem(futu,j) ---- error!\n");
+        SaveBin(klines->string, js, strlen(js));
+        free(js);
         continue;
       }
 
       size_t len = strlen(period->string);
       if(len<6) {
         uBEE::ErrLog(1000,"len < 6 ",1,0,0);
+        js = cJSON_Print(klines);
+        SaveLine(klines->string, "-K ---- period error ---- error!\n");
+        SaveBin(klines->string, js, strlen(js));
+        free(js);
         continue;
       }
 
@@ -162,40 +182,68 @@ int Klines(cJSON *klines)
       if(memcmp((char *)(pd+(len-6)),"000000",6)!=0) {
         uBEE::ErrLog(1000,pd,1,0,0);
         uBEE::ErrLog(1000,(char *)(pd+(len-6)),1,0,0);
+        js = cJSON_Print(klines);
+        SaveLine(klines->string, "-K ---- period error ---- error!\n");
+        SaveBin(klines->string, js, strlen(js));
+        free(js);
         continue;
       }
 
       kk = cJSON_GetArraySize(period);
       if(kk <=0) {
-        uBEE::ErrLog(1000,"-K---- num = cJSON_GetArraySize(klines); ----  error!",1,0,0);
+        uBEE::ErrLog(1000,"-K---- kk = cJSON_GetArraySize(period) ----  error!",1,0,0);
+        js = cJSON_Print(klines);
+        SaveLine(klines->string, "-K ---- kk = cJSON_GetArraySize(period) ---- error!\n");
+        SaveBin(klines->string, js, strlen(js));
+        free(js);
         continue;
       };
       for(k=0; k<kk; k++) {
         data = cJSON_GetArrayItem(period,k);  // get data from period ...
         if(!data) {
           uBEE::ErrLog(1000,"int Klines 3333333333",1,0,0);
+          js = cJSON_Print(klines);
+          SaveLine(klines->string, "-K ---- data ---- error!\n");
+          SaveBin(klines->string, js, strlen(js));
+          free(js);
           continue;
         }
 
         ll = cJSON_GetArraySize(data);
         if(ll <=0) {
-          uBEE::ErrLog(1000,"-K---- num = cJSON_GetArraySize(klines); ----  error!",1,0,0);
+          uBEE::ErrLog(1000,"-K---- ll = cJSON_GetArraySize(data) ----  error!",1,0,0);
+          js = cJSON_Print(klines);
+          SaveLine(klines->string, "-K---- ll = cJSON_GetArraySize(data) ----  error!\n");
+          SaveBin(klines->string, js, strlen(js));
+          free(js);
           continue;
         };
         for(l=0; l<ll; l++) {
           item = cJSON_GetArrayItem(data,l);  // get item from data ...
           if(!item) {
-            uBEE::ErrLog(1000,"int Klines 3333333333",1,0,0);
+            uBEE::ErrLog(1000,"-K ---- item ---- error !",1,0,0);
+            js = cJSON_Print(klines);
+            SaveLine(klines->string, "-K---- item error ---- error!\n");
+            SaveBin(klines->string, js, strlen(js));
+            free(js);
             continue;
           }
           datetime = cJSON_GetObjectItem(item, "datetime");
           if(!datetime) {
+            js = cJSON_Print(klines);
+            SaveLine(klines->string, "-K---- datetime ---- error!\n");
+            SaveBin(klines->string, js, strlen(js));
+            free(js);
             continue;
           }
 
           buf = cJSON_Print(item);
           if(!buf) {
             uBEE::ErrLog(1000,"-K---- buf = cJSON_Print(futu) ---- error!",1,0,0);
+            js = cJSON_Print(klines);
+            SaveLine(klines->string, "-K---- buf = cJSON_Print(futu) ---- error!\n");
+            SaveBin(klines->string, js, strlen(js));
+            free(js);
             continue;
           }
           uBEE::ErrLog(1000,"-K---- befor SaveBin ---!",1,0,0);

@@ -7,7 +7,6 @@
 #include <queue>
 #include <condition_variable>
 #include <libpq-fe.h>
-//#include "pgconnection.h"
 
 class PGConnection
 {
