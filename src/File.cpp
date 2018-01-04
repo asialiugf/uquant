@@ -13,7 +13,7 @@ int SaveLine(const char *FileName, const char *pcLine)
   while((fd=open(FileName,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
       iRc = -1;
     }
   }
@@ -21,7 +21,7 @@ int SaveLine(const char *FileName, const char *pcLine)
   while(lockf(fd,F_LOCK,0) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
       iRc = -1;
     }
   }
@@ -43,7 +43,7 @@ int SaveBin(const char * FileName, const char *buf, size_t len)
   while((fd=open(FileName,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
       iRc = -1;
     }
   }
@@ -51,7 +51,7 @@ int SaveBin(const char * FileName, const char *buf, size_t len)
   while(lockf(fd,F_LOCK,0) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
       iRc = -1;
     }
   }
@@ -126,7 +126,7 @@ SaveBin(const char * FileName, const char *buf, int len)
   while((fd=open(FileName,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
       iRc = SEE_ERROR ;
     }
   }
@@ -134,7 +134,7 @@ SaveBin(const char * FileName, const char *buf, int len)
   while(lockf(fd,F_LOCK,0) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
       iRc = SEE_ERROR ;
     }
   }
@@ -169,14 +169,14 @@ Save_tick(char *buf, int len)
   while((fd=open(ca_tick_file,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("see)iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("see)File.cpp: fatal error occured !!! error_no is %d\n",errno);
     }
   }
   retry=0;
   while(lockf(fd,F_LOCK,0) == -1) {
     sleep(1);
     if((retry ++) > 10) {
-      printf("iofile.c: fatal error occured !!! error_no is %d\n",errno);
+      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
     }
   }
 
