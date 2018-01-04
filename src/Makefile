@@ -30,6 +30,7 @@ binary: objs exes
 
 exes: $(EXE)main.x \
 	$(EXE)dserver.x \
+	$(EXE)tqdata.x \
 	$(EXE)wserver.x
 
 objs: $(OBJ)Base.o \
@@ -38,6 +39,7 @@ objs: $(OBJ)Base.o \
 	$(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
+	$(OBJ)Tqdata.o \
 	$(OBJ)Psqlpool.o \
 	$(OBJ)Main.o 
 
@@ -48,6 +50,7 @@ OBJS:= \
     $(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
+	$(OBJ)Tqdata.o \
     $(OBJ)Psqlpool.o \
 	$(OBJ)Main.o 
 
@@ -64,6 +67,13 @@ DATASERVER:= \
     $(OBJ)ErrLog.o \
 	$(OBJ)Dataserver.o 
 
+TQDATA:= \
+	$(OBJ)Base.o \
+	$(OBJ)File.o \
+	$(OBJ)Json.o \
+    $(OBJ)ErrLog.o \
+	$(OBJ)Tqdata.o 
+
 WEBSERVER:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
@@ -76,6 +86,9 @@ $(EXE)main.x: $(MAINOBJS)
 $(EXE)dserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
+$(EXE)tqdata.x: $(MAINOBJS)
+	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
+
 $(EXE)wserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread
 
@@ -84,6 +97,9 @@ $(OBJ)Main.o: $(DEPS) $(SRC)Main.cpp
 
 $(OBJ)Dataserver.o: $(DEPS) $(SRC)Dataserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Dataserver.o  $(SRC)Dataserver.cpp
+
+$(OBJ)Tqdata.o: $(DEPS) $(SRC)Tqdata.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Tqdata.o  $(SRC)Tqdata.cpp
 
 $(OBJ)Webserver.o: $(DEPS) $(SRC)Webserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Webserver.o  $(SRC)Webserver.cpp
