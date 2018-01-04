@@ -2,12 +2,14 @@
 #include <iostream>
 #include <unistd.h>
 #include <cjson/cJSON.h>
+#include <string>
 namespace uBEE
 {
 int Quotes(cJSON *quotes);
 int Klines(cJSON *quotes);
 int Tqjson(const char*message)
 {
+  char    ca_filename[512];
   cJSON   *root ;
   cJSON   *json ;
   cJSON   *temp ;
@@ -68,6 +70,7 @@ int Tqjson(const char*message)
 
 int Quotes(cJSON *quotes)
 {
+  char    ca_filename[512];
   int i=0;
   int num=0;
   cJSON *temp;
@@ -96,7 +99,9 @@ int Quotes(cJSON *quotes)
       uBEE::ErrLog(1000,"---- buf = cJSON_Print(temp) ---- error!",1,0,0);
       continue;
     }
-    SaveBin(futu->valuestring, buf, strlen(buf));
+    memset(ca_filename,'\0',512);
+    sprintf(ca_filename,"../dat/%s",futu->valuestring);
+    SaveBin(ca_filename, buf, strlen(buf));
     free(buf);
   }
   return 0;
@@ -104,6 +109,7 @@ int Quotes(cJSON *quotes)
 
 int Klines(cJSON *klines)
 {
+  char    ca_filename[512];
   int i=0;
   int ii=0;
 
@@ -131,8 +137,10 @@ int Klines(cJSON *klines)
   if(ii<=0) {
     uBEE::ErrLog(1000,"-K---- ii = cJSON_GetArraySize(klines) ----  error!",1,0,0);
     js = cJSON_Print(klines);
-      SaveLine(klines->string, "-K ----  ii = cJSON_GetArraySize(klines)  ---- error!\n");
-    SaveBin(klines->string, js, strlen(js));
+    memset(ca_filename,'\0',512);
+    sprintf(ca_filename,"../dat/%s",klines->string);
+    SaveLine(ca_filename, "-K ----  ii = cJSON_GetArraySize(klines)  ---- error!\n");
+    SaveBin(ca_filename, js, strlen(js));
     free(js);
     return -1;
   };
@@ -141,8 +149,10 @@ int Klines(cJSON *klines)
     if(!futu) {
       uBEE::ErrLog(1000,"-K ----  cJSON_GetArrayItem(klines,i) ---- error! ",1,0,0);
       js = cJSON_Print(klines);
-      SaveLine(klines->string, "-K ----  cJSON_GetArrayItem(klines,i)  ---- error!\n");
-      SaveBin(klines->string, js, strlen(js));
+      memset(ca_filename,'\0',512);
+      sprintf(ca_filename,"../dat/%s",klines->string);
+      SaveLine(ca_filename, "-K ----  cJSON_GetArrayItem(klines,i)  ---- error!\n");
+      SaveBin(ca_filename, js, strlen(js));
       free(js);
       continue;
     }
@@ -151,8 +161,10 @@ int Klines(cJSON *klines)
     if(jj <=0) {
       uBEE::ErrLog(1000,"-K---- jj = cJSON_GetArraySize(futu) ----  error!",1,0,0);
       js = cJSON_Print(klines);
-      SaveLine(klines->string, "-K ---- jj = cJSON_GetArraySize(futu) ---- error!\n");
-      SaveBin(klines->string, js, strlen(js));
+      memset(ca_filename,'\0',512);
+      sprintf(ca_filename,"../dat/%s",klines->string);
+      SaveLine(ca_filename, "-K ---- jj = cJSON_GetArraySize(futu) ---- error!\n");
+      SaveBin(ca_filename, js, strlen(js));
       free(js);
       continue;
     };
@@ -161,8 +173,10 @@ int Klines(cJSON *klines)
       if(!period) {
         uBEE::ErrLog(1000,"-K---- period = cJSON_GetArrayItem(futu,j) ---- error!",1,0,0);
         js = cJSON_Print(klines);
-        SaveLine(klines->string, "-K ---- period = cJSON_GetArrayItem(futu,j) ---- error!\n");
-        SaveBin(klines->string, js, strlen(js));
+        memset(ca_filename,'\0',512);
+        sprintf(ca_filename,"../dat/%s",klines->string);
+        SaveLine(ca_filename, "-K ---- period = cJSON_GetArrayItem(futu,j) ---- error!\n");
+        SaveBin(ca_filename, js, strlen(js));
         free(js);
         continue;
       }
@@ -171,8 +185,10 @@ int Klines(cJSON *klines)
       if(len<6) {
         uBEE::ErrLog(1000,"len < 6 ",1,0,0);
         js = cJSON_Print(klines);
-        SaveLine(klines->string, "-K ---- period error ---- error!\n");
-        SaveBin(klines->string, js, strlen(js));
+        memset(ca_filename,'\0',512);
+        sprintf(ca_filename,"../dat/%s",klines->string);
+        SaveLine(ca_filename, "-K ---- period error ---- error!\n");
+        SaveBin(ca_filename, js, strlen(js));
         free(js);
         continue;
       }
@@ -183,8 +199,10 @@ int Klines(cJSON *klines)
         uBEE::ErrLog(1000,pd,1,0,0);
         uBEE::ErrLog(1000,(char *)(pd+(len-6)),1,0,0);
         js = cJSON_Print(klines);
-        SaveLine(klines->string, "-K ---- period error ---- error!\n");
-        SaveBin(klines->string, js, strlen(js));
+        memset(ca_filename,'\0',512);
+        sprintf(ca_filename,"../dat/%s",klines->string);
+        SaveLine(ca_filename, "-K ---- period error ---- error!\n");
+        SaveBin(ca_filename, js, strlen(js));
         free(js);
         continue;
       }
@@ -193,8 +211,10 @@ int Klines(cJSON *klines)
       if(kk <=0) {
         uBEE::ErrLog(1000,"-K---- kk = cJSON_GetArraySize(period) ----  error!",1,0,0);
         js = cJSON_Print(klines);
-        SaveLine(klines->string, "-K ---- kk = cJSON_GetArraySize(period) ---- error!\n");
-        SaveBin(klines->string, js, strlen(js));
+        memset(ca_filename,'\0',512);
+        sprintf(ca_filename,"../dat/%s",klines->string);
+        SaveLine(ca_filename, "-K ---- kk = cJSON_GetArraySize(period) ---- error!\n");
+        SaveBin(ca_filename, js, strlen(js));
         free(js);
         continue;
       };
@@ -203,8 +223,10 @@ int Klines(cJSON *klines)
         if(!data) {
           uBEE::ErrLog(1000,"int Klines 3333333333",1,0,0);
           js = cJSON_Print(klines);
-          SaveLine(klines->string, "-K ---- data ---- error!\n");
-          SaveBin(klines->string, js, strlen(js));
+          memset(ca_filename,'\0',512);
+          sprintf(ca_filename,"../dat/%s",klines->string);
+          SaveLine(ca_filename, "-K ---- data ---- error!\n");
+          SaveBin(ca_filename, js, strlen(js));
           free(js);
           continue;
         }
@@ -213,8 +235,10 @@ int Klines(cJSON *klines)
         if(ll <=0) {
           uBEE::ErrLog(1000,"-K---- ll = cJSON_GetArraySize(data) ----  error!",1,0,0);
           js = cJSON_Print(klines);
-          SaveLine(klines->string, "-K---- ll = cJSON_GetArraySize(data) ----  error!\n");
-          SaveBin(klines->string, js, strlen(js));
+          memset(ca_filename,'\0',512);
+          sprintf(ca_filename,"../dat/%s",klines->string);
+          SaveLine(ca_filename, "-K---- ll = cJSON_GetArraySize(data) ----  error!\n");
+          SaveBin(ca_filename, js, strlen(js));
           free(js);
           continue;
         };
@@ -223,16 +247,20 @@ int Klines(cJSON *klines)
           if(!item) {
             uBEE::ErrLog(1000,"-K ---- item ---- error !",1,0,0);
             js = cJSON_Print(klines);
-            SaveLine(klines->string, "-K---- item error ---- error!\n");
-            SaveBin(klines->string, js, strlen(js));
+            memset(ca_filename,'\0',512);
+            sprintf(ca_filename,"../dat/%s",klines->string);
+            SaveLine(ca_filename, "-K---- item error ---- error!\n");
+            SaveBin(ca_filename, js, strlen(js));
             free(js);
             continue;
           }
           datetime = cJSON_GetObjectItem(item, "datetime");
           if(!datetime) {
             js = cJSON_Print(klines);
-            SaveLine(klines->string, "-K---- datetime ---- error!\n");
-            SaveBin(klines->string, js, strlen(js));
+            memset(ca_filename,'\0',512);
+            sprintf(ca_filename,"../dat/%s",klines->string);
+            SaveLine(ca_filename, "-K---- datetime ---- error!\n");
+            SaveBin(ca_filename, js, strlen(js));
             free(js);
             continue;
           }
@@ -241,13 +269,17 @@ int Klines(cJSON *klines)
           if(!buf) {
             uBEE::ErrLog(1000,"-K---- buf = cJSON_Print(futu) ---- error!",1,0,0);
             js = cJSON_Print(klines);
-            SaveLine(klines->string, "-K---- buf = cJSON_Print(futu) ---- error!\n");
-            SaveBin(klines->string, js, strlen(js));
+            memset(ca_filename,'\0',512);
+            sprintf(ca_filename,"../dat/%s",klines->string);
+            SaveLine(ca_filename, "-K---- buf = cJSON_Print(futu) ---- error!\n");
+            SaveBin(ca_filename, js, strlen(js));
             free(js);
             continue;
           }
           uBEE::ErrLog(1000,"-K---- befor SaveBin ---!",1,0,0);
-          SaveBin(period->string, buf, strlen(buf));
+          memset(ca_filename,'\0',512);
+          sprintf(ca_filename,"../dat/%s",period->string);
+          SaveBin(ca_filename, buf, strlen(buf));
           free(buf);
         } // l
       } // k

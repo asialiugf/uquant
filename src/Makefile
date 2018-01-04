@@ -17,7 +17,7 @@ INCS = -I ../inc \
 DEPS = ../inc/Base.h \
 	    ../inc/Echo.h  \
 	    ../inc/ErrLog.h \
-        ../inc/Psqlconn.h \
+        ../inc/Psqlpool.h \
         ../inc/Roll.h \
         ../inc/File.h \
         ../inc/Json.h \
@@ -38,7 +38,7 @@ objs: $(OBJ)Base.o \
 	$(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
-	$(OBJ)Psqlconn.o \
+	$(OBJ)Psqlpool.o \
 	$(OBJ)Main.o 
 
 OBJS:= \
@@ -48,7 +48,7 @@ OBJS:= \
     $(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
-    $(OBJ)Psqlconn.o \
+    $(OBJ)Psqlpool.o \
 	$(OBJ)Main.o 
 
 MAINOBJS:= \
@@ -100,6 +100,6 @@ $(OBJ)Json.o: $(DEPS) $(SRC)Json.cpp
 $(OBJ)ErrLog.o: $(DEPS) $(SRC)ErrLog.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)ErrLog.o  $(SRC)ErrLog.cpp
 
-$(OBJ)Psqlconn.o: $(DEPS) $(SRC)Psqlconn.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlconn.o  $(SRC)Psqlconn.cpp
+$(OBJ)Psqlpool.o: $(DEPS) $(SRC)Psqlpool.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp
 

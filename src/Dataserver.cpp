@@ -19,7 +19,7 @@ int main()
   h.onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
     if(length>0) {
       message[length] = 0;
-      uBEE::SaveBin("tick.json",(const char*)message,length);
+      uBEE::SaveBin("../tick/tick.json",(const char*)message,length);
       uBEE::Tqjson(message);
       //uBEE::ErrLog(1000,"json error!",1,0,0);
       //uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
