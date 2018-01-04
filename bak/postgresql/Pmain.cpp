@@ -1,6 +1,6 @@
 #include <thread>
 #include <iostream>
-#include "Psqlconn.h"
+#include "Psqlpool.h"
 #include <string.h>
 
 
@@ -11,16 +11,16 @@ exit_nicely(PGconn *conn)
   exit(1);
 }
 
-void testConnection(std::shared_ptr<PGBackend> pgbackend)
+void testConnection(std::shared_ptr<DBPool> dbpool)
 {
-  auto conn = pgbackend->connection();
+  auto conn = dbpool->getDBConn();
 
   //std::string demo = "SELECT max(id) FROM demo; " ;
   const char* demo = "SELECT max(id) FROM demo; " ;
-  PQsendQuery(conn->connection().get(), demo);
+  PQsendQuery(conn->getConn().get(), demo);
   //PQsendQuery( conn->connection().get(), demo.c_str() );
 
-  while(auto res_ = PQgetResult(conn->connection().get())) {
+  while(auto res_ = PQgetResult(conn->getConn().get())) {
     if(PQresultStatus(res_) == PGRES_TUPLES_OK && PQntuples(res_)) {
       auto ID = PQgetvalue(res_ ,0, 0);
       std::cout<< ID<<std::endl;
@@ -33,7 +33,7 @@ void testConnection(std::shared_ptr<PGBackend> pgbackend)
     PQclear(res_);
   }
 
-  pgbackend->freeConnection(conn);
+  dbpool->freeDBConn(conn);
 
 }
 
@@ -41,22 +41,22 @@ void testConnection(std::shared_ptr<PGBackend> pgbackend)
 int main(int argc, char const *argv[])
 {
 
-  auto pgbackend = std::make_shared<PGBackend>();
+  auto dbpool = std::make_shared<DBPool>();
   std::vector<std::shared_ptr<std::thread>> vec;
 
   for(size_t i = 0; i< 50 ; ++i) {
 
-    vec.push_back(std::make_shared<std::thread>(std::thread(testConnection, pgbackend)));
+    vec.push_back(std::make_shared<std::thread>(std::thread(testConnection, dbpool)));
   }
 
   for(auto &i : vec) {
     i.get()->join();
   }
 
-  auto conn = pgbackend->connection();
+  auto conn = dbpool->getDBConn();
   PGresult   *res;
   PGconn     *connx;
-  connx = conn->connection().get() ;
+  connx = conn->getConn().get() ;
 
   char       ca_state[1024];
   memset(ca_state,'\0',1024);
@@ -71,8 +71,7 @@ int main(int argc, char const *argv[])
   }
   PQclear(res);
 
-  pgbackend->freeConnection(conn);
-  conn = pgbackend->connection();
+  dbpool->freeDBConn(conn);
 
   return 0;
 }

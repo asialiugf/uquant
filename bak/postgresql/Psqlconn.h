@@ -7,7 +7,6 @@
 #include <queue>
 #include <condition_variable>
 #include <libpq-fe.h>
-//#include "pgconnection.h"
 
 class PGConnection
 {
@@ -19,11 +18,11 @@ public:
 private:
     void establish_connection();
 
-    const char* m_dbhost = "localhost";
-    const char* m_dbport = "5432";
-    const char* m_dbname = "demo";
-    const char* m_dbuser = "postgres";
-    const char* m_dbpass = "postgres";
+    std::string m_dbhost = "localhost";
+    int         m_dbport = 5432;
+    std::string m_dbname = "demo";
+    std::string m_dbuser = "postgres";
+    std::string m_dbpass = "postgres";
 
     std::shared_ptr<PGconn>  m_connection;
 
