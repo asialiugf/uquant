@@ -28,6 +28,10 @@ int main()
     //ws->send(message, length, opCode);
     //std::printf("Server onMessage send: %s\n", tmp);
   });
+  h.onPong([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length) {
+    std::cout<< "ok ping\n";
+  });
+  h.getDefaultGroup<uWS::SERVER>().startAutoPing(2000);
 
   bool k = h.listen(3000) ;
   if(!k) {
@@ -37,31 +41,26 @@ int main()
 
   // 客户端连上后发送hello
   h.onConnection([](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
-    ws->send("--client0000--");
+    //ws->send("--client0000--");
     std::cout <<"Client onConnection send: --client00--" << std::endl;
   });
 
   // 客户端打印接收到的消息
   h.onMessage([](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
-    char tmp[256];
-    memcpy(tmp, message, length);
-    tmp[length] = 0;
-    printf("Client onMessage receive: %s\n", tmp);
-    message[0] = '0';
-    ws->send(message, length, opCode);
-    printf("Client onMessage send: %s\n", tmp);
-    //usleep(1000);
-
-    //ws->close();
+    if(length>0) {
+	  std::cout << "message!" << std::endl;
+	  usleep(5000000);
+      //message[length] = 0;
+      //uBEE::SaveBin("../tick/tick.json",(const char*)message,length);
+      //uBEE::Tqjson(message);
+    }
   });
-  h.onPong([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length) {
-
-    std::cout<< "ok ping\n";
-
+  h.onPong([](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length) {
+    std::cout<< "ping\n";
   });
-  h.getDefaultGroup<uWS::SERVER>().startAutoPing(2000);
+  h.getDefaultGroup<uWS::CLIENT>().startAutoPing(2000);
 
-  //h.connect("ws://localhost:3000");
+  h.connect("ws://192.168.3.7:7777");
   // --------------------------------------------------------------------------------------------
 
   h.run();
