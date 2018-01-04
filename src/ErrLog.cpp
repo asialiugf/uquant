@@ -1,4 +1,4 @@
-#include "errlog.h"
+#include "ErrLog.h"
 
 #include <ctype.h>
 #include <errno.h>

@@ -11,17 +11,17 @@ int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long l
 #define  RPT_TO_TTY_DUMP	8          /* 00001000 */
 
 //#define  TTY_DEV        ttyname(1)
-//#define  CONSOLE        "/dev/console"
-//#define  LOG_MSG_SEPERATE	"\n"
-//#define  LOG_SEPERATE_LEN	1
+#define  CONSOLE        "/dev/console"
+#define  LOG_MSG_SEPERATE	"\n"
+#define  LOG_SEPERATE_LEN	1
 //#define  LOG_NO_OF_ITEM	6
 
 //#//define  MAX_PRT_LEN	256
 //#define  MAX_LEVEL	40
 //#define  MAX_PARA	30	/* max. number of parameters */
-//#define  MAX_OPEN_RETRY	256	/* max retry open log file */
+#define  MAX_OPEN_RETRY	256	/* max retry open log file */
 
-//#define  NO_ERR		0
+#define  NO_ERR		0
 //#define  RCVR_ERR	10000
 //#define  NORCVR_CHK_ERR	40000
 //#define  LOG_CHGCODE_ERROR	1
