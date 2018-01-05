@@ -7,6 +7,7 @@ namespace uBEE
 {
 int Quotes(cJSON *quotes);
 int Klines(cJSON *quotes);
+//int MkRequest(const char * filename, char *cmd);
 int Tqjson(const char*message)
 {
   char    ca_filename[512];
@@ -287,4 +288,44 @@ int Klines(cJSON *klines)
   } // i
   return 0;
 }
+
+int MkRequest(const char *filename, char *cmd, size_t cmd_len)
+{
+  FILE    *f = NULL;
+  //char    *buf ;
+  size_t   len = 0;
+  size_t   iRc = 0;
+
+  f = fopen(filename,"rb");
+  if(f == NULL) {
+    uBEE::ErrLog(1000,"cmd open error!",1,0,0);
+    return errno ;
+  }
+
+  fseek(f, 0, SEEK_END);
+  len = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  if(len==0) {
+    uBEE::ErrLog(1000,"cmd len  = 0  error!",1,0,0);
+    return -2 ;
+  }
+
+  if(len > cmd_len) {
+    uBEE::ErrLog(1000,"cmd buff is not enough!",1,0,0);
+    return -1;
+  }
+  /*
+  buf = (char*)malloc(len + 1);
+  if(buf == NULL) {
+    see_errlog(1000,"see_file_to_json(): Failed to allocate memory !!",RPT_TO_LOG,0,0) ;
+    return errno ;
+  }
+  */
+  iRc = fread(cmd, 1, len, f);
+  cmd[len] = '\0';
+  fclose(f);
+  return 0;
+}
+
+
 } // namespace uBEE

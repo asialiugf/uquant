@@ -16,5 +16,6 @@
 namespace uBEE
 {
 int Tqjson(const char*message);
+int MkRequest(const char * filename, char *cmd,size_t cmd_len);
 }
 #endif // end UBEE_JSON_H
