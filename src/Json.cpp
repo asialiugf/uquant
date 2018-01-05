@@ -58,7 +58,7 @@ int Tqjson(const char*message)
     }
     klines = cJSON_GetObjectItem(temp, "klines");
     if(klines) {
-      Klines(klines);
+      //Klines(klines);
       continue;
     }
   }
