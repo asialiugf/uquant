@@ -19,11 +19,11 @@ int main()
   // 服务端接收到包后原封不动返回
   h.onConnection([&tt](uWS::WebSocket<uWS::SERVER> *ws, uWS::HttpRequest req) {
     if(tt == 1) {
-      char caCmd[4096];
-      memset(caCmd,'\0',4096) ;
-      sprintf(caCmd,"{\"chart_id\":\"VN_ru1701_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":30000,\"ins_list\":\"ru1701\"}");
-      ws->send(caCmd);
-      std::cout << caCmd << std::endl;
+      std::vector<std::string> cmds = uBEE::Command("./cmd");
+      for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
+        ws->send(request);
+        std::cout << request << std::endl;
+      });
     }
     std::cout <<"Server onConnection send: --server--" << std::endl;
   });
@@ -36,7 +36,6 @@ int main()
       struct  timeval start;
       struct  timeval end1;
       unsigned  long diff;
-      uBEE::SaveBin("../tick/tick.json",(const char*)message,length);
       gettimeofday(&start,NULL);
       uBEE::Tqjson(message);
       gettimeofday(&end1,NULL);
@@ -52,27 +51,52 @@ int main()
   bool k = h.listen(3000) ;
   if(!k) {
     std::cout << " listen error !!" << std::endl;
-  }
-  // --------------------------------------------------------------------------------------------
+   }
 
-  // 客户端连上后发送hello
+  // --------------------------------------------------------------------------------------------
+  // 客户端
+
+  h.onDisconnection([](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
+    std::cout << "onDisconnection !!" << std::endl;
+    std::cout << message << std::endl;
+  });
+
+
   h.onConnection([&tt](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
+    std::cout <<"Tqdata.x onConnection !!" << std::endl;
     if(tt == 1) {
-      char caCmd[4096];
+      //char caCmd[4096];
+      std::vector<std::string> cmds = uBEE::Command("./cmd");
+      for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
+        ws->send(request);
+        std::cout << request << std::endl;
+      });
+
       /*
       memset(caCmd,'\0',4096) ;
       uBEE::MkRequest("./cmd", caCmd,4096);
       std::cout << caCmd << std::endl;
       //ws->send(caCmd);
-      */
       memset(caCmd,'\0',4096) ;
+      */
       //sprintf(caCmd,"{\"aid\":\"set_chart\",\"chart_id\":\"abcd123\",\"ins_id\":\"cu1801,ru1801,ru1805\",\"duration\":0,\"view_width\": 500,}");
       //sprintf(caCmd,"{\"aid\":\"set_chart\",\"chart_id\":\"abcd123\",\"ins_id\":\"cu1801,ru1801,ru1805\",\"duration\":0,\"view_width\": 500,}");
-      sprintf(caCmd,"{\"chart_id\":\"TT_test_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":30000,\"ins_list\":\"ru1701\"}");
+      /*
+      {"chart_id": "VN_ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701_0", "aid": "set_chart", "duration": 0, "view_width": 8000, "ins_list": "ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701"}
+      //sprintf(caCmd,"{\"chart_id\":\"VN_ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701\"}");
+      sprintf(caCmd,"{\"chart_id\":\"VN_FG609_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"FG609\"}");
+      ws->send(caCmd);
+      sprintf(caCmd,"{\"chart_id\":\"VN_T1606\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"T1606\"}");
+      ws->send(caCmd);
+      sprintf(caCmd,"{\"chart_id\":\"VN_SR609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"SR609\"}");
+      ws->send(caCmd);
+      sprintf(caCmd,"{\"chart_id\":\"VN_MA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"MA609\"}");
+      ws->send(caCmd);
+      sprintf(caCmd,"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
       ws->send(caCmd);
       std::cout << caCmd << std::endl;
+      */
     }
-    std::cout <<"Tqdata.x onConnection !!" << std::endl;
   });
 
   h.onError([](void *user) {
@@ -94,7 +118,7 @@ int main()
       struct  timeval start;
       struct  timeval end1;
       unsigned  long diff;
-      uBEE::SaveBin("../tick/tick.json",(const char*)message,length);
+      //uBEE::SaveBin("../tick/tick.json",(const char*)message,length);
       gettimeofday(&start,NULL);
       uBEE::Tqjson(message);
       gettimeofday(&end1,NULL);
@@ -108,7 +132,7 @@ int main()
   });
   h.getDefaultGroup<uWS::CLIENT>().startAutoPing(2000);
 
-  //h.connect("ws://192.168.3.7:7777",(void *) 1);
+  h.connect("ws://192.168.3.7:7777",(void *) 1);
   // --------------------------------------------------------------------------------------------
 
   h.run();

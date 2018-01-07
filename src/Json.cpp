@@ -1,8 +1,10 @@
 #include "uBEE.h"
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <cjson/cJSON.h>
 #include <string>
+#include <vector>
 #include <sys/time.h>
 namespace uBEE
 {
@@ -44,6 +46,7 @@ int Tqjson(const char*message)
   }
 
   SaveBin("newtick.json", buf, strlen(buf));
+  SaveLine("newtick.json", "--------------- kkkkkkkkkkk ----------------------\n");
   free(buf);
 
   temp = cJSON_GetObjectItem(root, "aid");
@@ -214,7 +217,11 @@ int Klines(cJSON *klines)
         char ca_statistic[512] ;
         memset(ca_statistic,'\0',512);
         cJSON   *last_id = cJSON_GetObjectItem(period, "last_id");
-        sprintf(ca_statistic,"SSS:%s:%s: begin -- data number: %d -- last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
+        if(!last_id) {
+          sprintf(ca_statistic,"SSS:%s:%s: -- data number: %d -- last_id : NULL \n",futu->string,period->string,ll);
+        } else {
+          sprintf(ca_statistic,"SSS:%s:%s: -- data number: %d -- last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
+        }
         SaveLine(ca_filename,ca_statistic);
 
 
@@ -260,7 +267,6 @@ int Klines(cJSON *klines)
           free(bar);
 
         } // l
-        sprintf(ca_statistic,"SSS:%s:%s: end -- data number: %d -- last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
         SaveLine(ca_filename,ca_statistic);
       } // k
     } // j
@@ -325,7 +331,11 @@ int Ticks(cJSON *ticks)
       char ca_statistic[512] ;
       memset(ca_statistic,'\0',512);
       cJSON   *last_id = cJSON_GetObjectItem(futu, "last_id");
-      sprintf(ca_statistic,"SSS:%s: begin -- data number: %d -- last_id : %d \n",futu->string,ll, last_id->valueint);
+      if(!last_id) {
+        sprintf(ca_statistic,"SSS:%s: begin -- data number: %d -- last_id : NULL\n",futu->string,ll);
+      } else {
+        sprintf(ca_statistic,"SSS:%s: begin -- data number: %d -- last_id : %d \n",futu->string,ll, last_id->valueint);
+      }
       SaveLine(ca_filename,ca_statistic);
 
       //strcat(ca_filename,period->string);
@@ -372,7 +382,6 @@ int Ticks(cJSON *ticks)
         free(tick);
 
       } // l
-      sprintf(ca_statistic,"SSS:%s: end -- data number: %d -- last_id : %d \n",futu->string,ll, last_id->valueint);
       SaveLine(ca_filename,ca_statistic);
     } // k
     //} // j
@@ -380,6 +389,31 @@ int Ticks(cJSON *ticks)
   return 0;
 
 }
+
+std::vector<std::string> Command(const char *filename)
+{
+
+  std::ifstream file(filename);
+
+  if(!file.is_open()) {
+    std::cerr << "Unable to open file" << "\n";
+    std::exit(-1);
+  }
+
+  std::vector<std::string> cmds;//this vector will be returned
+  std::string future;
+  std::string cmd;
+
+  //"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
+  while(std::getline(file, future)) {
+    cmd = "{\"chart_id\":\"TT_" + future + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\""
+    + future + "\"}"  ;
+    cmds.push_back(cmd);
+  }
+   file.close();  
+  return cmds;
+}
+
 
 //------------------------------------------------------------------------------------------------
 
@@ -498,7 +532,7 @@ std::string TicksReplace(std::string strSrc)
   mm = m_replace(kk,"\"highest\"","\"H\"",-1);
   kk = m_replace(mm,"\"lowest\"","\"L\"",-1);
   mm = m_replace(kk,"\"volume\"","\"V\"",-1);
-  kk = m_replace(mm,"\"trading_day\"","\"V\"",-1);
+  kk = m_replace(mm,"\"trading_day\"","\"d\"",-1);
   mm = m_replace(kk,"\t","",-1);
   kk = m_replace(mm,"\n","",-1);
   return kk;

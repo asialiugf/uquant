@@ -12,10 +12,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <vector>
 
 namespace uBEE
 {
 int Tqjson(const char*message);
 int MkRequest(const char * filename, char *cmd,size_t cmd_len);
+std::vector<std::string> Command(const char *filename);
 }
 #endif // end UBEE_JSON_H
