@@ -21,7 +21,7 @@ int main()
     if(tt == 1) {
       std::vector<std::string> cmds = uBEE::Command("./cmd");
       for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
-        ws->send(request);
+        ws->send(request.c_str());
         std::cout << request << std::endl;
       });
     }
@@ -48,10 +48,10 @@ int main()
   });
   h.getDefaultGroup<uWS::SERVER>().startAutoPing(2000);
 
-  bool k = h.listen(3000) ;
-  if(!k) {
-    std::cout << " listen error !!" << std::endl;
-   }
+  //bool k = h.listen(3000) ;
+  //if(!k) {
+  //  std::cout << " listen error !!" << std::endl;
+  //}
 
   // --------------------------------------------------------------------------------------------
   // 客户端
@@ -67,12 +67,19 @@ int main()
     if(tt == 1) {
       //char caCmd[4096];
       std::vector<std::string> cmds = uBEE::Command("./cmd");
+
+      for(int i = 0; i <10; i++) {
+        std::cout << cmds[i] << std::endl;
+		ws->send(cmds[i].c_str());
+      }
+
+      /*
+
       for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
-        ws->send(request);
+        ws->send(request.c_str());
         std::cout << request << std::endl;
       });
 
-      /*
       memset(caCmd,'\0',4096) ;
       uBEE::MkRequest("./cmd", caCmd,4096);
       std::cout << caCmd << std::endl;
