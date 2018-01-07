@@ -210,6 +210,14 @@ int Klines(cJSON *klines)
         strcat(ca_filename,period->string);
 
 
+
+        char ca_statistic[512] ;
+        memset(ca_statistic,'\0',512);
+        cJSON   *last_id = cJSON_GetObjectItem(period, "last_id");
+        sprintf(ca_statistic,"SSS:%s:%s: begin -- data number: %d -- last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
+        SaveLine(ca_filename,ca_statistic);
+
+
         for(l=0; l<ll; l++) {
           item = cJSON_GetArrayItem(data,l);  // get item from data ...
           if(!item) {
@@ -252,6 +260,8 @@ int Klines(cJSON *klines)
           free(bar);
 
         } // l
+        sprintf(ca_statistic,"SSS:%s:%s: end -- data number: %d -- last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
+        SaveLine(ca_filename,ca_statistic);
       } // k
     } // j
   } // i
@@ -300,7 +310,7 @@ int Ticks(cJSON *ticks)
     sprintf(ca_filename,"../dat/%s.tick",futu->string);
 
     for(k=0; k<kk; k++) {
-      data = cJSON_GetArrayItem(futu,k);  // get data from period ...
+      data = cJSON_GetArrayItem(futu,k);  // get data from future ...
       if(!data) {
         SaveError(ticks,"-T ---- data ---- error!\n");
         continue;
@@ -311,6 +321,12 @@ int Ticks(cJSON *ticks)
         SaveError(ticks,"-T---- ll = cJSON_GetArraySize(data) ----  error!\n");
         continue;
       };
+
+      char ca_statistic[512] ;
+      memset(ca_statistic,'\0',512);
+      cJSON   *last_id = cJSON_GetObjectItem(futu, "last_id");
+      sprintf(ca_statistic,"SSS:%s: begin -- data number: %d -- last_id : %d \n",futu->string,ll, last_id->valueint);
+      SaveLine(ca_filename,ca_statistic);
 
       //strcat(ca_filename,period->string);
 
@@ -356,6 +372,8 @@ int Ticks(cJSON *ticks)
         free(tick);
 
       } // l
+      sprintf(ca_statistic,"SSS:%s: end -- data number: %d -- last_id : %d \n",futu->string,ll, last_id->valueint);
+      SaveLine(ca_filename,ca_statistic);
     } // k
     //} // j
   } // i
