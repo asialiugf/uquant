@@ -49,10 +49,26 @@ int main()
   h.onConnection([&tt](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     if(tt == 1) {
       char caCmd[4096];
+      /*
       memset(caCmd,'\0',4096) ;
       uBEE::MkRequest("./cmd", caCmd,4096);
       std::cout << caCmd << std::endl;
+      //ws->send(caCmd);
+
+            {
+      "aid": "set_chart",         // 必填, 请求图表数据
+      "chart_id": "abcd123",      // 必填, 图表id, 服务器只会维护每个id收到的最后一个请求的数据
+      "ins_id": "cu1701",         // 必填, 填空表示删除该图表，多个合约以逗号分割，第一个合约是主合约，所有id都是以主合约为准
+              "duration": 180000000000,   // 必填, 周期，单位ns, tick:0, 日线: 3600 * 24 * 1000 * 1000 * 1000
+              "view_width": 500,          // 必填, 图表宽度, 请求最新N个数据，并保持滚动(新K线生成会移动图表)
+            }
+      */
+      memset(caCmd,'\0',4096) ;
+      //sprintf(caCmd,"{\"aid\": \"set_chart\",\"chart_id\": \"abcd123\",\"ins_id\": \"cu1801,ru1801,ru1805\",\"duration\":0,\"view_width\": 500,}");
+      //sprintf(caCmd,"{\"aid\": \"set_chart\",\"chart_id\": \"abcd123\",\"ins_id\": \"cu1801,ru1801,ru1805\",\"duration\":0,\"view_width\": 500,}");
+      sprintf(caCmd,"{\"chart_id\": \"TT_ru1701_0\", \"aid\": \"set_chart\", \"duration\": 3000000000, \"view_width\": 30000, \"ins_list\": \"ru1701\"}");
       ws->send(caCmd);
+      std::cout << caCmd << std::endl;
     }
     std::cout <<"Tqdata.x onConnection !!" << std::endl;
   });
