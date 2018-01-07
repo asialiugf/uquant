@@ -27,8 +27,8 @@ int SaveLine(const char *FileName, const char *pcLine)
   }
   iRc = write(fd,pcLine,strlen(pcLine));
   iRc = write(fd,"\n",1);
-  iRc = write(fd,"\n",1);
-  iRc = write(fd,"\n",1);
+  //iRc = write(fd,"\n",1);
+  //iRc = write(fd,"\n",1);
   close(fd) ;
   return iRc;
 }

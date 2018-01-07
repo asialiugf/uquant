@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cjson/cJSON.h>
 #include <string>
+#include <sys/time.h>
 namespace uBEE
 {
 
@@ -71,15 +72,11 @@ int Tqjson(const char*message)
     }
     quotes = cJSON_GetObjectItem(temp, "quotes");
     if(quotes) {
-      std::cout << "befor Quotes() \n";
       Quotes(quotes);
-      std::cout << "after Quotes() \n";
     }
     klines = cJSON_GetObjectItem(temp, "klines");
     if(klines) {
-      std::cout << "enter into Klines() \n";
       Klines(klines);
-      std::cout << "after Klines() \n";
     }
     ticks = cJSON_GetObjectItem(temp, "ticks");
     if(ticks) {
@@ -127,7 +124,6 @@ int Quotes(cJSON *quotes)
     std::string mm = buf;
     std::string kk = QuotesReplace(mm);
     SaveBin(ca_filename, kk.c_str(), kk.length());
-    //std::cout << "loop quotes:" << futu->valuestring << std::endl;
 
     free(buf);
   }
@@ -150,7 +146,6 @@ int Klines(cJSON *klines)
   char * js=NULL;
 
   //uBEE::ErrLog(1000," enter into Klines()!",1,0,0);
-  std::cout << " in Klines !!\n" ;
   memset(ca_filename,'\0',512);
   ii = cJSON_GetArraySize(klines);
   if(ii<=0) {
@@ -209,6 +204,12 @@ int Klines(cJSON *klines)
           SaveError(klines,"-K---- ll = cJSON_GetArraySize(data) ----  error!\n");
           continue;
         };
+
+        memset(ca_filename,'\0',512);
+        sprintf(ca_filename,"../dat/%s.",futu->string);
+        strcat(ca_filename,period->string);
+
+
         for(l=0; l<ll; l++) {
           item = cJSON_GetArrayItem(data,l);  // get item from data ...
           if(!item) {
@@ -227,19 +228,25 @@ int Klines(cJSON *klines)
             continue;
           }
 
-          uBEE::ErrLog(1000,"-K---- befor SaveBin ---!",1,0,0);
+          std::string str1 = buf;
 
+          /*
+          struct  timeval start;
+          struct  timeval end1;
+          unsigned  long diff;
+          gettimeofday(&start,NULL);
+          */
+          std::string str2 = KlinesReplace(str1);
+          /*
+           gettimeofday(&end1,NULL);
+           diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
+           printf("thedifference is %ld\n",diff);
+          */
 
-          memset(ca_filename,'\0',512);
-          sprintf(ca_filename,"../dat/%s.",futu->string);
-          strcat(ca_filename,period->string);
-
-          std::string mm = buf;
-          std::string kk = KlinesReplace(mm);
           //SaveBin(ca_filename, kk.c_str(), kk.length());
-	      char * bar = (char *)malloc(kk.length() + 50);
-		  memset(ca_filename,'\0',kk.length() + 50);
-          sprintf(bar,"%s:%s\n",item->string,kk.c_str());
+          char * bar = (char *)malloc(str2.length() + 50);
+          memset(bar,'\0',str2.length() + 50);
+          sprintf(bar,"%s:%s",item->string,str2.c_str());
           SaveLine(ca_filename,bar);
           free(buf);
           free(bar);
@@ -255,7 +262,104 @@ int Klines(cJSON *klines)
 int Ticks(cJSON *ticks)
 {
 
+  char    ca_filename[512];
+  int i,j,k,l,ii,jj,kk,ll;
 
+  cJSON *futu;
+  cJSON *period;
+  cJSON *data;
+  cJSON *item;
+  cJSON *datetime;
+
+  char * buf=NULL;
+  char * pd=NULL;
+  char * js=NULL;
+
+  //uBEE::ErrLog(1000," enter into Klines()!",1,0,0);
+  memset(ca_filename,'\0',512);
+  ii = cJSON_GetArraySize(ticks);
+  if(ii<=0) {
+    SaveError(ticks,"-T ----  ii = cJSON_GetArraySize(ticks)  ---- error!\n");
+    return -1;
+  };
+
+  for(i=0; i<ii; i++) {
+    futu = cJSON_GetArrayItem(ticks,i);  // get future 1,2,3...
+    if(!futu) {
+      SaveError(ticks,"-T ----  cJSON_GetArrayItem(ticks,i) ---- error! ");
+      continue;
+    }
+
+    kk = cJSON_GetArraySize(futu);
+    if(kk <=0) {
+      SaveError(ticks,"-T ---- kk = cJSON_GetArraySize(period) ---- error!\n");
+      continue;
+    };
+
+    memset(ca_filename,'\0',512);
+    sprintf(ca_filename,"../dat/%s.tick",futu->string);
+
+    for(k=0; k<kk; k++) {
+      data = cJSON_GetArrayItem(futu,k);  // get data from period ...
+      if(!data) {
+        SaveError(ticks,"-T ---- data ---- error!\n");
+        continue;
+      }
+
+      ll = cJSON_GetArraySize(data);
+      if(ll <=0) {
+        SaveError(ticks,"-T---- ll = cJSON_GetArraySize(data) ----  error!\n");
+        continue;
+      };
+
+      //strcat(ca_filename,period->string);
+
+      for(l=0; l<ll; l++) {
+        item = cJSON_GetArrayItem(data,l);  // get item from data ...
+        if(!item) {
+          SaveError(ticks,"-T---- item error ---- error!\n");
+          continue;
+        }
+        datetime = cJSON_GetObjectItem(item, "datetime");
+        if(!datetime) {
+          SaveError(ticks,"-T---- datetime ---- error!\n");
+          continue;
+        }
+
+        buf = cJSON_Print(item);
+        if(!buf) {
+          SaveError(ticks,"-T---- buf = cJSON_Print(item) ---- error!\n");
+          continue;
+        }
+
+        std::string str1 = buf;
+
+        /*
+        struct  timeval start;
+        struct  timeval end1;
+        unsigned  long diff;
+        gettimeofday(&start,NULL);
+        */
+        std::string str2 = TicksReplace(str1);
+        /*
+         gettimeofday(&end1,NULL);
+         diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
+         printf("thedifference is %ld\n",diff);
+        */
+
+        //SaveBin(ca_filename, kk.c_str(), kk.length());
+        char * tick = (char *)malloc(str2.length() + 50);
+        memset(tick,'\0',str2.length() + 50);
+        sprintf(tick,"%s:%s",item->string,str2.c_str());
+        SaveLine(ca_filename,tick);
+        free(buf);
+        free(tick);
+
+      } // l
+    } // k
+    //} // j
+  } // i
+  return 0;
 
 }
 
@@ -318,31 +422,30 @@ std::string QuotesReplace(std::string strSrc)
 {
   std::string mm=strSrc;
   std::string kk;
-  kk = m_replace(mm,"\"amount\"","\"a\"",-1);
-  mm = m_replace(kk,"\"average\"","\"b\"",-1);
-  kk = m_replace(mm,"\"close\"","\"c\"",-1);
-  mm = m_replace(kk,"\"datetime\"","\"d\"",-1);
-  kk = m_replace(mm,"\"last_price\"","\"e\"",-1);
+  kk = m_replace(mm,"\"last_price\"","\"E\"",-1);
   mm = m_replace(kk,"\"instrument_id\"","\"f\"",-1);
   kk = m_replace(mm,"\"open_interest\"","\"g\"",-1);
-  mm = m_replace(kk,"\"highest\"","\"h\"",-1);
-  kk = m_replace(mm,"\"pre_close\"","\"i\"",-1);
-  mm = m_replace(kk,"\"pre_open_interest\"","\"j\"",-1);
-  kk = m_replace(mm,"\"pre_settlement\"","\"k\"",-1);
-  mm = m_replace(kk,"\"lowest\"","\"l\"",-1);
+  mm = m_replace(kk,"\"pre_close\"","\"i\"",-1);
+  kk = m_replace(mm,"\"pre_open_interest\"","\"j\"",-1);
+  mm = m_replace(kk,"\"pre_settlement\"","\"k\"",-1);
   kk = m_replace(mm,"\"ask_price1\"","\"m\"",-1);
   mm = m_replace(kk,"\"ask_volume1\"","\"n\"",-1);
-  kk = m_replace(mm,"\"open\"","\"o\"",-1);
-  mm = m_replace(kk,"\"bid_price1\"","\"p\"",-1);
-  kk = m_replace(mm,"\"bid_volume1\"","\"q\"",-1);
-  mm = m_replace(kk,"\"settlement\"","\"s\"",-1);
+  kk = m_replace(mm,"\"bid_price1\"","\"p\"",-1);
+  mm = m_replace(kk,"\"bid_volume1\"","\"q\"",-1);
   kk = m_replace(mm,"\"lower_limit\"","\"t\"",-1);
   mm = m_replace(kk,"\"upper_limit\"","\"u\"",-1);
-  kk = m_replace(mm,"\"volume\"","\"v\"",-1);
+  kk = m_replace(mm,"\"highest\"","\"H\"",-1);
+  mm = m_replace(kk,"\"open\"","\"O\"",-1);
+  kk = m_replace(mm,"\"close\"","\"C\"",-1);
+  mm = m_replace(kk,"\"lowest\"","\"L\"",-1);
+  kk = m_replace(mm,"\"settlement\"","\"s\"",-1);
+  mm = m_replace(kk,"\"amount\"","\"a\"",-1);
+  kk = m_replace(mm,"\"average\"","\"b\"",-1);
+  mm = m_replace(kk,"\"datetime\"","\"d\"",-1);
+  kk = m_replace(mm,"\"volume\"","\"V\"",-1);
   mm = m_replace(kk,"\"status\"","\"z\"",-1);
   kk = m_replace(mm,"\t","",-1);
   mm = m_replace(kk,"\n","",-1);
-  //std::cout<< mm;
   return mm;
 }
 std::string KlinesReplace(std::string strSrc)
@@ -350,13 +453,13 @@ std::string KlinesReplace(std::string strSrc)
   std::string mm=strSrc;
   std::string kk;
   kk = m_replace(mm,"\"open_oi\"","\"g\"",-1);
-  mm = m_replace(kk,"\"datetime\"","\"d\"",-1);
-  kk = m_replace(mm,"\"open\"","\"o\"",-1);
   mm = m_replace(kk,"\"close_oi\"","\"j\"",-1);
-  kk = m_replace(mm,"\"volume\"","\"v\"",-1);
-  mm = m_replace(kk,"\"highest\"","\"h\"",-1);
-  kk = m_replace(mm,"\"close\"","\"c\"",-1);
-  mm = m_replace(kk,"\"lowest\"","\"l\"",-1);
+  kk = m_replace(mm,"\"datetime\"","\"D\"",-1);
+  mm = m_replace(kk,"\"open\"","\"O\"",-1);
+  kk = m_replace(mm,"\"volume\"","\"V\"",-1);
+  mm = m_replace(kk,"\"high\"","\"H\"",-1);
+  kk = m_replace(mm,"\"close\"","\"C\"",-1);
+  mm = m_replace(kk,"\"low\"","\"L\"",-1);
   kk = m_replace(mm,"\t","",-1);
   mm = m_replace(kk,"\n","",-1);
   return mm;
@@ -369,29 +472,28 @@ std::string TicksReplace(std::string strSrc)
   mm = m_replace(kk,"\"ask_volume1\"","\"n\"",-1);
   kk = m_replace(mm,"\"bid_volume1\"","\"q\"",-1);
   mm = m_replace(kk,"\"bid_price1\"","\"p\"",-1);
-  kk = m_replace(mm,"\"last_price\"","\"e\"",-1);
+  kk = m_replace(mm,"\"last_price\"","\"E\"",-1);
   mm = m_replace(kk,"\"open_interest\"","\"g\"",-1);
-  kk = m_replace(mm,"\"close\"","\"c\"",-1);
-  mm = m_replace(kk,"\"datetime\"","\"d\"",-1);
-  kk = m_replace(mm,"\"open\"","\"o\"",-1);
-  mm = m_replace(kk,"\"highest\"","\"h\"",-1);
-  kk = m_replace(mm,"\"lowest\"","\"l\"",-1);
-  mm = m_replace(kk,"\"volume\"","\"v\"",-1);
-  kk = m_replace(mm,"\t","",-1);
-  mm = m_replace(kk,"\n","",-1);
-  return mm;
+  kk = m_replace(mm,"\"close\"","\"C\"",-1);
+  mm = m_replace(kk,"\"datetime\"","\"D\"",-1);
+  kk = m_replace(mm,"\"open\"","\"O\"",-1);
+  mm = m_replace(kk,"\"highest\"","\"H\"",-1);
+  kk = m_replace(mm,"\"lowest\"","\"L\"",-1);
+  mm = m_replace(kk,"\"volume\"","\"V\"",-1);
+  kk = m_replace(mm,"\"trading_day\"","\"V\"",-1);
+  mm = m_replace(kk,"\t","",-1);
+  kk = m_replace(mm,"\n","",-1);
+  return kk;
 }
 
 int SaveError(cJSON *json, const char *msg)
 {
-  std::cout << msg << std::endl;
   char ca_filename[512];
   char * js= cJSON_Print(json);
   memset(ca_filename,'\0',512);
   sprintf(ca_filename,"../dat/%s",json->string);
   uBEE::ErrLog(1000,msg,1,0,0);
   SaveLine(ca_filename, msg);
-  std::cout << ca_filename << std::endl;
   SaveBin(ca_filename, js, strlen(js));
   free(js);
   return 0;
