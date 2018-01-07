@@ -24,8 +24,9 @@
 
     s.onmessage = function(v)
     {
+      tq.send(v.data)
+	  console.log(v.data)
       console.log("haha")
-      console.log(v.data)
     }
 
     tq.onmessage = function(v) {
