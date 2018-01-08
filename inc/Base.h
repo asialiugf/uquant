@@ -50,7 +50,6 @@ public:
   void onBars(std::function<void(char *, size_t)> handler);
   //void onTick(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   //void onBars(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
-  void MainHubInit();
   void onMessageInit();
 private:
   void AssiHubInit();

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <thread>
 #include <unistd.h>
+#include <algorithm>
+#include <vector>
 
 namespace uBEE
 {
@@ -46,19 +48,22 @@ void Base::onMessageInit()
   });
 }
 
-void Base::MainHubInit()
+void Base::Start()
 {
-  std::cout << "enter into MainHubInit !!\n";
+  std::cout << "enter into Start !!\n";
   mainHub.onConnection([this](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     switch((long) ws->getUserData()) {
     case 1:
       this->cs[1] = ws;
+      this->cw = ws;
       break;
     case 2:
       this->cs[2] = ws;
+      this->cd = ws;
       break;
     case 3:
       this->cs[3] = ws;
+      this->ct = ws;
       break;
     default:
       std::cout << "FAILURE: " << ws->getUserData() << " should not connect!" << std::endl;
@@ -84,8 +89,18 @@ void Base::MainHubInit()
   */
 
   mainHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
-    this->mainHub.getDefaultGroup<uWS::SERVER>().close();
-    this->mainHub.getDefaultGroup<uWS::CLIENT>().close();
+
+    auto result = find(this->cs.begin(), this->cs.end(), ws);     //查找 ws
+    if(result == this->cs.end()) {    //没找到
+      std::cout << "Not found" << std::endl;
+    } else { 
+      std::cout << "Yes" << std::endl;  //找到了
+      (*result) = nullptr ;
+      ws->close();
+    }
+    std::cout << code << std::endl;
+    //this->mainHub.getDefaultGroup<uWS::SERVER>().close();
+    //this->mainHub.getDefaultGroup<uWS::CLIENT>().close();
   });
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
@@ -102,6 +117,7 @@ void Base::AssiHubInit()
     switch((long) ws->getUserData()) {
     case 0:
       this->cs[0] = ws;
+      this->ca = ws;
       break;
     default:
       std::cout << "FAILURE: " << ws->getUserData() << " should not connect!" << std::endl;
@@ -111,12 +127,12 @@ void Base::AssiHubInit()
 
   assiHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
     char *tmp = new char[length+1];
-    //char tmp[256];
-    memcpy(tmp, message, length);
-    tmp[length] = 0;
+    char tmp1[256];
+    memcpy(tmp1, message, length);
+    tmp1[length] = 0;
     //usleep(1000000);
-    //printf("Client receive: %s\n", tmp);
-    this->buf.push(tmp);     //将收到的数据，传给主线程的get_tick() get_bars()之类的函数。
+    printf("Client receive:%s\n", message);
+    this->buf.push(tmp);     //将收到的:数据，传给主线程的get_tick() get_bars()之类的函数。
     this->cv.notify_all();   //唤醒get_tick() get_bars()
     //ws->send("-------fro assiHub ===");
     //usleep(1000000);
@@ -134,11 +150,10 @@ void Base::getTick()
   }
   cs[0]->send("----------from gettick -----------");
 
-  //std::cout<< " go to sleep!! \n";
+  std::cout<< " go to sleep!! \n";
   std::unique_lock <std::mutex> l(mtx);
-  //while(!ready)  // 如果标志位不为 true, 则等待...
   cv.wait(l); // 这里要改成 timeout时间。
-  //std::cout<< " waked!! \n";
+  std::cout<< " waked!! \n";
   char * tmp = buf.front();
   buf.pop();
   //std::cout<< tmp << std::endl;

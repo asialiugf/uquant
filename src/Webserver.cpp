@@ -17,15 +17,15 @@ int main()
   });
 
   h.onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
-    //char tmp[256];
-    //memcpy(tmp, message, length);
-    //tmp[length] = 0;
-    //message[0] = '0';
+    char tmp[256];
+    memcpy(tmp, message, length);
+    tmp[length] = 0;
+    message[0] = '0';
 	uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
 	message[length-1] = 0;
     printf("Server onMessage receive: %s\n", message);
-    //ws->send(message, length, opCode);
-    //std::printf("Server onMessage send: %s\n", tmp);
+    ws->send(message, length, opCode);
+    std::printf("Server onMessage send: %s\n", tmp);
   });
 
   bool k = h.listen(3000) ;
