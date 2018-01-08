@@ -16,7 +16,7 @@
 
 namespace uBEE
 {
-int Tqjson(const char*message);
+int Tqjson(const char*message,int tt);
 int MkRequest(const char * filename, char *cmd,size_t cmd_len);
 std::vector<std::string> Command(const char *filename);
 }

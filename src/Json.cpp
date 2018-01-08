@@ -18,7 +18,7 @@ std::string QuotesReplace(std::string strSrc);
 std::string KlinesReplace(std::string strSrc);
 std::string TicksReplace(std::string strSrc);
 
-int Tqjson(const char*message)
+int Tqjson(const char*message,int tt)
 {
   cJSON   *root ;
   cJSON   *json ;
@@ -73,17 +73,33 @@ int Tqjson(const char*message)
     if(!temp) {
       continue;
     }
+    /*
+      std::cout << "Please Input type: " << std::endl;
+      std::cout << "1: Quotes only" << std::endl;
+      std::cout << "2: Klines only" << std::endl;
+      std::cout << "3: Ticks  only" << std::endl;
+      std::cout << "4: Klines & Ticks  " << std::endl;
+      std::cout << "5: Quotes & Kicks  " << std::endl;
+      std::cout << "6: Quotes & Ticks  " << std::endl;
+      std::cout << "7: All ==========  " << std::endl;
+    */
     quotes = cJSON_GetObjectItem(temp, "quotes");
     if(quotes) {
-      Quotes(quotes);
+      if(1==tt || 5==tt || 6==tt || 7==tt) {
+        Quotes(quotes);
+      }
     }
     klines = cJSON_GetObjectItem(temp, "klines");
     if(klines) {
-      Klines(klines);
+      if(2==tt || 4==tt || 5==tt || 7==tt) {
+        Klines(klines);
+      }
     }
     ticks = cJSON_GetObjectItem(temp, "ticks");
     if(ticks) {
-      Ticks(ticks);
+      if(3==tt || 4==tt || 6==tt || 7==tt) {
+        Ticks(ticks);
+      }
     }
   }
   cJSON_Delete(root);
@@ -407,10 +423,10 @@ std::vector<std::string> Command(const char *filename)
   //"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
   while(std::getline(file, future)) {
     cmd = "{\"chart_id\":\"TT_" + future + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\""
-    + future + "\"}"  ;
+          + future + "\"}"  ;
     cmds.push_back(cmd);
   }
-   file.close();  
+  file.close();
   return cmds;
 }
 

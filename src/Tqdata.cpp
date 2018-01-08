@@ -11,14 +11,23 @@ int main()
 
   int tt = 0 ;
 
-  std::cout << "phase 1 ==> cmd ! " << std::endl;
-  std::cout << "please input phase:" << std::endl;
+  std::cout << std::endl;
+  std::cout << "            Input type description: " << std::endl;
+  std::cout << "            1: Quotes only" << std::endl;
+  std::cout << "            2: Klines only" << std::endl;
+  std::cout << "            3: Ticks  only" << std::endl;
+  std::cout << "            4: Klines & Ticks  " << std::endl;
+  std::cout << "            5: Quotes & Kicks  " << std::endl;
+  std::cout << "            6: Quotes & Ticks  " << std::endl;
+  std::cout << "            7: All  Q & K & T  " << std::endl;
+  std::cout << "            Please Input type: ";  
   std::cin >> tt ;
+
 
   // --------------------------------------------------------------------------------------------
   // 服务端接收到包后原封不动返回
   h.onConnection([&tt](uWS::WebSocket<uWS::SERVER> *ws, uWS::HttpRequest req) {
-    if(tt == 1) {
+    if(tt != 1) {
       std::vector<std::string> cmds = uBEE::Command("./cmd");
       for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
         ws->send(request.c_str());
@@ -28,7 +37,7 @@ int main()
     std::cout <<"Server onConnection send: --server--" << std::endl;
   });
 
-  h.onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&tt](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
     if(length>0) {
       std::cout << "message!" << std::endl;
       //usleep(5000000);
@@ -37,7 +46,7 @@ int main()
       struct  timeval end1;
       unsigned  long diff;
       gettimeofday(&start,NULL);
-      uBEE::Tqjson(message);
+      uBEE::Tqjson(message,tt);
       gettimeofday(&end1,NULL);
       diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
       printf("thedifference is %ld\n",diff);
@@ -64,11 +73,11 @@ int main()
 
   h.onConnection([&tt](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     std::cout <<"Tqdata.x onConnection !!" << std::endl;
-    if(tt == 1) {
+    if(tt != 1) {
       //char caCmd[4096];
       std::vector<std::string> cmds = uBEE::Command("./cmd");
 
-      for(int i = 0; i <10; i++) {
+      for(int i = 0; i <200; i++) {
         std::cout << cmds[i] << std::endl;
 		ws->send(cmds[i].c_str());
       }
@@ -117,7 +126,7 @@ int main()
     }
   });
 
-  h.onMessage([](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&tt](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
     if(length>0) {
       std::cout << "message!" << std::endl;
       //usleep(5000000);
@@ -127,7 +136,7 @@ int main()
       unsigned  long diff;
       //uBEE::SaveBin("../tick/tick.json",(const char*)message,length);
       gettimeofday(&start,NULL);
-      uBEE::Tqjson(message);
+      uBEE::Tqjson(message,tt);
       gettimeofday(&end1,NULL);
       diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
       printf("thedifference is %ld\n",diff);
