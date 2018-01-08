@@ -138,7 +138,7 @@ void Base::AssiHubInit()
     //usleep(1000000);
 
   });
-  assiHub.connect("ws://localhost:4000",(void *) 0); //传入 (void *) 0), onConnection会收到，再保存ws.
+  assiHub.connect("ws://localhost:3001",(void *) 0); //传入 (void *) 0), onConnection会收到，再保存ws.
   assiHub.run();
 }
 
@@ -160,4 +160,4 @@ void Base::getTick()
   delete [] tmp;
 }
 
-}
+} //namespace

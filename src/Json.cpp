@@ -35,13 +35,13 @@ int Tqjson(const char*message,int tt)
 
   root = cJSON_Parse(message);
   if(!root) {
-    uBEE::ErrLog(1000,"message to json error!",1,0,0);
+    ErrLog(1000,"message to json error!",1,0,0);
     return -1;
   }
 
   buf = cJSON_Print(root);
   if(!buf) {
-    uBEE::ErrLog(1000,"---- buf = cJSON_Print(root) ---- error!",1,0,0);
+    ErrLog(1000,"---- buf = cJSON_Print(root) ---- error!",1,0,0);
     return -1;
   }
 
@@ -61,7 +61,7 @@ int Tqjson(const char*message,int tt)
 
   data = cJSON_GetObjectItem(root, "data");
   if(!data) {
-    uBEE::ErrLog(1000,"data error!",1,0,0);
+    ErrLog(1000,"data error!",1,0,0);
   }
 
   num = cJSON_GetArraySize(data);

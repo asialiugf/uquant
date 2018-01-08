@@ -15,8 +15,11 @@ INCS = -I ../inc \
 	   -I /usr/include/postgresql
 
 DEPS = ../inc/Base.h \
-	    ../inc/Echo.h  \
+	    ../inc/Echo.h \
+	    ../inc/Title.h \
 	    ../inc/ErrLog.h \
+	    ../inc/Daemon.h \
+	    ../inc/DataHubs.h \
         ../inc/Psqlpool.h \
         ../inc/Roll.h \
         ../inc/File.h \
@@ -36,7 +39,10 @@ exes: $(EXE)main.x \
 objs: $(OBJ)Base.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
+	$(OBJ)Title.o \
 	$(OBJ)ErrLog.o \
+	$(OBJ)Daemon.o \
+	$(OBJ)DataHubs.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
@@ -47,7 +53,10 @@ OBJS:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
+	$(OBJ)Title.o \
     $(OBJ)ErrLog.o \
+    $(OBJ)Daemon.o \
+    $(OBJ)DataHubs.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
@@ -64,7 +73,10 @@ DATASERVER:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
+    $(OBJ)Title.o \
     $(OBJ)ErrLog.o \
+    $(OBJ)Daemon.o \
+    $(OBJ)DataHubs.o \
 	$(OBJ)Dataserver.o 
 
 TQDATA:= \
@@ -95,6 +107,9 @@ $(EXE)wserver.x: $(MAINOBJS)
 $(OBJ)Main.o: $(DEPS) $(SRC)Main.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
 
+$(OBJ)DataHubs.o: $(DEPS) $(SRC)DataHubs.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)DataHubs.o  $(SRC)DataHubs.cpp
+
 $(OBJ)Dataserver.o: $(DEPS) $(SRC)Dataserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Dataserver.o  $(SRC)Dataserver.cpp
 
@@ -113,8 +128,14 @@ $(OBJ)File.o: $(DEPS) $(SRC)File.cpp
 $(OBJ)Json.o: $(DEPS) $(SRC)Json.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Json.o  $(SRC)Json.cpp
 
+$(OBJ)Title.o: $(DEPS) $(SRC)Title.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Title.o  $(SRC)Title.cpp
+
 $(OBJ)ErrLog.o: $(DEPS) $(SRC)ErrLog.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)ErrLog.o  $(SRC)ErrLog.cpp
+
+$(OBJ)Daemon.o: $(DEPS) $(SRC)Daemon.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Daemon.o  $(SRC)Daemon.cpp
 
 $(OBJ)Psqlpool.o: $(DEPS) $(SRC)Psqlpool.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp

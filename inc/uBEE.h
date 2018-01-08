@@ -1,6 +1,9 @@
 #ifndef UBEE_UBEE_H
 #define UBEE_UBEE_H
 
+#include "DataHubs.h"
+#include "Daemon.h"
+#include "Title.h"
 #include <Echo.h>
 #include <Base.h>
 #include <File.h>

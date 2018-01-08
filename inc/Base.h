@@ -17,7 +17,6 @@ namespace uBEE
 #define ON_ERROR     '3'
 
 
-
 struct Base {
 
   uWS::Hub assiHub;   // assitant Hub linked to data server for getTick,getBar ...

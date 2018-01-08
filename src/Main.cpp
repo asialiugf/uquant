@@ -34,16 +34,24 @@ int main()
 
   std::cout << " end getTick() !!\n";
 
-  b.onTick([](char* message, size_t len) {
+  int aa = 1009;
+
+  b.onTick([&aa](char* message, size_t len) {
     message[len] = 0;
     std::cout<<" I am in onTick !"<<std::endl;
     std::cout<<message<<std::endl;
+    std::cout << aa << std::endl;
+    aa = 5990;
+    std::cout << aa << std::endl;
   });
 
-  b.onBars([](char* message, size_t len) {
+  b.onBars([&aa](char* message, size_t len) {
     message[len] = 0;
     std::cout<<" I am in onBars !"<<std::endl;
     std::cout<<message<<std::endl;
+    std::cout << aa << std::endl;
+    aa = 5990;
+    std::cout << aa << std::endl;
   });
 
   b.Start();

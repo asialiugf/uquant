@@ -1,0 +1,83 @@
+#ifndef UGG_DATA_H
+#define UGG_DATA_H
+
+#include <uWS/uWS.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <vector>
+#include <queue>
+
+namespace uBEE
+{
+
+struct ApiHub {
+  uWS::Hub   h;
+public:
+  ApiHub(char *);
+  void Start(); 
+
+
+};
+
+struct CtpHub {
+  uWS::Hub   h;
+public:
+  ApiHub(char *);
+  void Start(); 
+
+};
+
+struct SimHub {
+  uWS::Hub   h;
+public:
+  ApiHub(char *);
+  void Start(); 
+
+};
+
+struct bckHub {
+  uWS::Hub   h;
+public:
+  ApiHub(char *);
+  void Start(); 
+
+};
+
+/*
+struct uHub {
+public:
+  uWS::Hub                 hb;   // hub
+  uWS::Group<uWS::SERVER> *sg;   //service group
+  uHub():sg(&hb.getDefaultGroup<uWS::SERVER>()){}
+};
+*/
+
+struct DataHubs {
+  uWS::Hub Mh;                      //   main Hub waiting for client, and then transfer them to SH,CH,VH ...
+  uWS::Hub Nh;  					//   normal data hub for get_history... get_xxx....   recieve -- send.   recieve -- send.
+  uWS::Hub Ch;  					//   ctp hub : most important hub?      send -- send -- send -- stop. and then send --
+  uWS::Hub Sh;                      //   simulation hub  always sending data like ctp ...  send -- send -- send -- never stop
+  std::vector<uWS::Hub>  Vh;   		//   for backtest    recieve -- send -- recieve -- send -- recieve -- stop.
+
+  uWS::Group<uWS::SERVER> *Nsgroup;
+  uWS::Group<uWS::SERVER> *Csgroup;
+  uWS::Group<uWS::SERVER> *Ssgroup;
+
+  int Vhnum;                       //   Vh vector lengh
+
+public:
+  DataHubs(int);
+  void Init();						//  init SH,CH,
+  void Start();  					//  start MH.run()  waiting for client ......
+  void VhInit();
+private:
+  void NhInit();
+  void ChInit();
+  void ShInit();
+};
+
+}
+
+#endif // UGG_DATA_H

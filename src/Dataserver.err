@@ -1,0 +1,23 @@
+#include <uWS/uWS.h>
+#include <uBEE.h>
+#include <DataHubs.h>
+//#include <unistd.h>
+#include <iostream>
+
+#pragma comment(lib, "uWS.lib")
+
+namespace uBEE
+{
+
+int main()
+{
+  uBEE::Base b;
+  /*
+  uBEE::ApiHub  AH;
+  uBEE::CtpHub  CH;
+  uBEE::SimHub  SH;
+  uBEE::BckHub  BH;
+ */
+  return 0;
+}
+} // namespace
