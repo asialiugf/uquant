@@ -121,51 +121,51 @@ $(EXE)tqdata.x: $(MAINOBJS)
 $(EXE)wserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread
 
-$(OBJ)Main.o: $(DEPS) $(SRC)Main.cpp
+$(OBJ)Main.o: $(SRC)Main.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
 
-$(OBJ)HubApi.o: $(DEPS) $(SRC)HubApi.cpp
+$(OBJ)HubApi.o: $(SRC)HubApi.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubApi.o  $(SRC)HubApi.cpp
 
-$(OBJ)HubCtp.o: $(DEPS) $(SRC)HubCtp.cpp
+$(OBJ)HubCtp.o: $(SRC)HubCtp.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubCtp.o  $(SRC)HubCtp.cpp
 
-$(OBJ)HubSim.o: $(DEPS) $(SRC)HubSim.cpp
+$(OBJ)HubSim.o: $(SRC)HubSim.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubSim.o  $(SRC)HubSim.cpp
 
-$(OBJ)HubBck.o: $(DEPS) $(SRC)HubBck.cpp
+$(OBJ)HubBck.o: $(SRC)HubBck.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubBck.o  $(SRC)HubBck.cpp
 
-$(OBJ)Dataserver.o: $(DEPS) $(SRC)Dataserver.cpp
+$(OBJ)Dataserver.o: $(SRC)Dataserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Dataserver.o  $(SRC)Dataserver.cpp
 
-$(OBJ)Tqdata.o: $(DEPS) $(SRC)Tqdata.cpp
+$(OBJ)Tqdata.o: $(SRC)Tqdata.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Tqdata.o  $(SRC)Tqdata.cpp
 
-$(OBJ)Webserver.o: $(DEPS) $(SRC)Webserver.cpp
+$(OBJ)Webserver.o: $(SRC)Webserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Webserver.o  $(SRC)Webserver.cpp
 
-$(OBJ)Base.o: $(DEPS) $(SRC)Base.cpp
+$(OBJ)Base.o: $(SRC)Base.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Base.o  $(SRC)Base.cpp
 
-$(OBJ)File.o: $(DEPS) $(SRC)File.cpp
+$(OBJ)File.o: $(SRC)File.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)File.o  $(SRC)File.cpp
 
-$(OBJ)Json.o: $(DEPS) $(SRC)Json.cpp
+$(OBJ)Json.o: $(SRC)Json.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Json.o  $(SRC)Json.cpp
 
-$(OBJ)Title.o: $(DEPS) $(SRC)Title.cpp
+$(OBJ)Title.o: $(SRC)Title.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Title.o  $(SRC)Title.cpp
 
-$(OBJ)ErrLog.o: $(DEPS) $(SRC)ErrLog.cpp
+$(OBJ)ErrLog.o: $(SRC)ErrLog.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)ErrLog.o  $(SRC)ErrLog.cpp
 
-$(OBJ)FuList.o: $(DEPS) $(SRC)FuList.cpp
+$(OBJ)FuList.o: $(SRC)FuList.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuList.o  $(SRC)FuList.cpp
 
-$(OBJ)Daemon.o: $(DEPS) $(SRC)Daemon.cpp
+$(OBJ)Daemon.o: $(SRC)Daemon.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Daemon.o  $(SRC)Daemon.cpp
 
-$(OBJ)Psqlpool.o: $(DEPS) $(SRC)Psqlpool.cpp
+$(OBJ)Psqlpool.o: $(SRC)Psqlpool.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp
 
