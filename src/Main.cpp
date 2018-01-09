@@ -17,6 +17,11 @@ int main()
   std::cout << "date:"<< fl.Month << std::endl;
   std::cout << "date:"<< fl.Day << std::endl;
 
+  for(int i = 0; i<12; i++) {
+     for( int j=0;j<4;j++ ){
+        std::cout << uBEE::LastDay[i][j] << std::endl;
+     }
+  }
 
 
   // testing end -----------------------------------

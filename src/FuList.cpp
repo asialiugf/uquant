@@ -62,6 +62,8 @@ int FuList::DateDeal(char const *pDate)
 
   Week = week+1;
   return Week;
+
+
 }
 
 void FuList::Init(char const *pDate)
