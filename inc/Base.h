@@ -1,5 +1,5 @@
-#ifndef UGG_BASE_H
-#define UGG_BASE_H
+#ifndef UBEE_BASE_H
+#define UBEE_BASE_H
 
 #include <uWS/uWS.h>
 #include <thread>
@@ -56,4 +56,4 @@ private:
 
 }
 
-#endif // UGG_BASE_H
+#endif // UBEE_BASE_H

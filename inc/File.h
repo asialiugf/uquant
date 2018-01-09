@@ -22,6 +22,6 @@ int SaveBin(const char *FileName, const char * buf, size_t len);
 //int SaveTick(const char *pca_buf, int len);
 //int DispTick(const char *buf) ;
 
-}
+} //namespace
 
 #endif // end UBEE_FILE_H

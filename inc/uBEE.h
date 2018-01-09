@@ -12,5 +12,6 @@
 #include <File.h>
 #include <Json.h>
 #include <ErrLog.h>
+#include "FuList.h"
 
 #endif //UBEE_UBEE_H

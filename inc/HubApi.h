@@ -2,12 +2,14 @@
 #define UBEE_HUBAPI_H
 
 #include <uWS/uWS.h>
+/*
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <functional>
 #include <vector>
 #include <queue>
+*/
 
 namespace uBEE
 {

@@ -1,5 +1,5 @@
-#ifndef UGG_ERRLOG_H
-#define UGG_ERRLOG_H
+#ifndef UBEE_ERRLOG_H
+#define UBEE_ERRLOG_H
 
 namespace uBEE
 {
@@ -30,4 +30,4 @@ int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long l
 
 } // namespace
 
-#endif // UGG_ERRLOG_H
+#endif // UBEE_ERRLOG_H

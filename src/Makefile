@@ -17,6 +17,7 @@ INCS = -I ../inc \
 DEPS = ../inc/Base.h \
 	    ../inc/Echo.h \
 	    ../inc/Title.h \
+	    ../inc/FuList.h \
 	    ../inc/ErrLog.h \
 	    ../inc/Daemon.h \
 	    ../inc/HubCtp.h \
@@ -43,6 +44,7 @@ objs: $(OBJ)Base.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
 	$(OBJ)Title.o \
+	$(OBJ)FuList.o \
 	$(OBJ)ErrLog.o \
 	$(OBJ)Daemon.o \
 	$(OBJ)HubApi.o \
@@ -60,6 +62,7 @@ OBJS:= \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
 	$(OBJ)Title.o \
+	$(OBJ)FuList.o \
     $(OBJ)ErrLog.o \
     $(OBJ)Daemon.o \
     $(OBJ)HubApi.o \
@@ -76,6 +79,7 @@ MAINOBJS:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
     $(OBJ)ErrLog.o \
+	$(OBJ)FuList.o \
 	$(OBJ)Main.o 
 
 DATASERVER:= \
@@ -83,6 +87,7 @@ DATASERVER:= \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
     $(OBJ)Title.o \
+	$(OBJ)FuList.o \
     $(OBJ)ErrLog.o \
     $(OBJ)Daemon.o \
     $(OBJ)HubApi.o \
@@ -154,6 +159,9 @@ $(OBJ)Title.o: $(DEPS) $(SRC)Title.cpp
 
 $(OBJ)ErrLog.o: $(DEPS) $(SRC)ErrLog.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)ErrLog.o  $(SRC)ErrLog.cpp
+
+$(OBJ)FuList.o: $(DEPS) $(SRC)FuList.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuList.o  $(SRC)FuList.cpp
 
 $(OBJ)Daemon.o: $(DEPS) $(SRC)Daemon.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Daemon.o  $(SRC)Daemon.cpp

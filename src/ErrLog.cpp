@@ -1,5 +1,4 @@
 #include "ErrLog.h"
-
 #include <ctype.h>
 #include <errno.h>
 #include <sys/time.h>

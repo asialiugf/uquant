@@ -1,5 +1,5 @@
-#ifndef UGG_ECHO_H
-#define UGG_ECHO_H
+#ifndef UBEE_ECHO_H
+#define UBEE_ECHO_H
 
 namespace uBEE
 {
@@ -30,4 +30,4 @@ typedef struct {
 
 }
 
-#endif // UGG_ECHO_H
+#endif // UBEE_ECHO_H

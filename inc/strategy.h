@@ -1,9 +1,9 @@
-#ifndef UGG_STRATEGY_H
-#define UGG_STRATEGY_H
+#ifndef UBEE_STRATEGY_H
+#define UBEE_STRATEGY_H
 
 namespace uBEE
 {
 
 }
 
-#endif // UGG_STRATEGY_H
+#endif // UBEE_STRATEGY_H

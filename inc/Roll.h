@@ -1,5 +1,5 @@
-#ifndef UGG_ROLL_H
-#define UGG_ROLL_H
+#ifndef UBEE_ROLL_H
+#define UBEE_ROLL_H
 
 #include <string>
 #include <zlib.h>
@@ -19,4 +19,4 @@ public:
 
 }
 
-#endif // UGG_ROLL_H
+#endif // UBEE_ROLL_H

@@ -1,4 +1,5 @@
-#include "uBEE.h"
+#include "HubApi.h"
+#include "ErrLog.h"
 #include <iostream>
 #include <thread>
 #include <unistd.h>
