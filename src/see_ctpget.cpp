@@ -1,10 +1,10 @@
+#include "MdSpi.h"
 #include <iostream>
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "ThostFtdcMdApi.h"
 #include <future.h>
-#include "MdSpi.h"
 
 
 /*

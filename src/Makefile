@@ -19,7 +19,10 @@ DEPS = ../inc/Base.h \
 	    ../inc/Title.h \
 	    ../inc/ErrLog.h \
 	    ../inc/Daemon.h \
-	    ../inc/DataHubs.h \
+	    ../inc/HubCtp.h \
+	    ../inc/HubApi.h \
+	    ../inc/HubSim.h \
+	    ../inc/HubBck.h \
         ../inc/Psqlpool.h \
         ../inc/Roll.h \
         ../inc/File.h \
@@ -42,7 +45,10 @@ objs: $(OBJ)Base.o \
 	$(OBJ)Title.o \
 	$(OBJ)ErrLog.o \
 	$(OBJ)Daemon.o \
-	$(OBJ)DataHubs.o \
+	$(OBJ)HubApi.o \
+	$(OBJ)HubCtp.o \
+	$(OBJ)HubSim.o \
+	$(OBJ)HubBck.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
@@ -56,7 +62,10 @@ OBJS:= \
 	$(OBJ)Title.o \
     $(OBJ)ErrLog.o \
     $(OBJ)Daemon.o \
-    $(OBJ)DataHubs.o \
+    $(OBJ)HubApi.o \
+	$(OBJ)HubCtp.o \
+	$(OBJ)HubSim.o \
+	$(OBJ)HubBck.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
@@ -76,7 +85,10 @@ DATASERVER:= \
     $(OBJ)Title.o \
     $(OBJ)ErrLog.o \
     $(OBJ)Daemon.o \
-    $(OBJ)DataHubs.o \
+    $(OBJ)HubApi.o \
+	$(OBJ)HubCtp.o \
+	$(OBJ)HubSim.o \
+	$(OBJ)HubBck.o \
 	$(OBJ)Dataserver.o 
 
 TQDATA:= \
@@ -107,8 +119,17 @@ $(EXE)wserver.x: $(MAINOBJS)
 $(OBJ)Main.o: $(DEPS) $(SRC)Main.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
 
-$(OBJ)DataHubs.o: $(DEPS) $(SRC)DataHubs.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)DataHubs.o  $(SRC)DataHubs.cpp
+$(OBJ)HubApi.o: $(DEPS) $(SRC)HubApi.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubApi.o  $(SRC)HubApi.cpp
+
+$(OBJ)HubCtp.o: $(DEPS) $(SRC)HubCtp.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubCtp.o  $(SRC)HubCtp.cpp
+
+$(OBJ)HubSim.o: $(DEPS) $(SRC)HubSim.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubSim.o  $(SRC)HubSim.cpp
+
+$(OBJ)HubBck.o: $(DEPS) $(SRC)HubBck.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubBck.o  $(SRC)HubBck.cpp
 
 $(OBJ)Dataserver.o: $(DEPS) $(SRC)Dataserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Dataserver.o  $(SRC)Dataserver.cpp

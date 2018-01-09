@@ -19,7 +19,7 @@ int main()
   //b.MainHubInit();
   //b.Init();
 
-  usleep(1000000);
+  //usleep(1000000);
 
   gettimeofday(&start,NULL);
   for(int i=0; i<100; i++) {

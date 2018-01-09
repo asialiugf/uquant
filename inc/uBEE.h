@@ -1,7 +1,10 @@
 #ifndef UBEE_UBEE_H
 #define UBEE_UBEE_H
 
-#include "DataHubs.h"
+#include "HubApi.h"
+#include "HubBck.h"
+#include "HubCtp.h"
+#include "HubSim.h"
 #include "Daemon.h"
 #include "Title.h"
 #include <Echo.h>
