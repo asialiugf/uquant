@@ -1,4 +1,5 @@
 #include "uBEE.h"
+#include <cjson/cJSON.h>
 #include <iostream>
 #include <thread>
 #include <unistd.h>
@@ -29,20 +30,14 @@ int FuList::isFirstDay(int type,int y,int m, int d)
   }
   switch(y) {
   case 2016:
-    std::cout << "+++++ year:" << y << "   month:" << m << "   day:" << d << "  type: " << type  << std::endl;
-    std::cout << "+++++ LastDay16[m-1][type]:   " << LastDay16[m-1][type] << std::endl;
     rtc = (d<LastDay16[m-1][type]) ? 0:1;
     return rtc;
     break;
   case 2017:
-    std::cout << "+++++ year:" << y << "   month:" << m << "   day:" << d << "  type: " << type  << std::endl;
-    std::cout << "+++++ LastDay17[m-1][type]:   " << LastDay18[m-1][type] << std::endl;
     rtc = (d<LastDay17[m-1][type]) ? 0:1;
     return rtc;
     break;
   case 2018:
-    std::cout << "+++++ year:" << y << "   month:" << m << "   day:" << d << "  type: " << type  << std::endl;
-    std::cout << "+++++ LastDay18[m-1][type]:   " << LastDay18[m-1][type] << std::endl;
     rtc = (d<LastDay18[m-1][type]) ? 0:1;
     return rtc;
     break;
@@ -110,23 +105,8 @@ void FuList::Init(char const *pDate)
   int week;
   week = FuList::DateDeal(pDate);    //会初始化成员变量
   std::cout << "after FuList::DateDeal(pDate)" << Year << Month << Day << "-------\n";
-  /*
-  for(auto it = M_CFFE.begin(); it != M_CFFE.end(); ++it) {
-    std::cout << it->first << ", " << it->second << '\n';
-  }
-  for(auto it = M_SHFE.begin(); it != M_SHFE.end(); ++it) {
-    std::cout << it->first << ", " << it->second << '\n';
-  }
-  for(auto it = M_DCE.begin(); it != M_DCE.end(); ++it) {
-    std::cout << it->first << ", " << it->second << '\n';
-  }
-  for(auto it = M_CZCE.begin(); it != M_CZCE.end(); ++it) {
-    std::cout << it->first << ", " << it->second << '\n';
-  }
-  */
+
   // [1][0]: CFFE  --- [1][1]: SHFE  --- [1][2]: CZCE  --- [1][3]: DCE  ---
- 
-  std::cout << "============================\n";
   FuList::CffeListInit();
   FuList::ShfeListInit();
   FuList::CzceListInit();
@@ -138,24 +118,293 @@ void  FuList::CffeListInit()
   std::cout << "in  FuList::CffeListInit() :" << Year << Month << Day << "-------\n";
   int isFd = isFirstDay(0,Year,Month,Day);
   std::cout << "isFirstDay: CFFE :" << isFd << std::endl;
+
+  for(auto it = M_CFFE.begin(); it != M_CFFE.end(); ++it) {
+    std::cout << it->first << ", " << it->second << '\n';
+  }
 }
 void  FuList::ShfeListInit()
 {
-  std::cout << "in  FuList::ShfeListInit() :" << Year << Month << Day << "-------\n";
-  int isFd = isFirstDay(1,Year,Month,Day);
-  std::cout << "isFirstDay: SHFE :" << isFd << std::endl;
+  int i;
+  char future[31];
+  int curYear;
+
+  int MM[60] ;
+  memset(future,'\0',31);
+
+  for(auto it = M_SHFE.begin(); it != M_SHFE.end(); ++it) {
+    std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n" ;
+    std::cout << it->first << ", " << it->second << '\n';
+    //if( memcmp("au",it->first.c_str(),2) {
+    if("au" == it->first) {
+      std::cout << "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh au !!!\n" ;
+      continue;
+    }
+    if("bu" == it->first) {
+      std::cout << "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh bu !!!\n" ;
+      continue;
+    }
+    cJSON   *root ;
+    cJSON   *jN ;
+    cJSON   *jM ;
+    cJSON   *tmp;
+    int     Nn;      // "N" 的值··
+    int     Mn;      // "M" 数组的长度 ..
+
+    root = cJSON_Parse(it->second.c_str());
+    if(!root) {
+      ErrLog(1000,"message to json error!",1,0,0);
+      return ;
+    }
+
+    jN = cJSON_GetObjectItem(root, "N");
+    if(!jN) {
+      uBEE::ErrLog(1000,"no aid error!",1,0,0);
+      return ;
+    }
+    Nn = jN->valueint;
+
+    jM = cJSON_GetObjectItem(root, "M");
+    if(!jM) {
+      uBEE::ErrLog(1000,"no aid error!",1,0,0);
+      return ;
+    }
+    Mn = cJSON_GetArraySize(jM);
+    if(Mn<=0) {
+      continue ;
+    }
+
+    // ------  fill MM[60] --------------------------
+    int tms = 60/Mn ;
+    int lst = 60 - Mn*tms ;
+    int k =0;
+    for(int j =0; j< tms; j++) {
+      for(i=0; i<Mn; i++) {
+        tmp = cJSON_GetArrayItem(jM,i);
+        MM[k] = tmp->valueint + j*12 ;
+        k++;
+      }
+    }
+    for(i=0; i<lst; i++) {
+      tmp = cJSON_GetArrayItem(jM,i);
+      MM[k] = tmp->valueint + tms*12;
+      k++;
+    }
+    // ------- fill MM[2] ------ end -----------------------------------
+
+    for(i=0; i<Nn; i++) {
+      std::cout<< Month << "  " << MM[i] << std::endl;
+      if(Month <= MM[i]) {
+        k=i;
+        break;
+      }
+    }
+    if(Month == MM[k]) {
+      if(1 == isFirstDay(1,Year,Month,Day)) { 
+        k++;
+      }
+    }
+    std::cout <<  "oooooooooo:::::::" << k << std::endl;
+    for(i=0; i<Nn; i++) {
+      tms = (MM[k]-1)/12;
+      curYear = Year + tms -2000;
+      sprintf(future,"%s%02d%02d",it->first.c_str(),curYear,MM[k]-12*tms);
+      k++;
+      std::cout << future << std::endl;
+    }
+
+    cJSON_Delete(root);
+  } // for 1
 }
 void  FuList::CzceListInit()
 {
-  std::cout << "in  FuList::CzceListInit() :" << Year << Month << Day << "-------\n";
-  int isFd = isFirstDay(2,Year,Month,Day);
-  std::cout << "isFirstDay: CZCE :" << isFd << std::endl;
+  int i;
+  char future[31];
+  int curYear;
+
+  int MM[60] ;
+  memset(future,'\0',31);
+
+  for(auto it = M_CZCE.begin(); it != M_CZCE.end(); ++it) {
+    std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n" ;
+    std::cout << it->first << ", " << it->second << '\n';
+    //if( memcmp("au",it->first.c_str(),2) {
+    if("au" == it->first) {
+      std::cout << "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh au !!!\n" ;
+      continue;
+    }
+    if("bu" == it->first) {
+      std::cout << "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh bu !!!\n" ;
+      continue;
+    }
+    cJSON   *root ;
+    cJSON   *jN ;
+    cJSON   *jM ;
+    cJSON   *tmp;
+    int     Nn;      // "N" 的值··
+    int     Mn;      // "M" 数组的长度 ..
+
+    root = cJSON_Parse(it->second.c_str());
+    if(!root) {
+      ErrLog(1000,"message to json error!",1,0,0);
+      return ;
+    }
+
+    jN = cJSON_GetObjectItem(root, "N");
+    if(!jN) {
+      uBEE::ErrLog(1000,"no aid error!",1,0,0);
+      return ;
+    }
+    Nn = jN->valueint;
+
+    jM = cJSON_GetObjectItem(root, "M");
+    if(!jM) {
+      uBEE::ErrLog(1000,"no aid error!",1,0,0);
+      return ;
+    }
+    Mn = cJSON_GetArraySize(jM);
+    if(Mn<=0) {
+      continue ;
+    }
+
+    // ------  fill MM[60] ---------------------------------------------
+    int tms = 60/Mn ;
+    int lst = 60 - Mn*tms ;
+    int k =0;
+    for(int j =0; j< tms; j++) {
+      for(i=0; i<Mn; i++) {
+        tmp = cJSON_GetArrayItem(jM,i);
+        MM[k] = tmp->valueint + j*12 ;
+        k++;
+      }
+    }
+    for(i=0; i<lst; i++) {
+      tmp = cJSON_GetArrayItem(jM,i);
+      MM[k] = tmp->valueint + tms*12;
+      k++;
+    }
+    // ------- fill MM[2] ------ end -----------------------------------
+
+    for(i=0; i<Nn; i++) {
+      //std::cout<< Month << "  " << MM[i] << std::endl;
+      if(Month <= MM[i]) {
+        k=i;
+        break;
+      }
+    }
+    if(Month == MM[k]) {
+      if(1 == isFirstDay(2,Year,Month,Day)) { 
+        k++;
+      }
+    }
+    std::cout <<  "oooooooooo:::::::" << k << std::endl;
+    for(i=0; i<Nn; i++) {
+      tms = (MM[k]-1)/12;
+      curYear = Year + tms -2010;
+      sprintf(future,"%s%d%02d",it->first.c_str(),curYear,MM[k]-12*tms);
+      k++;
+      std::cout << future << std::endl;
+    }
+
+    cJSON_Delete(root);
+  } // for 1
+
+
+
+
+
 }
+
 void  FuList::DceListInit()
 {
-  std::cout << "in  FuList::DceListInit() :" << Year << Month << Day << "-------\n";
-  int isFd = isFirstDay(3,Year,Month,Day);
-  std::cout << "isFirstDay: DCE :" << isFd << std::endl;
+  int i;
+  char future[31];
+  int curYear;
+
+  int MM[60] ;
+  memset(future,'\0',31);
+
+  for(auto it = M_DCE.begin(); it != M_DCE.end(); ++it) {
+    if("au" == it->first) {
+      std::cout << "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh au !!!\n" ;
+      continue;
+    }
+    if("bu" == it->first) {
+      std::cout << "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh bu !!!\n" ;
+      continue;
+    }
+    cJSON   *root ;
+    cJSON   *jN ;
+    cJSON   *jM ;
+    cJSON   *tmp;
+    int     Nn;      // "N" 的值··
+    int     Mn;      // "M" 数组的长度 ..
+
+    root = cJSON_Parse(it->second.c_str());
+    if(!root) {
+      ErrLog(1000,"message to json error!",1,0,0);
+      return ;
+    }
+
+    jN = cJSON_GetObjectItem(root, "N");
+    if(!jN) {
+      uBEE::ErrLog(1000,"no aid error!",1,0,0);
+      return ;
+    }
+    Nn = jN->valueint;
+
+    jM = cJSON_GetObjectItem(root, "M");
+    if(!jM) {
+      uBEE::ErrLog(1000,"no aid error!",1,0,0);
+      return ;
+    }
+    Mn = cJSON_GetArraySize(jM);
+    if(Mn<=0) {
+      continue ;
+    }
+
+    // ------  fill MM[60] ---------------------------------------------
+    int tms = 60/Mn ;
+    int lst = 60 - Mn*tms ;
+    int k =0;
+    for(int j =0; j< tms; j++) {
+      for(i=0; i<Mn; i++) {
+        tmp = cJSON_GetArrayItem(jM,i);
+        MM[k] = tmp->valueint + j*12 ;
+        k++;
+      }
+    }
+    for(i=0; i<lst; i++) {
+      tmp = cJSON_GetArrayItem(jM,i);
+      MM[k] = tmp->valueint + tms*12;
+      k++;
+    }
+    // ------- fill MM[2] ------ end -----------------------------------
+
+    for(i=0; i<Nn; i++) {
+      std::cout<< Month << "  " << MM[i] << std::endl;
+      if(Month <= MM[i]) {
+        k=i;
+        break;
+      }
+    }
+    if(Month == MM[k]) {
+      if(1 == isFirstDay(3,Year,Month,Day)) {
+        k++;
+      }
+    }
+    std::cout <<  "oooooooooo:::::::" << k << std::endl;
+    for(i=0; i<Nn; i++) {
+      tms = (MM[k]-1)/12;
+      curYear = Year + tms - 2000;
+      sprintf(future,"%s%02d%02d",it->first.c_str(),curYear,MM[k]-12*tms);
+      k++;
+      std::cout << future << std::endl;
+    }
+
+    cJSON_Delete(root);
+  } // for 1
 }
+
 
 } // namespace

@@ -110,7 +110,7 @@ WEBSERVER:= \
 	$(OBJ)Webserver.o 
 
 $(EXE)main.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) -luWS -lssl -lz -lpthread
+	$(CC) $(CPPFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)dserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
