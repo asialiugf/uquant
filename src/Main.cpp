@@ -10,7 +10,7 @@ int main()
   //  for testing !! ------------------------------
 
   uBEE::FuList fl;
-  fl.Init("20180101");
+  fl.Init("20180116");
   std::cout << "week:"<< fl.Week << std::endl;
   std::cout << "date:"<< fl.Date << std::endl;
   std::cout << "date:"<< fl.Year << std::endl;
@@ -19,7 +19,7 @@ int main()
 
   for(int i = 0; i<12; i++) {
      for( int j=0;j<4;j++ ){
-        std::cout << uBEE::LastDay[i][j] << std::endl;
+        std::cout << uBEE::LastDay16[i][j] << std::endl;
      }
   }
 
