@@ -281,6 +281,7 @@ private:
   void ShfeListInit();
   void CzceListInit();
   void DceListInit();
+  void TK(int);
 };
 
 } // namespace

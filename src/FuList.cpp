@@ -13,6 +13,24 @@ namespace uBEE
 FuList::FuList()
 {
 }
+
+void FuList::TK(int a)
+{
+  const std::map<std::string,std::string> *MP ;
+
+  if(a ==1) {
+    std::cout <<  "TK 11111111111111111111111 \n" ;
+    MP = &M_SHFE;
+  } else {
+    std::cout <<  "TK 22222222222222222222222 \n" ;
+    MP = &M_CFFE;
+  }
+  for(auto it = (*MP).begin(); it != (*MP).end(); ++it) {
+    std::cout << it->first << ", " << it->second << '\n';
+  }
+}
+
+
 int FuList::isFirstDay(int type,int y,int m, int d)
 {
   int rtc = -1;
@@ -107,6 +125,9 @@ void FuList::Init(char const *pDate)
   std::cout << "after FuList::DateDeal(pDate)" << Year << Month << Day << "-------\n";
 
   // [1][0]: CFFE  --- [1][1]: SHFE  --- [1][2]: CZCE  --- [1][3]: DCE  ---
+  FuList::TK(2);
+  FuList::TK(1);
+  FuList::TK(3);
   FuList::CffeListInit();
   FuList::ShfeListInit();
   FuList::CzceListInit();
@@ -200,7 +221,7 @@ void  FuList::ShfeListInit()
       }
     }
     if(Month == MM[k]) {
-      if(1 == isFirstDay(1,Year,Month,Day)) { 
+      if(1 == isFirstDay(1,Year,Month,Day)) {
         k++;
       }
     }
@@ -293,7 +314,7 @@ void  FuList::CzceListInit()
       }
     }
     if(Month == MM[k]) {
-      if(1 == isFirstDay(2,Year,Month,Day)) { 
+      if(1 == isFirstDay(2,Year,Month,Day)) {
         k++;
       }
     }
@@ -308,9 +329,6 @@ void  FuList::CzceListInit()
 
     cJSON_Delete(root);
   } // for 1
-
-
-
 
 
 }
