@@ -142,7 +142,7 @@ int FuList::Init(char const *pDate)
   std::cout << "after FuList::DateDeal(pDate)" << Year << Month << Day << "-------\n";
 
   // [1][0]: CFFE  --- [1][1]: SHFE  --- [1][2]: CZCE  --- [1][3]: DCE  ---
-  //FuList::CffeListInit();
+  FuList::CffeListInit();
   FuList::ListInit(TYPE_SHFE);
   FuList::ListInit(TYPE_CZCE);
   FuList::ListInit(TYPE_DCE);
@@ -164,13 +164,188 @@ int FuList::Init(char const *pDate)
 
 void  FuList::CffeListInit()
 {
-  std::cout << "in  FuList::CffeListInit() :" << Year << Month << Day << "-------\n";
-  int isFd = isFirstDay(0,Year,Month,Day);
+  int isFd = isFirstDay(TYPE_CFFE,Year,Month,Day);
+  int m1;
+  int m2;
+  int j1;
+  int j2;
+  int FuNum = 0;
+  int y1= Year -2000;
+  int y2= y1+1;
+  char future[31] ;
+  memset(future,'\0',31);
   std::cout << "isFirstDay: CFFE :" << isFd << std::endl;
 
   for(auto it = M_CFFE.begin(); it != M_CFFE.end(); ++it) {
-    std::cout << it->first << ", " << it->second << '\n';
-  }
+    if(1==isFirstDay(TYPE_CFFE,Year,Month,Day)) {
+      m1 = Month + 1;
+      m2 = Month + 2;
+    } else {
+      m1 = Month ;
+      m2 = Month + 1;
+    }
+    //        3     6     9       12       15     18     21     24
+    //   1  2  4 5   7 8   10 11    13 14
+
+    if("IF" == it->first || "IC" == it->first || "IH" == it->first) {
+      if(m2 < 3) {
+        for(int i = 0; i<2; i++) {
+          memset(future,'\0',31);
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(m1+i));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          FuNum ++;
+        }
+        for(int i = 0; i<2; i++) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(3+i*3));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        }
+      } else if(m2 < 6) {
+        for(int i = 0; i<2; i++) {
+          memset(future,'\0',31);
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(m1+i));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          FuNum ++;
+        }
+        for(int i = 0; i<2; i++) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(6+i*3));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        }
+        // 6 9
+      } else if(m2 < 9) {
+        for(int i = 0; i<2; i++) {
+          memset(future,'\0',31);
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(m1+i));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          FuNum ++;
+        }
+        for(int i = 0; i<2; i++) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(9+i*3));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        }
+        //9 12
+      } else if(m2 < 12) {
+        for(int i = 0; i<2; i++) {
+          memset(future,'\0',31);
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(m1+i));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          FuNum ++;
+        }
+        sprintf(future,"%s%d%02d",it->first.c_str(),y1,12);
+        memcpy(CffeList[FuNum],future,strlen(future));
+        memset(future,'\0',31);
+        FuNum ++;
+        sprintf(future,"%s%d%02d",it->first.c_str(),y2,3);
+        memcpy(CffeList[FuNum],future,strlen(future));
+        memset(future,'\0',31);
+        FuNum ++;
+        //12 3
+      } else if(m2 < 15) {
+        if(m1<=12) {
+            memset(future,'\0',31);
+            sprintf(future,"%s%d%02d",it->first.c_str(),y1,m1);
+            memcpy(CffeList[FuNum],future,strlen(future));
+            FuNum ++;
+        } else {
+            memset(future,'\0',31);
+            sprintf(future,"%s%d%02d",it->first.c_str(),y2,m1-12);
+            memcpy(CffeList[FuNum],future,strlen(future));
+            FuNum ++;
+        }
+
+        if(m2<=12) {
+            memset(future,'\0',31);
+            sprintf(future,"%s%d%02d",it->first.c_str(),y1,m2);
+            memcpy(CffeList[FuNum],future,strlen(future));
+            FuNum ++;
+        } else {
+            memset(future,'\0',31);
+            sprintf(future,"%s%d%02d",it->first.c_str(),y2,m2-12);
+            memcpy(CffeList[FuNum],future,strlen(future));
+            FuNum ++;
+        }
+
+        for(int i = 0; i<2; i++) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,(3+i*3));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        }
+
+      } else if(m2 < 18) {
+        //18 21
+      }
+    }
+    
+    if("TF" == it->first || "T" == it->first) {
+      if(m1 <= 3) {
+        for(int i = 0; i<3; i++) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(3+i*3));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        }
+        //3 6 9
+      } else if(m1 <= 6) {
+        for(int i = 0; i<3; i++) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,(6+i*3));
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        }
+        //6 9 12
+      } else if(m1 <= 9) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,9);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,12);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,3);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        //9 12 3
+      } else if(m1 <= 12) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y1,12);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,3);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,6);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        //12 3 6
+      } else if(m1 <= 15) {
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,3);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,6);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+          sprintf(future,"%s%d%02d",it->first.c_str(),y2,9);
+          memcpy(CffeList[FuNum],future,strlen(future));
+          memset(future,'\0',31);
+          FuNum ++;
+        //15 18 21
+      }
+    }
+    
+
+  } //for
 }
 
 void FuList::ListInit(int type)
@@ -207,8 +382,7 @@ void FuList::ListInit(int type)
   int FuNum = 0;
   for(auto it = (*MP).begin(); it != (*MP).end(); ++it) {
     // -------------begin---------------  各种异常处理 ---------------------
-    if("AP" == it->first)
-    {
+    if("AP" == it->first) {
       if(memcmp(Date,"20171222",8)<0) {
         continue;
       }

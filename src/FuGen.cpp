@@ -44,5 +44,12 @@ int main()
     }
   }
   std::cout << " \n---------------------------------------------------------------------------\n";
+  for(int i = 0; i< CFFE_NUMBER; i++) {
+    std::cout << fl.CffeList[i] << " " ;
+    if(memcmp(fl.CffeList[i],fl.CffeList[i+1],2)!=0) {
+       std::cout << std::endl;
+    }
+  }
+  std::cout << " \n---------------------------------------------------------------------------\n";
   return 0;
 }
