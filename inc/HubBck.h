@@ -20,13 +20,13 @@ public:
   HubBck();
   void Init();
   void Start();
+  void Run();
 private:
   void S_onDisconnection();
   void S_onConnection();
   void S_onMessage();
   void S_onPong();
   void S_Listen();
-  void Run();
 };
 
 } //namespace

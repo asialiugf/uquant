@@ -28,7 +28,8 @@ void HubBck::S_onMessage()
     message[0] = '0';
     uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
     message[length-1] = 0;
-    printf("Server onMessage receive: %s\n", message);
+    int pid = getpid();
+    printf("pid: %d   Server onMessage receive: %s\n", pid,message);
     ws->send(message, length, opCode);
     std::printf("Server onMessage send: %s\n", tmp);
   });
@@ -78,7 +79,7 @@ void  HubBck::Start()
   HubBck::S_onMessage();
   HubBck::S_onPong();
   HubBck::S_Listen();
-  HubBck::Run();
+  //HubBck::Run();
 }
 
 } // namespace

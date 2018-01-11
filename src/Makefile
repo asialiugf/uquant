@@ -38,12 +38,14 @@ binary: objs exes
 exes: $(EXE)main.x \
 	$(EXE)dserver.x \
 	$(EXE)tqdata.x \
+	$(EXE)fugen.x \
 	$(EXE)wserver.x
 
 objs: $(OBJ)Base.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
 	$(OBJ)Title.o \
+	$(OBJ)FuGen.o \
 	$(OBJ)FuList.o \
 	$(OBJ)ErrLog.o \
 	$(OBJ)Daemon.o \
@@ -103,6 +105,14 @@ TQDATA:= \
     $(OBJ)ErrLog.o \
 	$(OBJ)Tqdata.o 
 
+FUGEN:= \
+    $(OBJ)Base.o \
+    $(OBJ)File.o \
+    $(OBJ)Json.o \
+	$(OBJ)FuList.o \
+    $(OBJ)ErrLog.o \
+    $(OBJ)FuGen.o
+
 WEBSERVER:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
@@ -118,11 +128,17 @@ $(EXE)dserver.x: $(MAINOBJS)
 $(EXE)tqdata.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
+$(EXE)fugen.x: $(MAINOBJS)
+	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
+
 $(EXE)wserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread
 
 $(OBJ)Main.o: $(SRC)Main.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
+
+$(OBJ)FuGen.o: $(SRC)FuGen.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuGen.o  $(SRC)FuGen.cpp
 
 $(OBJ)HubApi.o: $(SRC)HubApi.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubApi.o  $(SRC)HubApi.cpp

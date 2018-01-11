@@ -12,6 +12,7 @@ int ForkApi();
 int ForkBck();
 int ForkCtp();
 int ForkSim();
+uBEE::HubBck hb;
 int main(int argc, char **argv)
 {
 
@@ -19,15 +20,22 @@ int main(int argc, char **argv)
   int pid;
   uBEE::Daemon(1,0) ;
 
+  hb.Init();
+  hb.Start();
+
   pid = getpid();
 
   uBEE::SaveArgv(argc,argv);
   uBEE::InitSetProcTitle();
   uBEE:: SetProcTitle("AAA","DataServer:");
 
+
   rtn = ForkApi();
   sleep(1);
-  rtn = ForkBck();
+  for(int i=0; i<5; i++) {
+    rtn = ForkBck();
+    sleep(1);
+  }
   sleep(1);
   rtn = ForkCtp();
   sleep(1);
@@ -71,7 +79,6 @@ int ForkBck()
   int pid;
   int i = 0;
   pid = fork();
-  uBEE::HubBck hub;
   switch(pid) {
   case -1:
     return -1;
@@ -80,8 +87,7 @@ int ForkBck()
     pid = getpid();
     uBEE::InitSetProcTitle();
     uBEE:: SetProcTitle("HubBck:","AAA :");
-    hub.Init();
-    hub.Start();
+    hb.Run();
     break;
   default:
     break;
@@ -111,7 +117,7 @@ int ForkCtp()
     std::thread t([&hub,&brMsg,&brMsgLength] {
       while(1)
       {
-        std::cout << " will broadcast !! " << std::endl;
+        //std::cout << " will broadcast !! " << std::endl;
         hub.sg->broadcast(brMsg, brMsgLength, uWS::OpCode::TEXT);
         sleep(1);
       }
@@ -119,8 +125,8 @@ int ForkCtp()
     t.detach();
     hub.Start();
 
-    break;
   }
+  break;
   default:
     break;
   }
@@ -133,18 +139,19 @@ int ForkSim()
   int pid;
   int i = 0;
   pid = fork();
-  uBEE::HubSim hub;
   switch(pid) {
   case -1:
     return -1;
 
-  case 0:
+  case 0: {
+    uBEE::HubSim hub;
     pid = getpid();
     uBEE::InitSetProcTitle();
     uBEE:: SetProcTitle("HubSim:","AAA :");
     hub.Init();
     hub.Start();
-    break;
+  }
+  break;
   default:
     break;
   }
