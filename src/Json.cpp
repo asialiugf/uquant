@@ -39,6 +39,7 @@ int Tqjson(const char*message,int tt)
     return -1;
   }
 
+  /*
   buf = cJSON_Print(root);
   if(!buf) {
     ErrLog(1000,"---- buf = cJSON_Print(root) ---- error!",1,0,0);
@@ -48,6 +49,7 @@ int Tqjson(const char*message,int tt)
   SaveBin("newtick.json", buf, strlen(buf));
   SaveLine("newtick.json", "--------------- kkkkkkkkkkk ----------------------\n");
   free(buf);
+  */
 
   temp = cJSON_GetObjectItem(root, "aid");
   if(!temp) {
@@ -168,32 +170,32 @@ int Klines(cJSON *klines)
   memset(ca_filename,'\0',512);
   ii = cJSON_GetArraySize(klines);
   if(ii<=0) {
-    SaveError(klines,"-K ----  ii = cJSON_GetArraySize(klines)  ---- error!\n");
+    //SaveError(klines,"-K ----  ii = cJSON_GetArraySize(klines)  ---- error!\n");
     return -1;
   };
 
   for(i=0; i<ii; i++) {
     futu = cJSON_GetArrayItem(klines,i);  // get future 1,2,3...
     if(!futu) {
-      SaveError(klines,"-K ----  cJSON_GetArrayItem(klines,i) ---- error! ");
+      //SaveError(klines,"-K ----  cJSON_GetArrayItem(klines,i) ---- error! ");
       continue;
     }
 
     jj = cJSON_GetArraySize(futu);
     if(jj <=0) {
-      SaveError(klines,"-K ---- jj = cJSON_GetArraySize(futu) ---- error!\n");
+      //SaveError(klines,"-K ---- jj = cJSON_GetArraySize(futu) ---- error!\n");
       continue;
     };
     for(j=0; j<jj; j++) {
       period = cJSON_GetArrayItem(futu,j);   // get period 3s 1m 5m ...
       if(!period) {
-        SaveError(klines,"-K ---- period = cJSON_GetArrayItem(futu,j) ---- error!\n");
+        //SaveError(klines,"-K ---- period = cJSON_GetArrayItem(futu,j) ---- error!\n");
         continue;
       }
 
       size_t len = strlen(period->string);
       if(len<6) {
-        SaveError(klines,"-K ---- period error  len<6---- error!\n");
+        //SaveError(klines,"-K ---- period error  len<6---- error!\n");
         continue;
       }
 
@@ -202,25 +204,25 @@ int Klines(cJSON *klines)
       if(memcmp((char *)(pd+(len-6)),"000000",6)!=0) {
         uBEE::ErrLog(1000,pd,1,0,0);
         uBEE::ErrLog(1000,(char *)(pd+(len-6)),1,0,0);
-        SaveError(klines,"-K ---- period error ---- error!\n");
+        //SaveError(klines,"-K ---- period error ---- error!\n");
         continue;
       }
 
       kk = cJSON_GetArraySize(period);
       if(kk <=0) {
-        SaveError(klines,"-K ---- kk = cJSON_GetArraySize(period) ---- error!\n");
+        //SaveError(klines,"-K ---- kk = cJSON_GetArraySize(period) ---- error!\n");
         continue;
       };
       for(k=0; k<kk; k++) {
         data = cJSON_GetArrayItem(period,k);  // get data from period ...
         if(!data) {
-          SaveError(klines,"-K ---- data ---- error!\n");
+          //SaveError(klines,"-K ---- data ---- error!\n");
           continue;
         }
 
         ll = cJSON_GetArraySize(data);
         if(ll <=0) {
-          SaveError(klines,"-K---- ll = cJSON_GetArraySize(data) ----  error!\n");
+          //SaveError(klines,"-K---- ll = cJSON_GetArraySize(data) ----  error!\n");
           continue;
         };
 
@@ -244,18 +246,18 @@ int Klines(cJSON *klines)
         for(l=0; l<ll; l++) {
           item = cJSON_GetArrayItem(data,l);  // get item from data ...
           if(!item) {
-            SaveError(klines,"-K---- item error ---- error!\n");
+            //SaveError(klines,"-K---- item error ---- error!\n");
             continue;
           }
           datetime = cJSON_GetObjectItem(item, "datetime");
           if(!datetime) {
-            SaveError(klines,"-K---- datetime ---- error!\n");
+            //SaveError(klines,"-K---- datetime ---- error!\n");
             continue;
           }
 
           buf = cJSON_Print(item);
           if(!buf) {
-            SaveError(klines,"-K---- buf = cJSON_Print(item) ---- error!\n");
+            //SaveError(klines,"-K---- buf = cJSON_Print(item) ---- error!\n");
             continue;
           }
 
@@ -311,20 +313,20 @@ int Ticks(cJSON *ticks)
   memset(ca_filename,'\0',512);
   ii = cJSON_GetArraySize(ticks);
   if(ii<=0) {
-    SaveError(ticks,"-T ----  ii = cJSON_GetArraySize(ticks)  ---- error!\n");
+    //SaveError(ticks,"-T ----  ii = cJSON_GetArraySize(ticks)  ---- error!\n");
     return -1;
   };
 
   for(i=0; i<ii; i++) {
     futu = cJSON_GetArrayItem(ticks,i);  // get future 1,2,3...
     if(!futu) {
-      SaveError(ticks,"-T ----  cJSON_GetArrayItem(ticks,i) ---- error! ");
+      //SaveError(ticks,"-T ----  cJSON_GetArrayItem(ticks,i) ---- error! ");
       continue;
     }
 
     kk = cJSON_GetArraySize(futu);
     if(kk <=0) {
-      SaveError(ticks,"-T ---- kk = cJSON_GetArraySize(period) ---- error!\n");
+      //SaveError(ticks,"-T ---- kk = cJSON_GetArraySize(period) ---- error!\n");
       continue;
     };
 
@@ -334,13 +336,13 @@ int Ticks(cJSON *ticks)
     for(k=0; k<kk; k++) {
       data = cJSON_GetArrayItem(futu,k);  // get data from future ...
       if(!data) {
-        SaveError(ticks,"-T ---- data ---- error!\n");
+        //SaveError(ticks,"-T ---- data ---- error!\n");
         continue;
       }
 
       ll = cJSON_GetArraySize(data);
       if(ll <=0) {
-        SaveError(ticks,"-T---- ll = cJSON_GetArraySize(data) ----  error!\n");
+        //SaveError(ticks,"-T---- ll = cJSON_GetArraySize(data) ----  error!\n");
         continue;
       };
 
@@ -359,18 +361,18 @@ int Ticks(cJSON *ticks)
       for(l=0; l<ll; l++) {
         item = cJSON_GetArrayItem(data,l);  // get item from data ...
         if(!item) {
-          SaveError(ticks,"-T---- item error ---- error!\n");
+          //SaveError(ticks,"-T---- item error ---- error!\n");
           continue;
         }
         datetime = cJSON_GetObjectItem(item, "datetime");
         if(!datetime) {
-          SaveError(ticks,"-T---- datetime ---- error!\n");
+          //SaveError(ticks,"-T---- datetime ---- error!\n");
           continue;
         }
 
         buf = cJSON_Print(item);
         if(!buf) {
-          SaveError(ticks,"-T---- buf = cJSON_Print(item) ---- error!\n");
+          //SaveError(ticks,"-T---- buf = cJSON_Print(item) ---- error!\n");
           continue;
         }
 

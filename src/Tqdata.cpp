@@ -144,7 +144,9 @@ int main()
       //std::vector<std::string> cmds = uBEE::Command("./cmd");
       std::vector<std::string> cmds = uBEE::Command(filename);
 
+      int count = cmds.size();
       for(int i = 0; i <200; i++) {
+      //for(int i = 0; i<count; i++) {
         std::cout << cmds[i] << std::endl;
         ws->send(cmds[i].c_str());
       }
