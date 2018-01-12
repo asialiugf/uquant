@@ -489,14 +489,12 @@ void FuList::ListInit(int type)
       sprintf(future,"%s%d%02d",it->first.c_str(),curYear,curMonth);
       // ------------异常处理 过滤-----豆2-------------begin ---------
       if("b" == it->first && curYear <18) {
-        std::cout << it->first << "," << curYear << std::endl;
         if(curMonth&1) {
         } else {
           continue;
         }
       } else if("b" == it->first && curYear == 18) {
         if(curMonth ==2 ||  curMonth ==4) {
-          std::cout << it->first << "," << curYear <<"<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
           continue;
         }
       }
