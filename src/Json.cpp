@@ -584,16 +584,7 @@ std::string TicksCheck(const char * serials, cJSON *tick)
   cJSON *volume = cJSON_GetObjectItem(tick,"volume");
   cJSON *trading_day = cJSON_GetObjectItem(tick,"trading_day");
 
-  double d_ask_price1 = ask_price1->valuedouble;
-  double d_ask_volume1 = ask_volume1->valuedouble;
-  double d_bid_volume1 = bid_volume1->valuedouble;
-  double d_bid_price1 = bid_price1->valuedouble;
-  double d_last_price = last_price->valuedouble;
-  double d_open_interest = open_interest->valuedouble;
   double d_datetime = datetime->valuedouble;
-  double d_highest = highest->valuedouble;
-  double d_lowest = lowest->valuedouble;
-  double d_volume = volume->valuedouble;
   double d_trading_day = trading_day->valuedouble;
 
   char ca_trading_day[31];
