@@ -118,20 +118,6 @@ int FuList::Init(int y,int m, int d)
   FuList::ListInit(TYPE_SHFE);
   FuList::ListInit(TYPE_CZCE);
   FuList::ListInit(TYPE_DCE);
-  /*
-  std::cout << " \n---------------------------------------------------------------------------\n";
-  for(int i = 0; i< SHFE_NUMBER; i++) {
-    std::cout << ShfeList[i] << " " ;
-  }
-  std::cout << " \n---------------------------------------------------------------------------\n";
-  for(int i = 0; i< SHFE_NUMBER; i++) {
-    std::cout << CzceList[i] <<  " " ;
-  }
-  std::cout << " \n---------------------------------------------------------------------------\n";
-  for(int i = 0; i< SHFE_NUMBER; i++) {
-    std::cout << DceList[i] << " " ;
-  }
-  */
 }
 
 void  FuList::CffeListInit()
@@ -354,6 +340,9 @@ void FuList::ListInit(int type)
   memset(future,'\0',31);
 
   for(auto it = (*MP).begin(); it != (*MP).end(); ++it) {
+    ErrLog(1000,it->first.c_str(),1,0,0);
+    ErrLog(1000,it->second.c_str(),1,0,0);
+
     if(1==isFirstDay(TYPE_CFFE,Year,Month,Day)) {
       m1 = Month + 1;
       m2 = Month + 2;
@@ -391,7 +380,6 @@ void FuList::ListInit(int type)
       }
       for(i=0; i<5; i++) {
         m2 += 2;
-        std::cout << m2 << "----------------------------------------------------------------- " << i << std::endl;
         if(m2 > 12) {
           sprintf(future,"%s%d%02d",it->first.c_str(),y2,(m2-12));
           memcpy(pFL[FuNum],future,strlen(future));
@@ -424,7 +412,6 @@ void FuList::ListInit(int type)
       m2 = ((m1+5)/3)*3;
       for(i=0; i<6; i++) {
         m2 += 3;
-        std::cout << m2 << "-----------------------------------bu------------------------------ " << i << std::endl;
         if(m2 > 12) {
           int x = (m2-1)/12 ;
           sprintf(future,"%s%d%02d",it->first.c_str(),(y1+x),(m2-12*x));
@@ -447,28 +434,15 @@ void FuList::ListInit(int type)
     int     Mn;      // "M" 数组的长度 ..
 
     root = cJSON_Parse(it->second.c_str());
-    if(!root) {
-      ErrLog(1000,"message to json error!",1,0,0);
-      return ;
-    }
 
     jN = cJSON_GetObjectItem(root, "N");
-    if(!jN) {
-      ErrLog(1000,"no aid error!",1,0,0);
-      return ;
-    }
     Nn = jN->valueint;
 
     jM = cJSON_GetObjectItem(root, "M");
-    if(!jM) {
-      ErrLog(1000,"no aid error!",1,0,0);
-      return ;
-    }
     Mn = cJSON_GetArraySize(jM);
-    if(Mn<=0) {
-      continue ;
-    }
 
+    // MM[]  1 3 5 7 9 11 13 15 17 19 21 23 25 ....
+    // MM[]         ^ start          ^ end    
     // ------  fill MM[60] ---------------------------------------------
     int tms = 60/Mn ;
     int lst = 60 - Mn*tms ;
@@ -493,41 +467,34 @@ void FuList::ListInit(int type)
 
     k=0;
     i=0;
-    /*
-    for(i=0; i<Nn; i++) {
-      std::cout << i << " " << Month << " " << MM[i] << std::endl ;
-      if(Month <= MM[i]) {
-        k=i;
-        std::cout <<  "::::" << k << std::endl;
-        break;
-      }
-    }
-    */
     while(Month > MM[i]) {
       i++;
     }
     k=i;
-    std::cout <<  "::::" << k << std::endl;
-    std::cout <<  "oooooooooo:::::::" << k << std::endl;
     if(Month == MM[k]) {
       if(1 == isFirstDay(type,Year,Month,Day)) {
         k++;
       }
     }
-    std::cout <<  "oooooooooo:::::::" << k << std::endl;
     for(i=0; i<Nn; i++) {
       tms = (MM[k]-1)/12;
       curYear = Year + tms - DifYear;
       memset(future,'\0',31);
       sprintf(future,"%s%d%02d",it->first.c_str(),curYear,MM[k]-12*tms);
       k++;
+      //  ------------异常处理 过滤------------------begin ---------
       if(memcmp(future,"AP801",5)==0)  continue;
       if(memcmp(future,"AP803",5)==0)  continue;
+      if(memcmp(future,"fu1602",6)==0)  continue;
+      if(memcmp(future,"fu1701",6)==0)  continue;
+      if(memcmp(future,"fu1802",6)==0)  continue;
+      if(memcmp(future,"fu1902",6)==0)  continue;
+      if(memcmp(future,"fu2001",6)==0)  continue;
+      if(memcmp(future,"fu2102",6)==0)  continue;
+      //  ------------异常处理 过滤------------------begin ---------
       memcpy(pFL[FuNum],future,strlen(future));
       FuNum ++;
-      std::cout << future << " ";
     }
-    std::cout << future << "\n";
 
     cJSON_Delete(root);
   } // for 1
