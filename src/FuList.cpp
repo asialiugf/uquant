@@ -356,6 +356,13 @@ void FuList::ListInit(int type)
         continue;
       }
     }
+
+    if("CY" == it->first) {
+      if(memcmp(Date,"20170818",8)<0) {
+        continue;
+      }
+    }
+
     // -- au ----------------------------------------
     if("au" == it->first) {
       int y1= Year -2000;
@@ -485,6 +492,13 @@ void FuList::ListInit(int type)
       //  ------------异常处理 过滤------------------begin ---------
       if(memcmp(future,"AP801",5)==0)  continue;
       if(memcmp(future,"AP803",5)==0)  continue;
+
+      if(memcmp(future,"CY708",5)==0)  continue;
+      if(memcmp(future,"CY709",5)==0)  continue;
+      if(memcmp(future,"CY710",5)==0)  continue;
+      if(memcmp(future,"CY711",5)==0)  continue;
+      if(memcmp(future,"CY712",5)==0)  continue;
+
       if(memcmp(future,"fu1602",6)==0)  continue;
       if(memcmp(future,"fu1701",6)==0)  continue;
       if(memcmp(future,"fu1802",6)==0)  continue;
