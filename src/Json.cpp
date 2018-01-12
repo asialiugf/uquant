@@ -417,13 +417,13 @@ std::vector<std::string> Command(const char *filename)
   }
 
   std::vector<std::string> cmds;//this vector will be returned
-  std::string future;
+  std::string line;
   std::string cmd;
 
   //"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
-  while(std::getline(file, future)) {
-    cmd = "{\"chart_id\":\"TT_" + future + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\""
-          + future + "\"}"  ;
+  while(std::getline(file, line)) {
+    cmd = "{\"chart_id\":\"TT_" + line + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\""
+          + line + "\"}"  ;
     cmds.push_back(cmd);
   }
   file.close();

@@ -102,6 +102,7 @@ TQDATA:= \
 	$(OBJ)Base.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
+	$(OBJ)FuList.o \
     $(OBJ)ErrLog.o \
 	$(OBJ)Tqdata.o 
 

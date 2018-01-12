@@ -1,5 +1,5 @@
 #include <uWS/uWS.h>
-#include <uBEE.h>
+#include "uBEE.h"
 #include <iostream>
 #include <sys/time.h>
 
@@ -10,6 +10,8 @@ int main()
   uWS::Hub h;
 
   int tt = 0 ;
+  int y,m,d;
+  char filename[256];
 
   std::cout << std::endl;
   std::cout << "            Input type description: " << std::endl;
@@ -20,12 +22,76 @@ int main()
   std::cout << "            5: Quotes & Kicks  " << std::endl;
   std::cout << "            6: Quotes & Ticks  " << std::endl;
   std::cout << "            7: All  Q & K & T  " << std::endl;
-  std::cout << "            Please Input type: ";  
+  std::cout << "            Please Input type: ";
   std::cin >> tt ;
+  std::cout << std::endl;
+  std::cout << "            X: Pleae Input Year:  ";
+  std::cin >> y;
+  std::cout << std::endl;
+  std::cout << "            X: Pleae Input Month:  ";
+  std::cin >> m ;
+  std::cout << std::endl;
+  std::cout << "            X: Pleae Input Month:  ";
+  std::cin >> d ;
+  std::cout << std::endl;
+
+  uBEE::FuList fl;
+  int rtn = fl.Init(y,m,d);
+  if(rtn < 0) {
+    exit(-1);
+  }
+
+  memset(filename,'\0',256);
+  sprintf(filename,"%s",fl.Date);
+
+  std::cout << "week:"<< fl.Week << std::endl;
+  std::cout << "date:"<< fl.Date << std::endl;
+  std::cout << "date:"<< fl.Year << std::endl;
+  std::cout << "date:"<< fl.Month << std::endl;
+  std::cout << "date:"<< fl.Day << std::endl;
+  std::cout << " \n---------------------------------------------------------------------------\n";
+  for(int i = 0; i< SHFE_NUMBER; i++) {
+    std::cout << fl.ShfeList[i] << " " ;
+    if(strlen(fl.ShfeList[i]) == 0) continue;
+    uBEE::SaveLine(filename,fl.ShfeList[i]);
+    if(memcmp(fl.ShfeList[i],fl.ShfeList[i+1],2)!=0) {
+      std::cout << std::endl;
+    }
+  }
+  std::cout << " \n---------------------------------------------------------------------------\n";
+  for(int i = 0; i< SHFE_NUMBER; i++) {
+    std::cout << fl.CzceList[i] <<  " " ;
+    if(strlen(fl.CzceList[i]) == 0) continue;
+    uBEE::SaveLine(filename,fl.CzceList[i]);
+    if(memcmp(fl.CzceList[i],fl.CzceList[i+1],2)!=0) {
+      std::cout << std::endl;
+    }
+  }
+  std::cout << " \n---------------------------------------------------------------------------\n";
+  for(int i = 0; i< SHFE_NUMBER; i++) {
+    std::cout << fl.DceList[i] << " " ;
+    if(strlen(fl.DceList[i]) == 0) continue;
+    uBEE::SaveLine(filename,fl.DceList[i]);
+    if(memcmp(fl.DceList[i],fl.DceList[i+1],2)!=0) {
+      std::cout << std::endl;
+    }
+  }
+  std::cout << " \n---------------------------------------------------------------------------\n";
+  for(int i = 0; i< CFFE_NUMBER; i++) {
+    std::cout << fl.CffeList[i] << " " ;
+    if(strlen(fl.CffeList[i]) == 0) continue;
+    uBEE::SaveLine(filename,fl.CffeList[i]);
+    if(memcmp(fl.CffeList[i],fl.CffeList[i+1],2)!=0) {
+      std::cout << std::endl;
+    }
+  }
+  std::cout << " \n---------------------------------------------------------------------------\n";
+  std::cout << fl.Date << "????" << std::endl;
 
 
   // --------------------------------------------------------------------------------------------
   // 服务端接收到包后原封不动返回
+  /*
   h.onConnection([&tt](uWS::WebSocket<uWS::SERVER> *ws, uWS::HttpRequest req) {
     if(tt != 1) {
       std::vector<std::string> cmds = uBEE::Command("./cmd");
@@ -61,7 +127,7 @@ int main()
   //if(!k) {
   //  std::cout << " listen error !!" << std::endl;
   //}
-
+  */
   // --------------------------------------------------------------------------------------------
   // 客户端
 
@@ -71,15 +137,16 @@ int main()
   });
 
 
-  h.onConnection([&tt](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
+  h.onConnection([&tt,&filename](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     std::cout <<"Tqdata.x onConnection !!" << std::endl;
     if(tt != 1) {
       //char caCmd[4096];
-      std::vector<std::string> cmds = uBEE::Command("./cmd");
+      //std::vector<std::string> cmds = uBEE::Command("./cmd");
+      std::vector<std::string> cmds = uBEE::Command(filename);
 
       for(int i = 0; i <200; i++) {
         std::cout << cmds[i] << std::endl;
-		ws->send(cmds[i].c_str());
+        ws->send(cmds[i].c_str());
       }
 
       /*
