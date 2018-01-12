@@ -467,10 +467,6 @@ void FuList::ListInit(int type)
       k++;
     }
     // ------- fill MM[2] ------ end -----------------------------------
-    for(i=0; i<60; i++) {
-      std::cout << MM[i] << " " ;
-    }
-    std::cout << std::endl;
 
     k=0;
     i=0;
