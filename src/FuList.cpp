@@ -449,7 +449,7 @@ void FuList::ListInit(int type)
     Mn = cJSON_GetArraySize(jM);
 
     // MM[]  1 3 5 7 9 11 13 15 17 19 21 23 25 ....
-    // MM[]         ^ start          ^ end    
+    // MM[]         ^ start          ^ end
     // ------  fill MM[60] ---------------------------------------------
     int tms = 60/Mn ;
     int lst = 60 - Mn*tms ;
@@ -486,9 +486,24 @@ void FuList::ListInit(int type)
     for(i=0; i<Nn; i++) {
       tms = (MM[k]-1)/12;
       curYear = Year + tms - DifYear;
-      memset(future,'\0',31);
-      sprintf(future,"%s%d%02d",it->first.c_str(),curYear,MM[k]-12*tms);
+      int curMonth = MM[k]-12*tms ;
+
       k++;
+      memset(future,'\0',31);
+      sprintf(future,"%s%d%02d",it->first.c_str(),curYear,curMonth);
+      // ------------异常处理 过滤-----豆2-------------begin ---------
+      if("b" == it->first && curYear <18) {
+        std::cout << it->first << "," << curYear << std::endl;
+        if(curMonth&1) {
+        } else {
+          continue;
+        }
+      } else if("b" == it->first && curYear == 18) {
+        if(curMonth ==2 ||  curMonth ==4) {
+          std::cout << it->first << "," << curYear <<"<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+          continue;
+        }
+      }
       //  ------------异常处理 过滤------------------begin ---------
       if(memcmp(future,"AP801",5)==0)  continue;
       if(memcmp(future,"AP803",5)==0)  continue;
