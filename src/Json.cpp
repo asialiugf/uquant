@@ -17,6 +17,7 @@ std::string m_replace(std::string , const std::string &, const std::string &,int
 std::string QuotesReplace(std::string strSrc);
 std::string KlinesReplace(std::string strSrc);
 std::string TicksReplace(std::string strSrc);
+std::string TicksCheck(const char * serials, cJSON *tick);
 
 int Tqjson(const char*message,int tt)
 {
@@ -370,6 +371,19 @@ int Ticks(cJSON *ticks)
           continue;
         }
 
+
+        //add +++++++++++++++++++++++++++++++++++++++++++++
+        std::string tick_msg = TicksCheck(item->string, item); 
+        SaveLine(ca_filename,tick_msg.c_str());
+        continue;
+        //add +++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
         buf = cJSON_Print(item);
         if(!buf) {
           //SaveError(ticks,"-T---- buf = cJSON_Print(item) ---- error!\n");
@@ -555,6 +569,81 @@ std::string TicksReplace(std::string strSrc)
   kk = m_replace(mm,"\n","",-1);
   return kk;
 }
+
+std::string TicksCheck(const char * serials, cJSON *tick)
+{
+  cJSON *ask_price1 = cJSON_GetObjectItem(tick,"ask_price1");
+  cJSON *ask_volume1 = cJSON_GetObjectItem(tick,"ask_volume1");
+  cJSON *bid_volume1 = cJSON_GetObjectItem(tick,"bid_volume1");
+  cJSON *bid_price1 = cJSON_GetObjectItem(tick,"bid_price1");
+  cJSON *last_price = cJSON_GetObjectItem(tick,"last_price");
+  cJSON *open_interest = cJSON_GetObjectItem(tick,"open_interest");
+  cJSON *datetime = cJSON_GetObjectItem(tick,"datetime");
+  cJSON *highest = cJSON_GetObjectItem(tick,"highest");
+  cJSON *lowest = cJSON_GetObjectItem(tick,"lowest");
+  cJSON *volume = cJSON_GetObjectItem(tick,"volume");
+  cJSON *trading_day = cJSON_GetObjectItem(tick,"trading_day");
+
+  double d_ask_price1 = ask_price1->valuedouble;
+  double d_ask_volume1 = ask_volume1->valuedouble;
+  double d_bid_volume1 = bid_volume1->valuedouble;
+  double d_bid_price1 = bid_price1->valuedouble;
+  double d_last_price = last_price->valuedouble;
+  double d_open_interest = open_interest->valuedouble;
+  double d_datetime = datetime->valuedouble;
+  double d_highest = highest->valuedouble;
+  double d_lowest = lowest->valuedouble;
+  double d_volume = volume->valuedouble;
+  double d_trading_day = trading_day->valuedouble;
+
+  char ca_trading_day[31];
+  char ca_datetime[31];
+  char ca_msg[1024] ;
+  memset(ca_msg,'\0',1024);
+  memset(ca_datetime,'\0',31);
+  memset(ca_trading_day,'\0',31);
+
+  int ms=0;
+  time_t lt;
+  struct tm *newtime;
+  double db = d_datetime/1000000000;
+
+  char ca_dt[100];
+  char ca_ms[7];
+  memset(ca_dt,'\0',100);
+  memset(ca_ms,'\0',7);
+  sprintf(ca_dt,"%lf",db);
+  int len = strlen(ca_dt);
+  int len2 = len-6;
+  memcpy(ca_ms,&ca_dt[len2],6);
+
+  lt =(time_t)db;
+  newtime = localtime(&lt);
+  strftime(ca_datetime, 31, "%F %T", newtime);
+
+  db = d_trading_day/1000000000;
+  lt =(time_t)db;
+  newtime = localtime(&lt);
+  strftime(ca_trading_day, 31, "%F", newtime);
+
+  sprintf(ca_msg,"D:%s %s T:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g S:%s",
+          ca_datetime,
+          ca_ms,
+          ca_trading_day,
+          highest->valuedouble,
+          lowest->valuedouble,
+          last_price->valuedouble,
+          ask_price1->valuedouble,
+          ask_volume1->valuedouble,
+          bid_volume1->valuedouble,
+          bid_price1->valuedouble,
+          open_interest->valuedouble,
+          volume->valuedouble,
+          serials);
+  std::string kk = ca_msg;
+  return kk;
+}
+
 
 int SaveError(cJSON *json, const char *msg)
 {
