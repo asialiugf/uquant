@@ -45,7 +45,6 @@ int Tqjson(const char*message,int tt)
     ErrLog(1000,"---- buf = cJSON_Print(root) ---- error!",1,0,0);
     return -1;
   }
-
   SaveBin("newtick.json", buf, strlen(buf));
   SaveLine("newtick.json", "--------------- kkkkkkkkkkk ----------------------\n");
   free(buf);
@@ -231,16 +230,17 @@ int Klines(cJSON *klines)
         strcat(ca_filename,period->string);
 
 
-
+        /*
         char ca_statistic[512] ;
         memset(ca_statistic,'\0',512);
         cJSON   *last_id = cJSON_GetObjectItem(period, "last_id");
         if(!last_id) {
-          sprintf(ca_statistic,"SSS:%s:%s: -- data number: %d -- last_id : NULL \n",futu->string,period->string,ll);
+          sprintf(ca_statistic,"SSS:%s:%s: -number: %d -last_id : NULL \n",futu->string,period->string,ll);
         } else {
-          sprintf(ca_statistic,"SSS:%s:%s: -- data number: %d -- last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
+          sprintf(ca_statistic,"SSS:%s:%s: -number: %d -last_id : %d \n",futu->string,period->string,ll, last_id->valueint);
         }
         SaveLine(ca_filename,ca_statistic);
+        */
 
 
         for(l=0; l<ll; l++) {
@@ -285,7 +285,7 @@ int Klines(cJSON *klines)
           free(bar);
 
         } // l
-        SaveLine(ca_filename,ca_statistic);
+        //SaveLine(ca_filename,ca_statistic);
       } // k
     } // j
   } // i
@@ -346,6 +346,7 @@ int Ticks(cJSON *ticks)
         continue;
       };
 
+      /*
       char ca_statistic[512] ;
       memset(ca_statistic,'\0',512);
       cJSON   *last_id = cJSON_GetObjectItem(futu, "last_id");
@@ -355,8 +356,7 @@ int Ticks(cJSON *ticks)
         sprintf(ca_statistic,"SSS:%s: begin -- data number: %d -- last_id : %d \n",futu->string,ll, last_id->valueint);
       }
       SaveLine(ca_filename,ca_statistic);
-
-      //strcat(ca_filename,period->string);
+      */
 
       for(l=0; l<ll; l++) {
         item = cJSON_GetArrayItem(data,l);  // get item from data ...
@@ -400,7 +400,7 @@ int Ticks(cJSON *ticks)
         free(tick);
 
       } // l
-      SaveLine(ca_filename,ca_statistic);
+      //SaveLine(ca_filename,ca_statistic);
     } // k
     //} // j
   } // i
@@ -424,7 +424,7 @@ std::vector<std::string> Command(const char *filename)
 
   //"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
   while(std::getline(file, line)) {
-    cmd = "{\"chart_id\":\"TT_" + line + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8964,\"ins_list\":\""
+    cmd = "{\"chart_id\":\"TT_" + line + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\""
           + line + "\"}"  ;
     cmds.push_back(cmd);
   }
