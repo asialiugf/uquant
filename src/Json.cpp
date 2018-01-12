@@ -422,7 +422,7 @@ std::vector<std::string> Command(const char *filename)
 
   //"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
   while(std::getline(file, line)) {
-    cmd = "{\"chart_id\":\"TT_" + line + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\""
+    cmd = "{\"chart_id\":\"TT_" + line + "_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8964,\"ins_list\":\""
           + line + "\"}"  ;
     cmds.push_back(cmd);
   }
