@@ -6,13 +6,19 @@
 
 int main()
 {
-
+  int y;
+  int m;
+  int d;
   std::cout << "请输入日期:" << std::endl;
-  char str1[20];
-  std::cin >> str1;
+  std::cout << "请输入year:" << std::endl;
+  std::cin >> y;
+  std::cout << "请输入month:" << std::endl;
+  std::cin >> m;
+  std::cout << "请输入day:" << std::endl;
+  std::cin >> d;
   // ------------------------------------------------------------
   uBEE::FuList fl;
-  int rtn = fl.Init(str1);
+  int rtn = fl.Init(y,m,d);
   if(rtn < 0) {
     exit (-1);
   }
@@ -51,5 +57,6 @@ int main()
     }
   }
   std::cout << " \n---------------------------------------------------------------------------\n";
+  std::cout << fl.Date << "????" << std::endl;
   return 0;
 }

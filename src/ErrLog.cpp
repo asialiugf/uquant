@@ -1,4 +1,5 @@
 #include "ErrLog.h"
+#include <iostream>
 #include <ctype.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -179,4 +180,40 @@ void DumpHex(int ifile, char const* buf, int len)
     DumpLine(ifile, 16*i, &buf[16*i], len % 16);
   }
 }
+
+//---------------------
+int CheckDate(int year, int month, int day)
+{
+    int status=0; 
+
+    std::cout << year << ":" << month << ":" << day << std::endl;
+    if ((month == 1 || month == 3 || month == 5 || month == 7 ||
+        month == 8 || month == 10 || month == 12) && ( day>31 || day<1) )
+    {
+        status = 3; 
+    }
+    else if ((month == 4 || month == 6 || month == 9 || month == 11) && (day>30 || day<1) )
+    {
+        status = 4; 
+    }
+    else if ((month == 2) && (year % 4 == 0) && (day>29 || day<1))
+    {
+        status = 5; 
+    }
+    else if ((month = 2) && (year % 4 != 0) && (day>28 || day<1) )
+    {
+        status = 6; 
+    }
+    else if ((year < 999) || (year > 10000))
+    {
+        status = 1;
+    }
+    if ((month < 1) || (month > 12))
+    {
+        status = 2;
+    }
+    return status;
+}
+//----------------------
+
 } //end namespace

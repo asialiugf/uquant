@@ -276,10 +276,10 @@ struct FuList {
 
 public:
   FuList();
-  int Init(char const *);
+  int Init(int y,int m, int d);
 private:
 
-  int DateDeal(char const *);
+  int DateDeal(int y,int m, int d);
   /*
    @ int type:  [1][0]: CFFE  --- [1][1]: SHFE  --- [1][2]: CZCE  --- [1][3]: DCE  ---
    @ return  :  1: >=firstday  0: less than firstday -1: error

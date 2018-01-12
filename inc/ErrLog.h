@@ -4,6 +4,7 @@
 namespace uBEE
 {
 int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long length);
+int CheckDate(int year, int month, int day);
 
 #define  RPT_TO_LOG	    	1          /* 00000001 */
 #define  RPT_TO_TTY	    	2          /* 00000010 */
