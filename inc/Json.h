@@ -19,5 +19,6 @@ namespace uBEE
 int Tqjson(const char*message,int tt);
 int MkRequest(const char * filename, char *cmd,size_t cmd_len);
 std::vector<std::string> Command(const char *filename);
+std::vector<std::string> KlinesCmd(const char *filename);
 }
 #endif // end UBEE_JSON_H

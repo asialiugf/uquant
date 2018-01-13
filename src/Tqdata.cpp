@@ -10,6 +10,7 @@ int main()
   uWS::Hub h;
 
   int tt = 0 ;
+  int ft = 1 ;
   int y,m,d;
   char filename[256];
 
@@ -41,52 +42,67 @@ int main()
     exit(-1);
   }
 
-  memset(filename,'\0',256);
-  sprintf(filename,"%s",fl.Date);
+  std::cout << "week:"<< fl.Week << "    date:"<< fl.Date << std::endl;
 
-  std::cout << "week:"<< fl.Week << std::endl;
-  std::cout << "date:"<< fl.Date << std::endl;
-  std::cout << "date:"<< fl.Year << std::endl;
-  std::cout << "date:"<< fl.Month << std::endl;
-  std::cout << "date:"<< fl.Day << std::endl;
+  std::cout << std::endl;
+  std::cout << "            Input type description: " << std::endl;
+  std::cout << "            --- [0]: CFFE  --- [1]: SHFE  --- [2]: CZCE  --- [3]: DCE  ---" << std::endl;
+  std::cout << "            Please Input type: ";
+  std::cin >> ft ;
+  std::cout << std::endl;
+
+
+  usleep(1000000);
+
   std::cout << " \n---------------------------------------------------------------------------\n";
+  char fn_shfe[256];
+  memset(fn_shfe,'\0',256);
+  sprintf(fn_shfe,"%s.shfe",fl.Date);
   for(int i = 0; i< SHFE_NUMBER; i++) {
     std::cout << fl.ShfeList[i] << " " ;
     if(strlen(fl.ShfeList[i]) == 0) continue;
-    uBEE::SaveLine(filename,fl.ShfeList[i]);
+    uBEE::SaveLine(fn_shfe,fl.ShfeList[i]);
     if(memcmp(fl.ShfeList[i],fl.ShfeList[i+1],2)!=0) {
       std::cout << std::endl;
     }
   }
   std::cout << " \n---------------------------------------------------------------------------\n";
-  for(int i = 0; i< SHFE_NUMBER; i++) {
+  char fn_czce[256];
+  memset(fn_czce,'\0',256);
+  sprintf(fn_czce,"%s.czce",fl.Date);
+  for(int i = 0; i< CZCE_NUMBER; i++) {
     std::cout << fl.CzceList[i] <<  " " ;
     if(strlen(fl.CzceList[i]) == 0) continue;
-    uBEE::SaveLine(filename,fl.CzceList[i]);
+    uBEE::SaveLine(fn_czce,fl.CzceList[i]);
     if(memcmp(fl.CzceList[i],fl.CzceList[i+1],2)!=0) {
       std::cout << std::endl;
     }
   }
   std::cout << " \n---------------------------------------------------------------------------\n";
-  for(int i = 0; i< SHFE_NUMBER; i++) {
+  char fn_dce[256];
+  memset(fn_dce,'\0',256);
+  sprintf(fn_dce,"%s.dce",fl.Date);
+  for(int i = 0; i< DCE_NUMBER; i++) {
     std::cout << fl.DceList[i] << " " ;
     if(strlen(fl.DceList[i]) == 0) continue;
-    uBEE::SaveLine(filename,fl.DceList[i]);
+    uBEE::SaveLine(fn_dce,fl.DceList[i]);
     if(memcmp(fl.DceList[i],fl.DceList[i+1],2)!=0) {
       std::cout << std::endl;
     }
   }
   std::cout << " \n---------------------------------------------------------------------------\n";
+  char fn_cffe[256];
+  memset(fn_cffe,'\0',256);
+  sprintf(fn_cffe,"%s.cffe",fl.Date);
   for(int i = 0; i< CFFE_NUMBER; i++) {
     std::cout << fl.CffeList[i] << " " ;
     if(strlen(fl.CffeList[i]) == 0) continue;
-    uBEE::SaveLine(filename,fl.CffeList[i]);
+    uBEE::SaveLine(fn_cffe,fl.CffeList[i]);
     if(memcmp(fl.CffeList[i],fl.CffeList[i+1],2)!=0) {
       std::cout << std::endl;
     }
   }
   std::cout << " \n---------------------------------------------------------------------------\n";
-  std::cout << fl.Date << "????" << std::endl;
 
 
   // --------------------------------------------------------------------------------------------
@@ -137,51 +153,37 @@ int main()
   });
 
 
-  h.onConnection([&tt,&filename](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
+  h.onConnection([&ft,&fn_shfe,&fn_czce,&fn_dce,&fn_cffe](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     std::cout <<"Tqdata.x onConnection !!" << std::endl;
-    if(tt != 1) {
-      //char caCmd[4096];
-      //std::vector<std::string> cmds = uBEE::Command("./cmd");
-      std::vector<std::string> cmds = uBEE::Command(filename);
-
-      int count = cmds.size();
-      //for(int i = 0; i <200; i++) {
-      for(int i = 0; i<count; i++) {
-        std::cout << cmds[i] << std::endl;
-        ws->send(cmds[i].c_str());
-      }
-
-      /*
-
-      for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
-        ws->send(request.c_str());
-        std::cout << request << std::endl;
-      });
-
-      memset(caCmd,'\0',4096) ;
-      uBEE::MkRequest("./cmd", caCmd,4096);
-      std::cout << caCmd << std::endl;
-      //ws->send(caCmd);
-      memset(caCmd,'\0',4096) ;
-      */
-      //sprintf(caCmd,"{\"aid\":\"set_chart\",\"chart_id\":\"abcd123\",\"ins_id\":\"cu1801,ru1801,ru1805\",\"duration\":0,\"view_width\": 500,}");
-      //sprintf(caCmd,"{\"aid\":\"set_chart\",\"chart_id\":\"abcd123\",\"ins_id\":\"cu1801,ru1801,ru1805\",\"duration\":0,\"view_width\": 500,}");
-      /*
-      {"chart_id": "VN_ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701_0", "aid": "set_chart", "duration": 0, "view_width": 8000, "ins_list": "ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701"}
-      //sprintf(caCmd,"{\"chart_id\":\"VN_ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"ag1701,ru1701,al1607,TA609,FG609,MA609,SR609,T1606,c1701\"}");
-      sprintf(caCmd,"{\"chart_id\":\"VN_FG609_0\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"FG609\"}");
-      ws->send(caCmd);
-      sprintf(caCmd,"{\"chart_id\":\"VN_T1606\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"T1606\"}");
-      ws->send(caCmd);
-      sprintf(caCmd,"{\"chart_id\":\"VN_SR609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"SR609\"}");
-      ws->send(caCmd);
-      sprintf(caCmd,"{\"chart_id\":\"VN_MA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"MA609\"}");
-      ws->send(caCmd);
-      sprintf(caCmd,"{\"chart_id\":\"VN_TA609\",\"aid\":\"set_chart\",\"duration\":0,\"view_width\":8000,\"ins_list\":\"TA609\"}");
-      ws->send(caCmd);
-      std::cout << caCmd << std::endl;
-      */
+    std::vector<std::string> cmds ;
+    switch(ft) {
+    case(0):
+      cmds = uBEE::KlinesCmd(fn_cffe);
+      break;
+    case(1):
+      cmds = uBEE::KlinesCmd(fn_shfe);
+      break;
+    case(2):
+      cmds = uBEE::KlinesCmd(fn_czce);
+      break;
+    case(3):
+      cmds = uBEE::KlinesCmd(fn_dce);
+      break;
     }
+    int count = cmds.size();
+    //for(int i = 0; i <200; i++) {
+    for(int i = 0; i<count; i++) {
+      std::cout << cmds[i] << std::endl;
+      ws->send(cmds[i].c_str());
+    }
+
+    /*
+    "            --- [0]: CFFE  --- [1]: SHFE  --- [2]: CZCE  --- [3]: DCE  ---"
+    for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
+      ws->send(request.c_str());
+      std::cout << request << std::endl;
+    });
+    */
   });
 
   h.onError([](void *user) {
@@ -218,7 +220,7 @@ int main()
   h.getDefaultGroup<uWS::CLIENT>().startAutoPing(2000);
 
   h.connect("ws://192.168.3.4:7777",(void *) 1);
-  // --------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
   h.run();
 }
