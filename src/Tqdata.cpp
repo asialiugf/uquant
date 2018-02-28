@@ -32,7 +32,7 @@ int main()
   std::cout << "            X: Pleae Input Month:  ";
   std::cin >> m ;
   std::cout << std::endl;
-  std::cout << "            X: Pleae Input Month:  ";
+  std::cout << "            X: Pleae Input Day:  ";
   std::cin >> d ;
   std::cout << std::endl;
 
@@ -47,13 +47,15 @@ int main()
   std::cout << std::endl;
   std::cout << "            Input type description: " << std::endl;
   std::cout << "            --- [0]: CFFE  --- [1]: SHFE  --- [2]: CZCE  --- [3]: DCE  ---" << std::endl;
+  std::cout << "            7: All  CFFE & SHFE & CZCE & DCE  " << std::endl;
   std::cout << "            Please Input type: ";
   std::cin >> ft ;
   std::cout << std::endl;
 
+  usleep(2000000);
 
-  usleep(1000000);
-
+  memset(filename,'\0',256);
+  sprintf(filename,"%s",fl.Date);
   std::cout << " \n---------------------------------------------------------------------------\n";
   char fn_shfe[256];
   memset(fn_shfe,'\0',256);
@@ -62,6 +64,9 @@ int main()
     std::cout << fl.ShfeList[i] << " " ;
     if(strlen(fl.ShfeList[i]) == 0) continue;
     uBEE::SaveLine(fn_shfe,fl.ShfeList[i]);
+    if(ft==7) {
+      uBEE::SaveLine(filename,fl.ShfeList[i]);
+    }
     if(memcmp(fl.ShfeList[i],fl.ShfeList[i+1],2)!=0) {
       std::cout << std::endl;
     }
@@ -74,6 +79,9 @@ int main()
     std::cout << fl.CzceList[i] <<  " " ;
     if(strlen(fl.CzceList[i]) == 0) continue;
     uBEE::SaveLine(fn_czce,fl.CzceList[i]);
+    if(ft==7) {
+      uBEE::SaveLine(filename,fl.CzceList[i]);
+    }
     if(memcmp(fl.CzceList[i],fl.CzceList[i+1],2)!=0) {
       std::cout << std::endl;
     }
@@ -86,6 +94,9 @@ int main()
     std::cout << fl.DceList[i] << " " ;
     if(strlen(fl.DceList[i]) == 0) continue;
     uBEE::SaveLine(fn_dce,fl.DceList[i]);
+    if(ft==7) {
+      uBEE::SaveLine(filename,fl.DceList[i]);
+    }
     if(memcmp(fl.DceList[i],fl.DceList[i+1],2)!=0) {
       std::cout << std::endl;
     }
@@ -98,6 +109,9 @@ int main()
     std::cout << fl.CffeList[i] << " " ;
     if(strlen(fl.CffeList[i]) == 0) continue;
     uBEE::SaveLine(fn_cffe,fl.CffeList[i]);
+    if(ft==7) {
+      uBEE::SaveLine(filename,fl.CffeList[i]);
+    }
     if(memcmp(fl.CffeList[i],fl.CffeList[i+1],2)!=0) {
       std::cout << std::endl;
     }
@@ -153,32 +167,61 @@ int main()
   });
 
 
-  h.onConnection([&ft,&fn_shfe,&fn_czce,&fn_dce,&fn_cffe](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
+  h.onConnection([&tt,&ft,&fn_shfe,&fn_czce,&fn_dce,&fn_cffe,&filename](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     std::cout <<"Tqdata.x onConnection !!" << std::endl;
     std::vector<std::string> cmds ;
-    switch(ft) {
-    case(0):
-      cmds = uBEE::KlinesCmd(fn_cffe);
-      break;
-    case(1):
-      cmds = uBEE::KlinesCmd(fn_shfe);
-      break;
-    case(2):
-      cmds = uBEE::KlinesCmd(fn_czce);
-      break;
-    case(3):
-      cmds = uBEE::KlinesCmd(fn_dce);
-      break;
-    }
-    int count = cmds.size();
-    //for(int i = 0; i <200; i++) {
-    for(int i = 0; i<count; i++) {
-      std::cout << cmds[i] << std::endl;
-      ws->send(cmds[i].c_str());
-    }
 
+    if(2==tt || 4==tt || 5==tt || 7==tt) {
+      switch(ft) {
+      case(0):
+        cmds = uBEE::KlinesCmd(fn_cffe);
+        break;
+      case(1):
+        cmds = uBEE::KlinesCmd(fn_shfe);
+        break;
+      case(2):
+        cmds = uBEE::KlinesCmd(fn_czce);
+        break;
+      case(3):
+        cmds = uBEE::KlinesCmd(fn_dce);
+        break;
+      case(7):
+        cmds = uBEE::KlinesCmd(filename);
+        break;
+      }
+      int count = cmds.size();
+      for(int i = 0; i<count; i++) {
+        std::cout << cmds[i] << std::endl;
+        ws->send(cmds[i].c_str());
+      }
+    }
+    if(3==tt || 4==tt || 6==tt || 7==tt) {
+      switch(ft) {
+      case(0):
+        cmds = uBEE::TicksCmd(fn_cffe);
+        break;
+      case(1):
+        cmds = uBEE::TicksCmd(fn_shfe);
+        break;
+      case(2):
+        cmds = uBEE::TicksCmd(fn_czce);
+        break;
+      case(3):
+        cmds = uBEE::TicksCmd(fn_dce);
+        break;
+      case(7):
+        cmds = uBEE::TicksCmd(filename);
+        break;
+      }
+      int count = cmds.size();
+      //for(int i = 0; i <200; i++) {
+      for(int i = 0; i<count; i++) {
+        std::cout << cmds[i] << std::endl;
+        ws->send(cmds[i].c_str());
+      }
+    }
     /*
-    "            --- [0]: CFFE  --- [1]: SHFE  --- [2]: CZCE  --- [3]: DCE  ---"
+    " --- [0]: CFFE  --- [1]: SHFE  --- [2]: CZCE  --- [3]: DCE  ---"
     for_each(cmds.cbegin(), cmds.cend(), [&ws](const std::string &request)->void{
       ws->send(request.c_str());
       std::cout << request << std::endl;

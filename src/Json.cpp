@@ -338,7 +338,7 @@ int Ticks(cJSON *ticks)
 
 }
 
-std::vector<std::string> Command(const char *filename)
+std::vector<std::string> TicksCmd(const char *filename)
 {
 
   std::ifstream file(filename);
@@ -378,8 +378,9 @@ std::vector<std::string> KlinesCmd(const char *filename)
   int period = 3;  //以秒来记
 
   // {"chart_id": "VN_c1701_3", "aid": "set_chart", "duration": 3000000000, "view_width": 8000, "ins_list": "c1701"}
-  //                        3秒5秒10秒15秒20秒30秒1分2分 3分 5分 10分15分20分 30分 1小时2小时4小时，1日
-  std::vector<int> periods {3, 5, 10, 15, 20, 30, 60,120,180,300,600,900,1200,1800,3600,7200,14400};
+  //                          3秒5秒10秒15秒20秒30秒1分2分 3分 5分 10分15分20分 30分 1小时2小时4小时，1日
+  //std::vector<int> periods {3, 5, 10, 15, 20, 30, 60,120,180,300,600,900,1200,1800,3600,7200,14400};
+  std::vector<int> periods {3, 5, 10, 15, 20, 30, 60,120,180,300,600,900};
   //int len = periods.size();
 
   std::string str1 = "{\"chart_id\":\"VN_" ;
@@ -548,16 +549,16 @@ std::string KlinesCheck(const char * serials, cJSON *kline)
   newtime = localtime(&lt);
   strftime(ca_datetime, 31, "%F %T", newtime);
 
-  sprintf(ca_msg,"D:%s H:%g O:%g C:%g L:%g OI:%g CI:%g V:%g S:%s",
+  sprintf(ca_msg,"D:%s S:%s H:%g O:%g C:%g L:%g OI:%g CI:%g V:%g",
           ca_datetime,
+          serials,
           high->valuedouble,
           open->valuedouble,
           close->valuedouble,
           low->valuedouble,
           open_oi->valuedouble,
           close_oi->valuedouble,
-          volume->valuedouble,
-          serials);
+          volume->valuedouble);
   std::string kk = ca_msg;
   return kk;
 }
@@ -614,9 +615,10 @@ std::string TicksCheck(const char * serials, cJSON *tick)
   newtime = localtime(&lt);
   strftime(ca_trading_day, 31, "%F", newtime);
 
-  sprintf(ca_msg,"D:%s %s T:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g S:%s",
+  sprintf(ca_msg,"D:%s %s S:%s T:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g",
           ca_datetime,
           ca_ms,
+          serials,
           ca_trading_day,
           highest->valuedouble,
           lowest->valuedouble,
@@ -626,8 +628,7 @@ std::string TicksCheck(const char * serials, cJSON *tick)
           bid_volume1->valuedouble,
           bid_price1->valuedouble,
           open_interest->valuedouble,
-          volume->valuedouble,
-          serials);
+          volume->valuedouble);
   std::string kk = ca_msg;
   return kk;
 }
