@@ -19,8 +19,8 @@ namespace uBEE
 
 struct Base {
 
-  uWS::Hub assiHub;   // assitant Hub linked to data server for getTick,getBar ...
-  uWS::Hub mainHub;   // main     Hub callback for onTick() onBars() ...
+  uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
+  uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
   uWS::WebSocket<uWS::CLIENT> *cw;  // (mainHub) client to web server
   uWS::WebSocket<uWS::CLIENT> *cd;  // (mainHub) client to data server
   uWS::WebSocket<uWS::CLIENT> *ct;  // (mainHub) client to trading server
@@ -30,7 +30,7 @@ struct Base {
 
   std::mutex mtx; 					// 全局互斥锁.
   std::condition_variable cv; 		// 全局条件变量.
-  bool ready = false; 				// 全局标志位.
+  //bool ready = false; 				// 全局标志位.
 
   std::function<void(char *, size_t)> onBarsHandler;
   std::function<void(char *, size_t)> onTickHandler;

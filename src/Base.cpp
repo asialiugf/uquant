@@ -93,7 +93,7 @@ void Base::Start()
     auto result = find(this->cs.begin(), this->cs.end(), ws);     //查找 ws
     if(result == this->cs.end()) {    //没找到
       std::cout << "Not found" << std::endl;
-    } else { 
+    } else {
       std::cout << "Yes" << std::endl;  //找到了
       (*result) = nullptr ;
       ws->close();
@@ -104,6 +104,7 @@ void Base::Start()
   });
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
+  
   mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   std::cout << "-------------- !!\n";
@@ -144,10 +145,13 @@ void Base::AssiHubInit()
 
 void Base::getTick()
 {
+  // cs[0] 与 DataServer: HubAPI 相联系。 
   if(cs[0] == nullptr) {
     std::cout<< " not init !!\n";
     exit(-1);
   }
+  // 将请求发给 DataServer: HubAPI。
+  // 这里的请求，有很多种，需要定义相关协议。
   cs[0]->send("----------from gettick -----------");
 
   std::cout<< " go to sleep!! \n";

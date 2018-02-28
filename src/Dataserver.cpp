@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
   uBEE::SaveArgv(argc,argv);
   uBEE::InitSetProcTitle();
-  uBEE:: SetProcTitle("AAA","DataServer:");
+  uBEE:: SetProcTitle("master ","DataServ: ");
 
 
   rtn = ForkApi();
@@ -63,7 +63,7 @@ int ForkApi()
   case 0:
     pid = getpid();
     uBEE::InitSetProcTitle();
-    uBEE:: SetProcTitle("HubApi","AAA :");
+    uBEE:: SetProcTitle("HubApi","DataServ: ");
     hub.Init();
     hub.Start();
     break;
@@ -86,7 +86,7 @@ int ForkBck()
   case 0:
     pid = getpid();
     uBEE::InitSetProcTitle();
-    uBEE:: SetProcTitle("HubBck:","AAA :");
+    uBEE:: SetProcTitle("HubBck:","DataServ: ");
     hb.Run();
     break;
   default:
@@ -110,7 +110,7 @@ int ForkCtp()
     uBEE::HubCtp hub;
     pid = getpid();
     uBEE::InitSetProcTitle();
-    uBEE:: SetProcTitle("HubCtp:","AAA :");
+    uBEE:: SetProcTitle("HubCtp:","DataServ: ");
     hub.Init();
     sleep(2);
 
@@ -147,7 +147,7 @@ int ForkSim()
     uBEE::HubSim hub;
     pid = getpid();
     uBEE::InitSetProcTitle();
-    uBEE:: SetProcTitle("HubSim:","AAA :");
+    uBEE:: SetProcTitle("HubSim:","DataServ: ");
     hub.Init();
     hub.Start();
   }

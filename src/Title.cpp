@@ -8,10 +8,9 @@ extern char **environ;
 namespace uBEE
 {
 
-
 static char *argv_last;
 
-int              ubee_argc;
+int            ubee_argc;
 char           **os_argv;
 
 char * ubee_cpystrn(char *dst, char *src, size_t n)
