@@ -30,7 +30,7 @@ struct Base {
 
   std::mutex mtx; 					// 全局互斥锁.
   std::condition_variable cv; 		// 全局条件变量.
-  //bool ready = false; 				// 全局标志位.
+  //bool ready = false; 			// 全局标志位.
 
   std::function<void(char *, size_t)> onBarsHandler;
   std::function<void(char *, size_t)> onTickHandler;
