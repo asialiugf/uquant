@@ -1,4 +1,5 @@
 #include "uBEE.h"
+#include "MdCtp.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
@@ -105,26 +106,33 @@ int ForkCtp()
   case -1:
     return -1;
   case 0: {
-    const char *brMsg = "This will be broadcasted!";
+    const char *brMsg = "from ctp dataserver HubCtp!";
     size_t brMsgLength = strlen(brMsg);
-    uBEE::HubCtp hub;
+
     pid = getpid();
     uBEE::InitSetProcTitle();
-    uBEE:: SetProcTitle("HubCtp:","DataServ: ");
+    uBEE::SetProcTitle("HubCtp:","DataServ: ");
+
+    uBEE::HubCtp hub;
     hub.Init();
     sleep(2);
 
+   //    uBEE::MdCtp(hub.sg);
+
     std::thread t([&hub,&brMsg,&brMsgLength] {
+      uBEE::MdCtp(hub.sg);
+	  /*
       while(1)
       {
         //std::cout << " will broadcast !! " << std::endl;
         hub.sg->broadcast(brMsg, brMsgLength, uWS::OpCode::TEXT);
         sleep(1);
       }
+      */
     });  /* thread t */
     t.detach();
     hub.Start();
-
+	std::cout << "end hub.Start!!" << std::endl;
   }
   break;
   default:

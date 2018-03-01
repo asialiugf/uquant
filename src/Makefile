@@ -1,8 +1,11 @@
 CC = g++
 CPPFLAGS =  -std=c++11  -O2
 CFLAGS =  -std=c++11 -O2 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-result
-LIBPATH = -L/home/riddle/uws 
+LIBPATH = -L/home/riddle/uws
 LINK =  $(CC)
+
+CTPLIBS:= ../ctp/thostmduserapi.so \
+        ../ctp/thosttraderapi.so
 
 EXE = ../../u/exe/
 
@@ -53,6 +56,8 @@ objs: $(OBJ)Base.o \
 	$(OBJ)HubCtp.o \
 	$(OBJ)HubSim.o \
 	$(OBJ)HubBck.o \
+	$(OBJ)MdCtp.o \
+	$(OBJ)MdSpi.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
@@ -96,6 +101,8 @@ DATASERVER:= \
 	$(OBJ)HubCtp.o \
 	$(OBJ)HubSim.o \
 	$(OBJ)HubBck.o \
+	$(OBJ)MdCtp.o \
+	$(OBJ)MdSpi.o \
 	$(OBJ)Dataserver.o 
 
 TQDATA:= \
@@ -124,7 +131,7 @@ $(EXE)main.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)dserver.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
+	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(CTPLIBS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)tqdata.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
@@ -185,4 +192,10 @@ $(OBJ)Daemon.o: $(SRC)Daemon.cpp
 
 $(OBJ)Psqlpool.o: $(SRC)Psqlpool.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp
+
+$(OBJ)MdCtp.o: $(SRC)MdCtp.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MdCtp.o  $(SRC)MdCtp.cpp
+
+$(OBJ)MdSpi.o: $(SRC)MdSpi.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MdSpi.o  $(SRC)MdSpi.cpp
 

@@ -1,12 +1,23 @@
-#include <iostream>
+#include "MdSpi.h"
+#include <uWS/uWS.h>
 #include <string.h>
-#include <pthread.h>
-#include <MdSpi.h>
-#include <future.h>
+#include <iostream>
+#include <ctime>
 
-int i_tick_len = sizeof(CThostFtdcDepthMarketDataField) ;
-
+namespace uBEE
+{
 using namespace std;
+
+extern CThostFtdcMdApi* pUserApi;
+extern char FRONT_ADDR[];
+extern TThostFtdcBrokerIDType	BROKER_ID;
+extern TThostFtdcInvestorIDType INVESTOR_ID;
+extern TThostFtdcPasswordType	PASSWORD;
+extern char* ppInstrumentID[];
+extern int iInstrumentID;
+extern int iRequestID;
+extern uWS::Group<uWS::SERVER> * sg;
+extern uWS::Group<uWS::CLIENT> * cg;
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
                         int nRequestID, bool bIsLast)
@@ -29,82 +40,66 @@ void CMdSpi::OnHeartBeatWarning(int nTimeLapse)
 
 void CMdSpi::OnFrontConnected()
 {
-  cerr << "OnFrontConnected() "  << endl;
-  ReqUserLogin1();                                             // user login !!!  用户登录请求
+  cerr << "--->>> " << "OnFrontConnected" << endl;
+  // 用户登录请求
+  ReqUserLogin();
 }
 
-void CMdSpi::ReqUserLogin1()
+void CMdSpi::ReqUserLogin()
 {
-  int rc;
   CThostFtdcReqUserLoginField req;
-
   memset(&req, 0, sizeof(req));
   strcpy(req.BrokerID, BROKER_ID);
   strcpy(req.UserID, INVESTOR_ID);
   strcpy(req.Password, PASSWORD);
-
-  rc = pUserApi1->ReqUserLogin(&req, ++iRequestID);
-  if(rc != 0) {
-    see_err_log(0,0,"ReqUserLogin1(): pUserApi1->ReqUserLogin() error: %d\n", rc);
+  int iResult = pUserApi->ReqUserLogin(&req, ++iRequestID);
+  cerr << "--->>> 发送用户登录请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
+  /*
+  while(1) {
+    sg->broadcast("hahaha", 7, uWS::OpCode::TEXT);
+    sleep(1);
   }
-  see_err_log(0,0,"ReqUserLogin :----OK!!!-------%d\n", rc);
+  */
 }
 
 void CMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
                             CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-  cerr << "--->>> " << "OnRspUserLogin~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+  cerr << "--->>> " << "OnRspUserLogin" << endl;
   if(bIsLast && !IsErrorRspInfo(pRspInfo)) {
-    pUserApi1->GetTradingDay();               // 获取当前交易日
-    SubscribeMarketData1();	                   // 请求订阅行情
+    ///获取当前交易日
+    cerr << "--->>> 获取当前交易日 = " << pUserApi->GetTradingDay() << endl;
+    // 请求订阅行情
+    SubscribeMarketData();
   }
 }
 
-void CMdSpi::SubscribeMarketData1()
+void CMdSpi::SubscribeMarketData()
 {
-  int rc;
-  rc = pUserApi1->SubscribeMarketData(gp_conf->pc_futures, iInstrumentID);      // 请求订阅行情 !!
-  if(rc != 0) {
-    see_err_log(0,0,"ubscribeMarketData error :%d\n", rc);
-  }
+  int iResult = pUserApi->SubscribeMarketData(ppInstrumentID, iInstrumentID);
+  cerr << "--->>> 发送行情订阅请求: " << ((iResult == 0) ? "成功" : "失败") << endl;
 }
 
-void CMdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField  *pSpecificInstrument,
-                                CThostFtdcRspInfoField             *pRspInfo,
-                                int                                 nRequestID,
-                                bool                                bIsLast)
+void CMdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-  cerr << "OnRspSubMarketData !!!";
-  cerr << pRspInfo->ErrorMsg;
-  cerr << "ErrorID:" <<  pRspInfo->ErrorID << endl;
-  cerr << "pSpecificInstrument ->InstrumentID  " << pSpecificInstrument->InstrumentID << endl;
-  cerr << nRequestID << endl << endl;
+  cout << "OnRspSubMarketData instrumentId is " << pSpecificInstrument->InstrumentID << endl;
 }
 
-void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField  *pSpecificInstrument,
-                                  CThostFtdcRspInfoField             *pRspInfo,
-                                  int                                 nRequestID,
-                                  bool                                bIsLast)
+void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
   cerr << "OnRspUnSubMarketData" << endl;
 }
 
-void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *buf)
+void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
-  int i_idx;
-
-  i_idx = see_get_future_index(gp_conf->pc_futures,buf->InstrumentID);   //i_idx 合约所在的数组下标
-  if(i_idx == SEE_ERROR) {
-    see_err_log(0,0,"future %s is not in pc_futures : %s",buf->InstrumentID,
-                buf->InstrumentID);
-  }
-  see_handle_bars(gp_conf->pt_fut_blks[i_idx], buf);
+  time_t t = time(0);
+  char currentTime[25];
+  strftime(currentTime, sizeof(currentTime), "%Y/%m/%d %X",localtime(&t));
+  cout << "OnRtnDepthMarketData " << currentTime <<
+       "instrumentId is " << pDepthMarketData->InstrumentID <<
+       " Lastprice is " << pDepthMarketData->LastPrice << endl;
 }
 
-void OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *buf, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-  cerr << "OnRspQryDepthMarketData" << endl;
-}
 bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 {
   // 如果ErrorID != 0, 说明收到了错误的响应
@@ -113,3 +108,4 @@ bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
     cerr << "--->>> ErrorID=" << pRspInfo->ErrorID << ", ErrorMsg=" << pRspInfo->ErrorMsg << endl;
   return bResult;
 }
+} //end namespace

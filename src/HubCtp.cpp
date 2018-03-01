@@ -28,11 +28,11 @@ void HubCtp::S_onMessage()
     memcpy(tmp, message, length);
     tmp[length] = 0;
     message[0] = '0';
-    uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
+    ErrLog(1000,"kkkk",1,(const char*)message,length);
     message[length-1] = 0;
     printf("Server onMessage receive: %s\n", message);
     ws->send(message, length, opCode);
-    std::printf("Server onMessage send: %s\n", tmp);
+    printf("Server onMessage send: %s\n", tmp);
   });
 }
 

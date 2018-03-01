@@ -65,6 +65,10 @@ void Base::Start()
       this->cs[3] = ws;
       this->ct = ws;
       break;
+    case 4:
+      this->cs[4] = ws;
+      this->c_ctp = ws;
+      break;
     default:
       std::cout << "FAILURE: " << ws->getUserData() << " should not connect!" << std::endl;
       exit(-1);
@@ -74,19 +78,6 @@ void Base::Start()
 
   // 客户端打印接收到的消息
   Base::onMessageInit();
-  /*
-    mainHub.onMessage([](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
-        char tmp[256];
-        memcpy(tmp, message, length);
-        tmp[length] = 0;
-        printf("Client receive: %s\n", tmp);
-        ws->send("Torkkk===");
-        usleep(1000000);
-        ws->send("----new-----");
-        usleep(1);
-
-    });
-  */
 
   mainHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
 
@@ -104,8 +95,8 @@ void Base::Start()
   });
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
-  
   mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
+  mainHub.connect("ws://localhost:3003",(void *) 4);  //  data server HubCtp
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   std::cout << "-------------- !!\n";
   mainHub.run();

@@ -23,6 +23,8 @@ struct Base {
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
   uWS::WebSocket<uWS::CLIENT> *cw;  // (mainHub) client to web server
   uWS::WebSocket<uWS::CLIENT> *cd;  // (mainHub) client to data server
+  uWS::WebSocket<uWS::CLIENT> *c_ctp;  // (mainHub) client to data server HubCtp
+  uWS::WebSocket<uWS::CLIENT> *c_sim;  // (mainHub) client to data server HubSim
   uWS::WebSocket<uWS::CLIENT> *ct;  // (mainHub) client to trading server
   uWS::WebSocket<uWS::CLIENT> *ca;  // (assiHub) assitant client to data server for getTick,getBar ...
   std::vector<uWS::WebSocket<uWS::CLIENT>*>  cs;
