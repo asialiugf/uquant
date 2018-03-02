@@ -42,6 +42,25 @@ int FuList::isFirstDay(int type,int y,int m, int d)
     rtc = (d<FirstDay18[m-1][type]) ? NON_FIRST_DAY:FIRST_DAY;
     return rtc;
     break;
+  /*
+  // 需要修改！！
+  case 2019:
+    rtc = (d<FirstDay19[m-1][type]) ? NON_FIRST_DAY:FIRST_DAY;
+    return rtc;
+    break;
+  case 2020:
+    rtc = (d<FirstDay20[m-1][type]) ? NON_FIRST_DAY:FIRST_DAY;
+    return rtc;
+    break;
+  case 2021:
+    rtc = (d<FirstDay21[m-1][type]) ? NON_FIRST_DAY:FIRST_DAY;
+    return rtc;
+    break;
+  case 2022:
+    rtc = (d<FirstDay22[m-1][type]) ? NON_FIRST_DAY:FIRST_DAY;
+    return rtc;
+    break;
+  */
   default:
     std::cout << " year error !  year should be 2016 ,2017 or 2018 ! \n";
     return -1;
