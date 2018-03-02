@@ -625,8 +625,8 @@ std::string TicksCheck(const char * serials, cJSON *tick)
           last_price->valuedouble,
           ask_price1->valuedouble,
           ask_volume1->valuedouble,
-          bid_volume1->valuedouble,
           bid_price1->valuedouble,
+          bid_volume1->valuedouble,
           open_interest->valuedouble,
           volume->valuedouble);
   std::string kk = ca_msg;
