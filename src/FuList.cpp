@@ -451,7 +451,7 @@ void FuList::ListInit(int type)
       }
       continue;
     }
-    // -------------endi ---------------  各种异常处理 ---------------------
+    // -------------end ---------------  各种异常处理 ---------------------
     cJSON   *root ;
     cJSON   *jN ;
     cJSON   *jM ;
