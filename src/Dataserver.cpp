@@ -31,7 +31,9 @@ int main(int argc, char **argv)
   uBEE:: SetProcTitle("master ","DataServ: ");
 
 
+  std::cout << "befor fork api !!\n" ;
   rtn = ForkApi();
+  std::cout << "after fork api !!\n" ;
   sleep(1);
   for(int i=0; i<5; i++) {
     rtn = ForkBck();
@@ -117,22 +119,22 @@ int ForkCtp()
     hub.Init();
     sleep(2);
 
-   //    uBEE::MdCtp(hub.sg);
+    //    uBEE::MdCtp(hub.sg);
 
     std::thread t([&hub,&brMsg,&brMsgLength] {
       uBEE::MdCtp(hub.sg);
-	  /*
-      while(1)
-      {
-        //std::cout << " will broadcast !! " << std::endl;
-        hub.sg->broadcast(brMsg, brMsgLength, uWS::OpCode::TEXT);
-        sleep(1);
-      }
+      /*
+        while(1)
+        {
+          //std::cout << " will broadcast !! " << std::endl;
+          hub.sg->broadcast(brMsg, brMsgLength, uWS::OpCode::TEXT);
+          sleep(1);
+        }
       */
     });  /* thread t */
     t.detach();
     hub.Start();
-	std::cout << "end hub.Start!!" << std::endl;
+    std::cout << "end hub.Start!!" << std::endl;
   }
   break;
   default:

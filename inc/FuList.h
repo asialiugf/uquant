@@ -290,6 +290,7 @@ private:
   //void CzceListInit();
   //void DceListInit();
   void ListInit(int);
+  void pListInit();
 };
 
 } // namespace

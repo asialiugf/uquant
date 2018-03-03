@@ -137,6 +137,7 @@ int FuList::Init(int y,int m, int d)
   FuList::ListInit(TYPE_SHFE);
   FuList::ListInit(TYPE_CZCE);
   FuList::ListInit(TYPE_DCE);
+  FuList::pListInit();
 }
 
 void  FuList::CffeListInit()
@@ -541,6 +542,64 @@ void FuList::ListInit(int type)
     cJSON_Delete(root);
   } // for 1
 
+}
+
+/*
+  给成员变量 pShfeList pDceList  pCzceList pc_futures 赋值。
+  FuList::pListInit() 需要在 FuList::Init() 执行后再执行
+*/
+void FuList::pListInit()
+{
+  int i;
+  int m;
+  int n = 0;
+  for(i = 0; i< FUTURE_NUMBER; i++) {
+    pc_futures[i] = nullptr;
+  }
+  for(i = 0; i< DCE_NUMBER; i++) {
+    pShfeList[i] = nullptr;
+    pDceList[i]  = nullptr;
+    pCzceList[i] = nullptr;
+  }
+  for(i = 0; i< CFFE_NUMBER; i++) {
+    pCffeList[i] = nullptr;
+  }
+
+  m = 0;
+  for(i = 0; i< SHFE_NUMBER; i++) {
+    if(strlen(ShfeList[i]) == 0) continue;
+    pShfeList[m] = &ShfeList[i][0];
+    m++;
+    pc_futures[n] = &ShfeList[i][0];
+    n++;
+  }
+
+  m = 0;
+  for(i = 0; i< CZCE_NUMBER; i++) {
+    if(strlen(CzceList[i]) == 0) continue;
+    pCzceList[m] = &CzceList[i][0];
+    m++;
+    pc_futures[n] = &CzceList[i][0];
+    n++;
+  }
+
+  m = 0;
+  for(i = 0; i< DCE_NUMBER; i++) {
+    if(strlen(DceList[i]) == 0) continue;
+    pDceList[m] = &DceList[i][0];
+    m++;
+    pc_futures[n] = &DceList[i][0];
+    n++;
+  }
+
+  m = 0;
+  for(i = 0; i< CFFE_NUMBER; i++) {
+    if(strlen(CffeList[i]) == 0) continue;
+    pCffeList[m] = &CffeList[i][0];
+    m++;
+    pc_futures[n] = &CffeList[i][0];
+    n++;
+  }
 }
 
 } // namespace

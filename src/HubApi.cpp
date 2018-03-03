@@ -1,5 +1,7 @@
+#include "ApiFun.h"
 #include "HubApi.h"
 #include "ErrLog.h"
+#include <cjson/cJSON.h>
 #include <iostream>
 #include <thread>
 #include <unistd.h>
@@ -23,15 +25,30 @@ void HubApi::Init()
 void HubApi::S_onMessage()
 {
   h.onMessage([this](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
-    char tmp[256];
-    memcpy(tmp, message, length);
-    tmp[length] = 0;
-    message[0] = '0';
-    uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
-    message[length-1] = 0;
+    if(length <4) {
+      return -1;
+    }
+    char cCode[5] ;
+    cCode[5] = '\0';
+    strncpy(cCode,message,4);
+    int iCode = atoi(cCode);
+    switch(iCode) {
+    case API_GET_FUTURE_TICKS:
+      std::cout << " haha------------------------------------- " << std::endl;
+      message[length] = '\0';
+      std::cout << message << std::endl;
+      break;
+    case API_GET_FUTURE_BARS:
+      break;
+    default:
+      break;
+    }
+    //message[0] = '0';
+    //uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
+    //message[length-1] = 0;
     printf("Server onMessage receive: %s\n", message);
     ws->send(message, length, opCode);
-    std::printf("Server onMessage send: %s\n", tmp);
+    //std::printf("Server onMessage send: %s\n", tmp);
   });
 }
 

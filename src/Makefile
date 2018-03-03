@@ -140,10 +140,10 @@ $(EXE)fugen.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)wserver.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread
+	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(OBJ)Main.o: $(SRC)Main.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp -lcjson
 
 $(OBJ)FuGen.o: $(SRC)FuGen.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuGen.o  $(SRC)FuGen.cpp

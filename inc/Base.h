@@ -28,9 +28,9 @@ struct Base {
   uWS::WebSocket<uWS::CLIENT> *ct;  // (mainHub) client to trading server
   uWS::WebSocket<uWS::CLIENT> *ca;  // (assiHub) assitant client to data server for getTick,getBar ...
   std::vector<uWS::WebSocket<uWS::CLIENT>*>  cs;
-  std::queue<char*> buf ;
+  std::queue<char*> m_Qbuf ;
 
-  std::mutex mtx; 					// 全局互斥锁.
+  std::mutex m_mtx; 					// 全局互斥锁.
   std::condition_variable cv; 		// 全局条件变量.
   //bool ready = false; 			// 全局标志位.
 
@@ -45,13 +45,15 @@ public:
   void Restart();
   void Pause();
   void Continue();
-  void getTick();
-  void getBars();
   void onTick(std::function<void(char *, size_t)> handler);
   void onBars(std::function<void(char *, size_t)> handler);
   //void onTick(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   //void onBars(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   void onMessageInit();
+  // ------------------------------- API ---------------------------------
+  void getFutureTick(char *start_date, char *end_date);
+  void getFutureBars(const char *period, const char *start_date, const char *end_date);
+  void getStockBars (const char *period, const char *start_date, const char *end_date);
 private:
   void AssiHubInit();
 };

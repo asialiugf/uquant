@@ -1,4 +1,6 @@
 #include "Base.h"
+#include "ApiFun.h"
+#include <cjson/cJSON.h>
 #include <iostream>
 #include <thread>
 #include <unistd.h>
@@ -124,7 +126,7 @@ void Base::AssiHubInit()
     tmp1[length] = 0;
     //usleep(1000000);
     printf("Client receive:%s\n", message);
-    this->buf.push(tmp);     //将收到的:数据，传给主线程的get_tick() get_bars()之类的函数。
+    this->m_Qbuf.push(tmp);     //将收到的:数据，传给主线程的get_tick() get_bars()之类的函数。
     this->cv.notify_all();   //唤醒get_tick() get_bars()
     //ws->send("-------fro assiHub ===");
     //usleep(1000000);
@@ -134,25 +136,41 @@ void Base::AssiHubInit()
   assiHub.run();
 }
 
-void Base::getTick()
+//void Base::getFuTick(char *start_date, char *end_date)
+void Base::getFutureTick(char *start_date, char *end_date)
 {
-  // cs[0] 与 DataServer: HubAPI 相联系。 
+  // cs[0] 与 DataServer: HubAPI 相联系。
   if(cs[0] == nullptr) {
-    std::cout<< " not init !!\n";
+    std::cout<< " assistant Hub may not be initialed !!\n";
     exit(-1);
   }
+
   // 将请求发给 DataServer: HubAPI。
   // 这里的请求，有很多种，需要定义相关协议。
-  cs[0]->send("----------from gettick -----------");
+  char cmd[512];
+  memset(cmd,'\0',512);
+  int iCode = API_GET_FUTURE_TICKS ;
+  sprintf(cmd,"%4d{\"Sdate\":\"%s\",\"Edate\":\"%s\"}",API_GET_FUTURE_TICKS,start_date,end_date);
+  std::cout << cmd << std::endl;
+  cs[0]->send(cmd);
 
+
+  //  等待 HubApi.cpp Dataserver 返回数据。
   std::cout<< " go to sleep!! \n";
-  std::unique_lock <std::mutex> l(mtx);
+  std::unique_lock <std::mutex> l(m_mtx);
   cv.wait(l); // 这里要改成 timeout时间。
   std::cout<< " waked!! \n";
-  char * tmp = buf.front();
-  buf.pop();
-  //std::cout<< tmp << std::endl;
+  char * tmp = m_Qbuf.front();
+  m_Qbuf.pop();
   delete [] tmp;
 }
+
+void Base::getFutureBars(const char *period, const char *start_date, const char *end_date)
+{
+}
+void Base::getStockBars(const char *period, const char *start_date, const char *end_date)
+{
+}
+
 
 } //namespace
