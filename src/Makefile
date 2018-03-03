@@ -198,7 +198,7 @@ $(OBJ)Daemon.o: $(SRC)Daemon.cpp
 $(OBJ)Psqlpool.o: $(SRC)Psqlpool.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp
 
-$(OBJ)Psqlpool.o: $(SRC)PsqlFunc.cpp
+$(OBJ)PsqlFunc.o: $(SRC)PsqlFunc.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)PsqlFunc.o  $(SRC)PsqlFunc.cpp
 
 $(OBJ)MdCtp.o: $(SRC)MdCtp.cpp

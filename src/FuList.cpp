@@ -519,15 +519,18 @@ void FuList::ListInit(int type)
         }
       }
       //  ------------异常处理 过滤------------------begin ---------
+      //  苹果，新期货品种
       if(memcmp(future,"AP801",5)==0)  continue;
       if(memcmp(future,"AP803",5)==0)  continue;
 
+      // 棉纱，新期货品种
       if(memcmp(future,"CY708",5)==0)  continue;
       if(memcmp(future,"CY709",5)==0)  continue;
       if(memcmp(future,"CY710",5)==0)  continue;
       if(memcmp(future,"CY711",5)==0)  continue;
       if(memcmp(future,"CY712",5)==0)  continue;
 
+      // 燃料油 ==> 1 -12月（春节月份除外） (2016.2 2017.1   2018.2  2019.2 2020.1 )
       if(memcmp(future,"fu1602",6)==0)  continue;
       if(memcmp(future,"fu1701",6)==0)  continue;
       if(memcmp(future,"fu1802",6)==0)  continue;
