@@ -1,10 +1,15 @@
 #include <uWS/uWS.h>
 #include "uBEE.h"
+#include "Psqlpool.h"
+#include "PsqlFunc.h"
 #include <iostream>
 #include <sys/time.h>
 
 #pragma comment(lib, "uWS.lib")
 
+/*
+void createTable(std::shared_ptr<uBEE::DBPool> dbpool,const char * future);
+*/
 int main()
 {
   uWS::Hub h;
@@ -54,6 +59,10 @@ int main()
 
   usleep(2000000);
 
+  // 创建数据库连接池
+  auto dbpool = std::make_shared<uBEE::DBPool>();
+
+
   memset(filename,'\0',256);
   sprintf(filename,"%s",fl.Date);
   std::cout << " \n---------------------------------------------------------------------------\n";
@@ -64,6 +73,8 @@ int main()
     std::cout << fl.ShfeList[i] << " " ;
     if(strlen(fl.ShfeList[i]) == 0) continue;
     uBEE::SaveLine(fn_shfe,fl.ShfeList[i]);
+    //createTable(dbpool,fl.ShfeList[i]);
+    uBEE::createTickTable(dbpool,fl.ShfeList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.ShfeList[i]);
     }
@@ -79,6 +90,8 @@ int main()
     std::cout << fl.CzceList[i] <<  " " ;
     if(strlen(fl.CzceList[i]) == 0) continue;
     uBEE::SaveLine(fn_czce,fl.CzceList[i]);
+    //createTable(dbpool,fl.CzceList[i]);
+    uBEE::createTickTable(dbpool,fl.CzceList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.CzceList[i]);
     }
@@ -94,6 +107,8 @@ int main()
     std::cout << fl.DceList[i] << " " ;
     if(strlen(fl.DceList[i]) == 0) continue;
     uBEE::SaveLine(fn_dce,fl.DceList[i]);
+    //createTable(dbpool,fl.DceList[i]);
+    uBEE::createTickTable(dbpool,fl.DceList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.DceList[i]);
     }
@@ -109,6 +124,8 @@ int main()
     std::cout << fl.CffeList[i] << " " ;
     if(strlen(fl.CffeList[i]) == 0) continue;
     uBEE::SaveLine(fn_cffe,fl.CffeList[i]);
+    //createTable(dbpool,fl.CffeList[i]);
+    uBEE::createTickTable(dbpool,fl.CffeList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.CffeList[i]);
     }
@@ -240,7 +257,7 @@ int main()
     }
   });
 
-  h.onMessage([&tt](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
     if(length>0) {
       std::cout << "message!" << std::endl;
       //usleep(5000000);
@@ -267,3 +284,48 @@ int main()
 
   h.run();
 }
+
+/*
+void createTable(std::shared_ptr<uBEE::DBPool> dbpool,const char * future)
+{
+  auto conn = dbpool->getDBConn();
+  PGresult   *res;
+  PGconn     *connx;
+  connx = conn->getConn().get() ;
+
+  char       ca_state[4096];
+  memset(ca_state,'\0',4096);
+
+  const unsigned char strSrc[]="\
+    datetime        VARCHAR(10) NOT NULL,\
+    ms              VARCHAR(10) NOT NULL,\
+    serials         VARCHAR UNIQUE NOT NULL,\
+    trading_day     VARCHAR(10),\
+    highest         DOUBLE PRECISION NOT NULL,\
+    lowest          DOUBLE PRECISION NOT NULL,\
+    last_price      DOUBLE PRECISION NOT NULL,\
+    ask_price1      DOUBLE PRECISION NOT NULL,\
+    ask_volume1     DOUBLE PRECISION NOT NULL,\
+    bid_price1      DOUBLE PRECISION NOT NULL,\
+    bid_volume1     DOUBLE PRECISION NOT NULL,\
+    open_interest   DOUBLE PRECISION NOT NULL,\
+    volume          DOUBLE PRECISION NOT NULL,\
+    PRIMARY KEY (datetime, ms)\
+  ";
+  sprintf(ca_state,"CREATE TABLE TICK_%s(%s);",future,strSrc);
+  std::cout << ca_state << std::endl;
+
+  //
+  res = PQexec(connx, ca_state);
+  if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+    fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(connx));
+    PQclear(res);
+    //exit_nicely(connx);
+    PQfinish(connx);
+    exit(1);
+  }
+  PQclear(res);
+  //
+  dbpool->freeDBConn(conn);
+}
+*/

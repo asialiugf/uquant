@@ -1,9 +1,11 @@
-
 #include <iostream>
 #include <thread>
 #include <fstream>
 #include <sstream>
 #include "Psqlpool.h"
+
+namespace uBEE
+{
 
 DBConn::DBConn()
 {
@@ -58,3 +60,5 @@ void DBPool::freeDBConn(std::shared_ptr<DBConn> conn_)
   lock_.unlock();
   m_condition.notify_one();
 }
+
+} // end namesapce

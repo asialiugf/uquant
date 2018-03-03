@@ -9,6 +9,9 @@
 #include <libpq-fe.h>
 //#include "pgconnection.h"
 
+namespace uBEE
+{
+
 class DBConn
 {
 public:
@@ -45,4 +48,5 @@ private:
 
 };
 
+} //end namesapce
 #endif //PGBACKEND_H

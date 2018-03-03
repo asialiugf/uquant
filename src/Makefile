@@ -28,6 +28,7 @@ DEPS = ../inc/Base.h \
 	    ../inc/HubSim.h \
 	    ../inc/HubBck.h \
         ../inc/Psqlpool.h \
+        ../inc/PsqlFunc.h \
         ../inc/Roll.h \
         ../inc/File.h \
         ../inc/Json.h \
@@ -62,6 +63,7 @@ objs: $(OBJ)Base.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
 	$(OBJ)Psqlpool.o \
+	$(OBJ)PsqlFunc.o \
 	$(OBJ)Main.o 
 
 OBJS:= \
@@ -80,6 +82,7 @@ OBJS:= \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
     $(OBJ)Psqlpool.o \
+    $(OBJ)PsqlFunc.o \
 	$(OBJ)Main.o 
 
 MAINOBJS:= \
@@ -111,6 +114,8 @@ TQDATA:= \
 	$(OBJ)Json.o \
 	$(OBJ)FuList.o \
     $(OBJ)ErrLog.o \
+    $(OBJ)Psqlpool.o \
+    $(OBJ)PsqlFunc.o \
 	$(OBJ)Tqdata.o 
 
 FUGEN:= \
@@ -134,7 +139,7 @@ $(EXE)dserver.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(CTPLIBS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)tqdata.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
+	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson -lpq
 
 $(EXE)fugen.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
@@ -192,6 +197,9 @@ $(OBJ)Daemon.o: $(SRC)Daemon.cpp
 
 $(OBJ)Psqlpool.o: $(SRC)Psqlpool.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp
+
+$(OBJ)Psqlpool.o: $(SRC)PsqlFunc.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)PsqlFunc.o  $(SRC)PsqlFunc.cpp
 
 $(OBJ)MdCtp.o: $(SRC)MdCtp.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MdCtp.o  $(SRC)MdCtp.cpp
