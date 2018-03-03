@@ -1,11 +1,7 @@
 #MAKEFILE************  
-
-CC = g++
-CPPFLAGS =  -std=c++11  -O2
-CCFLAGS =  -std=c++11 -O2 -fPIC 
    
-#CC=cc
-#CCFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g -pthread
+CC=cc
+CCFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g -pthread
    
 LDFLAGS=-fPIC -shared  
 
