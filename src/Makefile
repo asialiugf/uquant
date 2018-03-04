@@ -18,6 +18,7 @@ INCS = -I ../inc \
 	   -I /usr/include/postgresql
 
 DEPS = ../inc/Base.h \
+	    ../inc/Bars.h \
 	    ../inc/Echo.h \
 	    ../inc/Title.h \
 	    ../inc/FuList.h \
@@ -46,6 +47,7 @@ exes: $(EXE)main.x \
 	$(EXE)wserver.x
 
 objs: $(OBJ)Base.o \
+	$(OBJ)Bars.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
 	$(OBJ)Title.o \
@@ -176,6 +178,9 @@ $(OBJ)Webserver.o: $(SRC)Webserver.cpp
 
 $(OBJ)Base.o: $(SRC)Base.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Base.o  $(SRC)Base.cpp
+
+$(OBJ)Bars.o: $(SRC)Bars.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Bars.o  $(SRC)Bars.cpp
 
 $(OBJ)File.o: $(SRC)File.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)File.o  $(SRC)File.cpp
