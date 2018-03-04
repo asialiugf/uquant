@@ -1,6 +1,9 @@
 #include "../ctp/ThostFtdcMdApi.h"
 #include <uWS/uWS.h>
 #include "MdSpi.h"
+#include "Bars.h"
+#include <map>
+#include <string>
 
 namespace uBEE
 {
@@ -31,9 +34,20 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
     sleep(1);
   }
   */
+
+  uBEE::TradingTime tt ;
+  std::map<std::string,uBEE::FuBlock> fb_map;
+  uBEE::FuBlock fb1 ;
+  uBEE::FuBlock fb2 ;
+  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("root",fb1)); 
+  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("boot",fb1)); 
+  
+
   pUserApi = CThostFtdcMdApi::CreateFtdcMdApi();			// 创建UserApi
 
-  CThostFtdcMdSpi* pUserSpi = new CMdSpi();
+  //CThostFtdcMdSpi* pUserSpi = new CMdSpi();
+  CMdSpi * pUserSpi = new CMdSpi();
+  pUserSpi->Init(1001);
   pUserApi->RegisterSpi(pUserSpi);						// 注册事件类
   pUserApi->RegisterFront(FRONT_ADDR);					// connect
   pUserApi->Init();

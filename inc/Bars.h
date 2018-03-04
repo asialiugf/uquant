@@ -28,9 +28,9 @@ namespace uBEE
 #define  FUTRUE_ID_LEN     31
 #define  SEE_SGM_NUM       50
 #define  SEE_HOUR_TYPE_NUM 10
-#define  TRADE_TIME         "../../etc/tbl/see_trade_time"
-#define  FUTURE_DAYS        "../../etc/tbl/see_future_days"
-#define  FUTURE_TIME        "../../etc/tbl/see_future_time"
+#define  TRADE_TIME         "../etc/tbl/see_trade_time"
+#define  FUTURE_DAYS        "../etc/tbl/see_future_days"
+#define  FUTURE_TIME        "../etc/tbl/see_future_time"
 
 typedef struct  {
   char c_oc_flag ;    /* 'o':open   ;c':close */

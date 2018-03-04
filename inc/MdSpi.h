@@ -6,7 +6,9 @@ namespace uBEE
 
 class CMdSpi : public CThostFtdcMdSpi
 {
+    int x ;
 public:
+    void Init(int a) ;
 	///错误应答
     virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 

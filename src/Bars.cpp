@@ -38,7 +38,8 @@ int TradingTime::Init(see_hours_t t_hours[])
     char            ca_line[1024] ;
     see_segment_t  *sgm ;
 
-    pf = fopen(TRADE_TIME,"r");
+    //pf = fopen(TRADE_TIME,"r");
+    pf = fopen("../etc/tbl/see_trade_time","r");
     if(pf == NULL) {
         uBEE::ErrLog(1000,"open trade time error!!",1,0,0) ;
         return -1 ;

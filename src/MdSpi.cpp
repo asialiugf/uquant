@@ -19,6 +19,11 @@ extern int iRequestID;
 extern uWS::Group<uWS::SERVER> * sg;
 extern uWS::Group<uWS::CLIENT> * cg;
 
+void CMdSpi::Init(int a)
+{
+  x = a;
+}
+
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
                         int nRequestID, bool bIsLast)
 {
@@ -42,6 +47,7 @@ void CMdSpi::OnFrontConnected()
 {
   cerr << "--->>> " << "OnFrontConnected" << endl;
   // ÓÃ»§µÇÂ¼ÇëÇó
+  std::cout << "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu:" << x << std::endl;
   ReqUserLogin();
 }
 

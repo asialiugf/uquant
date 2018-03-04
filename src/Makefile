@@ -96,6 +96,7 @@ MAINOBJS:= \
 
 DATASERVER:= \
 	$(OBJ)Base.o \
+	$(OBJ)Bars.o \
 	$(OBJ)File.o \
 	$(OBJ)Json.o \
     $(OBJ)Title.o \
