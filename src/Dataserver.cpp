@@ -31,6 +31,8 @@ int main(int argc, char **argv)
   uBEE:: SetProcTitle("master ","DataServ: ");
 
 
+  rtn = ForkCtp();
+  sleep(1);
   std::cout << "befor fork api !!\n" ;
   rtn = ForkApi();
   std::cout << "after fork api !!\n" ;
@@ -39,8 +41,6 @@ int main(int argc, char **argv)
     rtn = ForkBck();
     sleep(1);
   }
-  sleep(1);
-  rtn = ForkCtp();
   sleep(1);
   rtn = ForkSim();
   sleep(1);
