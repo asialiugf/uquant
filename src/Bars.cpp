@@ -1,5 +1,6 @@
 #include "Bars.h"
 #include "ErrLog.h"
+#include <iostream>
 
 namespace uBEE
 {
@@ -524,6 +525,7 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
                 memset(ca_hours_type,'\0',3) ;
                 memcpy(ca_hours_type,ca_line+i,1) ;
                 p_block->i_hour_type = atoi(ca_hours_type) ;
+                std::cout << "~~~~~~~~~~~:" << p_block->i_hour_type << std::endl;
                 p_block->pt_hour = &t_hours[p_block->i_hour_type] ;
 
                 break ;

@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <cstdio>
+#include <ctime>
 
 namespace uBEE
 {
@@ -17,13 +19,14 @@ TThostFtdcBrokerIDType	BROKER_ID = "9999";			// 经纪公司代码
 TThostFtdcInvestorIDType INVESTOR_ID = "059979";		// 投资者代码
 TThostFtdcPasswordType  PASSWORD = "123456";			// 用户密码
 //char *ppInstrumentID[] = {"ru1805", "ag1806"};			// 行情订阅列表
-char aa[] = "ru1805";
-char bb[] = "ag1806";
-char *ppInstrumentID[2000];			// 行情订阅列表
-int iInstrumentID = 200;						// 行情订阅数量
+//char aa[] = "ru1805";
+//char bb[] = "ag1806";
+char *ppInstrumentID[2000];								// 行情订阅列表
+int iInstrumentID = 200;								// 行情订阅数量
 int iRequestID = 0;                                     // 请求编号
 uWS::Group<uWS::SERVER> * sg;
-uWS::Group<uWS::CLIENT> * cg;
+//uWS::Group<uWS::CLIENT> * cg;
+std::map<std::string,uBEE::FuBlock> FuBlockMap;
 
 void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
 {
@@ -31,56 +34,95 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
   //ppInstrumentID[0] = &aa[0];
   //ppInstrumentID[1] = &bb[0];
 
-  // 生成 future list ...................................
+  // 获取日期 .......................................................
+  int y,m,d;
+  time_t rawtime;
+  struct tm *ptminfo;
+  time(&rawtime);
+  ptminfo = localtime(&rawtime);
+
+  printf("current: %02d-%02d-%02d %02d:%02d:%02d\n",
+         ptminfo->tm_year + 1900, ptminfo->tm_mon + 1, ptminfo->tm_mday,
+         ptminfo->tm_hour, ptminfo->tm_min, ptminfo->tm_sec);
+
+  y = ptminfo->tm_year + 1900 ;
+  m = ptminfo->tm_mon + 1 ;
+  d = ptminfo->tm_mday ;
+
+  // 生成 future list ...............................................
   uBEE::FuList fl;
-  int rtn = fl.Init(2018,3,1);
+  int rtn = fl.Init(y,m,d);
   if(rtn < 0) {
     exit(-1);
   }
 
+  // 初始化 期货列表 ... ppInstrumentID .................begin.......
   for(int i = 0; i< FUTURE_NUMBER; i++) {
-  // for(int i = 0; i< DCE_NUMBER; i++) {
     ppInstrumentID[i] = nullptr ;
     if(fl.pc_futures[i] == nullptr) {
-    //if(fl.pShfeList[i] == nullptr) {
       iInstrumentID = i;
       break ;
     }
-    //ppInstrumentID[i] = fl.pShfeList[i] ;
     ppInstrumentID[i] = fl.pc_futures[i] ;
   }
   for(int i = 0; i< FUTURE_NUMBER; i++) {
-  //for(int i = 0; i< DCE_NUMBER; i++) {
     if(ppInstrumentID[i] == nullptr) {
       break ;
     }
-    std::cout << "======================================:" << ppInstrumentID[i] << std::endl;
+    std::cout << "=============:" << ppInstrumentID[i] << std::endl;
   }
 
-
   /*
+  for(int i = 0; i< DCE_NUMBER; i++) {
+    ppInstrumentID[i] = nullptr ;
+    if(fl.pShfeList[i] == nullptr) {
+      iInstrumentID = i;
+      break ;
+    }
+    ppInstrumentID[i] = fl.pShfeList[i] ;
+  }
+  for(int i = 0; i< DCE_NUMBER; i++) {
+    if(ppInstrumentID[i] == nullptr) {
+      break ;
+    }
+    std::cout << "=============:" << ppInstrumentID[i] << std::endl;
+  }
+  */
+  // 初始化 期货列表 ... ppInstrumentID .................end........
+
+
+  /*   for testing !!
   while(1) {
     sg->broadcast("hahaha", 6, uWS::OpCode::TEXT);
     sleep(1);
   }
   */
 
+
+  // ...... 初始化 交易时间对象 ...................................
   uBEE::TradingTime tt ;
-  std::map<std::string,uBEE::FuBlock> fb_map;
-  uBEE::FuBlock fb1 ;
-  uBEE::FuBlock fb2 ;
-  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("root",fb1));
-  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("boot",fb1));
+
+  // ...... 初始化 期货 block FuBlockMap ..........................
+  for(int i = 0; i< FUTURE_NUMBER; i++) {
+    if(fl.pc_futures[i] == nullptr) {
+      break ;
+    }
+    uBEE::FuBlock fb;
+    fb.Init(&fb.Block, fl.pc_futures[i], &tt.t_hours[0]);
+    FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl.pc_futures[i],fb));
+  }
 
 
-  pUserApi = CThostFtdcMdApi::CreateFtdcMdApi();			// 创建UserApi
+  // ......  创建 pUserApi 并初始化................................
+  pUserApi = CThostFtdcMdApi::CreateFtdcMdApi();
 
+  // ......  创建 pUserSpi 并初始化................................
   //CThostFtdcMdSpi* pUserSpi = new CMdSpi();
   CMdSpi * pUserSpi = new CMdSpi();
-
   pUserSpi->Init(1001);
   pUserSpi->set_SG(new_sg);
 
+  // ..............................................................
   pUserApi->RegisterSpi(pUserSpi);						// 注册事件类
   pUserApi->RegisterFront(FRONT_ADDR);					// connect
   pUserApi->Init();

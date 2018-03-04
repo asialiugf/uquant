@@ -8,6 +8,7 @@ class CMdSpi : public CThostFtdcMdSpi
 {
     char *m_ppInstrumentID[];
     uWS::Group<uWS::SERVER> * m_SG;
+    //std::map<std::string,uBEE::FuBlock> m_FBmap;
     int x ;
 public:
     void Init(int a) ;

@@ -1,4 +1,5 @@
 #include "MdSpi.h"
+#include "Bars.h"
 #include <uWS/uWS.h>
 #include <string.h>
 #include <iostream>
@@ -17,7 +18,8 @@ extern char* ppInstrumentID[];
 extern int iInstrumentID;
 extern int iRequestID;
 extern uWS::Group<uWS::SERVER> * sg;
-extern uWS::Group<uWS::CLIENT> * cg;
+//extern uWS::Group<uWS::CLIENT> * cg;
+extern std::map<std::string,uBEE::FuBlock> FuBlockMap;
 
 void CMdSpi::Init(int a)
 {
@@ -31,8 +33,8 @@ void CMdSpi::set_SG(uWS::Group<uWS::SERVER> * sg)
 
 void CMdSpi::set_InstrumentID(char *pp[])
 {
-   // 需要修改！
-   //m_ppInstrumentID = pp ;
+  // 需要修改！
+  //m_ppInstrumentID = pp ;
 }
 
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -58,7 +60,19 @@ void CMdSpi::OnFrontConnected()
 {
   cerr << "--->>> " << "OnFrontConnected" << endl;
   // 用户登录请求
+  // --- testing ----------------------------------
   std::cout << "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu:" << x << std::endl;
+  map<std::string,uBEE::FuBlock>::iterator it;
+  it = FuBlockMap.begin();
+  while(it != FuBlockMap.end()) {
+    std::cout << "......:" << it->first << ":"<< it->second.Block.i_hour_type << std::endl;
+    //it->first;
+    //it->second;
+    it ++;
+  }
+  exit(-1);
+  // --- testing ----------------------------------
+
   ReqUserLogin();
 }
 

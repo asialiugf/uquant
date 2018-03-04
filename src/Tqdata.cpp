@@ -44,7 +44,14 @@ int main()
   uBEE::FuList fl;
   int rtn = fl.Init(y,m,d);
   if(rtn < 0) {
+    std::cout << " 期货列表 生成 失败！ " << std::endl;
     exit(-1);
+  }
+
+  if(6==fl.Week || 7==fl.Week) {
+    std::cout << "week:"<< fl.Week << "    date:"<< fl.Date << std::endl;
+    std::cout << "这一天不是交易日, not trading day, week: " << fl.Week << std::endl;
+    return -1;
   }
 
   std::cout << "week:"<< fl.Week << "    date:"<< fl.Date << std::endl;

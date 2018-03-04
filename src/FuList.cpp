@@ -114,7 +114,8 @@ int FuList::Init(int y,int m, int d)
   }
   if(6==Week || 7==Week) {
     std::cout << " not trading day, week: " << Week << std::endl;
-    return -1;
+    // 不是交易日期，也应该能生成 期货列表。
+    //return -1;
   }
 
   for(int i = 0; i< DCE_NUMBER; i++) {
