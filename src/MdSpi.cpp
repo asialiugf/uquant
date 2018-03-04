@@ -24,6 +24,17 @@ void CMdSpi::Init(int a)
   x = a;
 }
 
+void CMdSpi::set_SG(uWS::Group<uWS::SERVER> * sg)
+{
+  m_SG = sg ;
+}
+
+void CMdSpi::set_InstrumentID(char *pp[])
+{
+   // ÐèÒªÐÞ¸Ä£¡
+   //m_ppInstrumentID = pp ;
+}
+
 void CMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
                         int nRequestID, bool bIsLast)
 {

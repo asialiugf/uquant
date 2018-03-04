@@ -137,7 +137,7 @@ int FuList::Init(int y,int m, int d)
   FuList::ListInit(TYPE_SHFE);
   FuList::ListInit(TYPE_CZCE);
   FuList::ListInit(TYPE_DCE);
-  FuList::pListInit();
+  FuList::pListInit();      // 指针数组
 }
 
 void  FuList::CffeListInit()

@@ -2,8 +2,10 @@
 #include <uWS/uWS.h>
 #include "MdSpi.h"
 #include "Bars.h"
+#include "FuList.h"
 #include <map>
 #include <string>
+#include <iostream>
 
 namespace uBEE
 {
@@ -17,8 +19,8 @@ TThostFtdcPasswordType  PASSWORD = "123456";			// 用户密码
 //char *ppInstrumentID[] = {"ru1805", "ag1806"};			// 行情订阅列表
 char aa[] = "ru1805";
 char bb[] = "ag1806";
-char *ppInstrumentID[100];			// 行情订阅列表
-int iInstrumentID = 2;						// 行情订阅数量
+char *ppInstrumentID[2000];			// 行情订阅列表
+int iInstrumentID = 200;						// 行情订阅数量
 int iRequestID = 0;                                     // 请求编号
 uWS::Group<uWS::SERVER> * sg;
 uWS::Group<uWS::CLIENT> * cg;
@@ -26,8 +28,36 @@ uWS::Group<uWS::CLIENT> * cg;
 void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
 {
   sg = new_sg;
-  ppInstrumentID[0] = &aa[0];
-  ppInstrumentID[1] = &bb[0];
+  //ppInstrumentID[0] = &aa[0];
+  //ppInstrumentID[1] = &bb[0];
+
+  // 生成 future list ...................................
+  uBEE::FuList fl;
+  int rtn = fl.Init(2018,3,1);
+  if(rtn < 0) {
+    exit(-1);
+  }
+
+  for(int i = 0; i< FUTURE_NUMBER; i++) {
+  // for(int i = 0; i< DCE_NUMBER; i++) {
+    ppInstrumentID[i] = nullptr ;
+    if(fl.pc_futures[i] == nullptr) {
+    //if(fl.pShfeList[i] == nullptr) {
+      iInstrumentID = i;
+      break ;
+    }
+    //ppInstrumentID[i] = fl.pShfeList[i] ;
+    ppInstrumentID[i] = fl.pc_futures[i] ;
+  }
+  for(int i = 0; i< FUTURE_NUMBER; i++) {
+  //for(int i = 0; i< DCE_NUMBER; i++) {
+    if(ppInstrumentID[i] == nullptr) {
+      break ;
+    }
+    std::cout << "======================================:" << ppInstrumentID[i] << std::endl;
+  }
+
+
   /*
   while(1) {
     sg->broadcast("hahaha", 6, uWS::OpCode::TEXT);
@@ -39,15 +69,18 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
   std::map<std::string,uBEE::FuBlock> fb_map;
   uBEE::FuBlock fb1 ;
   uBEE::FuBlock fb2 ;
-  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("root",fb1)); 
-  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("boot",fb1)); 
-  
+  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("root",fb1));
+  fb_map.insert(std::pair<std::string,uBEE::FuBlock>("boot",fb1));
+
 
   pUserApi = CThostFtdcMdApi::CreateFtdcMdApi();			// 创建UserApi
 
   //CThostFtdcMdSpi* pUserSpi = new CMdSpi();
   CMdSpi * pUserSpi = new CMdSpi();
+
   pUserSpi->Init(1001);
+  pUserSpi->set_SG(new_sg);
+
   pUserApi->RegisterSpi(pUserSpi);						// 注册事件类
   pUserApi->RegisterFront(FRONT_ADDR);					// connect
   pUserApi->Init();

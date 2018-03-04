@@ -6,9 +6,14 @@ namespace uBEE
 
 class CMdSpi : public CThostFtdcMdSpi
 {
+    char *m_ppInstrumentID[];
+    uWS::Group<uWS::SERVER> * m_SG;
     int x ;
 public:
     void Init(int a) ;
+    void set_SG(uWS::Group<uWS::SERVER> * sg) ;
+    void set_InstrumentID(char *pp[]) ;
+
 	///错误应答
     virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
