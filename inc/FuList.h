@@ -138,7 +138,8 @@ static const std::map<std::string,std::string> M_CZCE = {
 //  {"ME","{\"N\":8,\"M\":[]}"}    //   # 甲醇 (已退)
 };
 
-static const std::map<std::string,int> M_CZCE_T = {
+// -- 交易时间类型 -- 有的有夜盘，有的没有夜盘，夜盘的交易时间不一样 --
+static const std::map<std::string,int> M_CZCE_T = {    
   {"AP",  444 }, // 苹果
   {"CF",  2   }, // 棉花
   {"CY",  444 }, // 棉纱
