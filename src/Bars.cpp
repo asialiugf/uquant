@@ -376,6 +376,7 @@ FuBlock::FuBlock()       // constructor  new thread fot getting data APIs.
 
 int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hours[])
 {
+  std::cout << "enter Init :" << pc_future << std::endl;
   int             i = 0 ;
   char            ca_hours_type[3] ;
   char            ca_future[FUTRUE_ID_LEN] ;
@@ -518,7 +519,9 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
   memset(ca_line,'\0',1024) ;
   while(fgets(ca_line,1024, pf_future_time) != NULL) {
     uBEE::ErrLog(1000,ca_line,RPT_TO_LOG,0,0) ;
+    std::cout  << ca_line ;
     if(ca_future[0] == ca_line[0]) {
+      std::cout  << ca_line[0] << "--" <<ca_future[0]  << std::endl;
       uBEE::ErrLog(1000,pc_future,RPT_TO_LOG,0,0) ;
       if(ca_future[1] == ca_line[1]) {
         i = 2 ;
@@ -530,6 +533,7 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
         p_block->i_hour_type = atoi(ca_hours_type) ;
         std::cout << "~~~~~~~~~~~:" << p_block->i_hour_type << std::endl;
         p_block->pt_hour = &t_hours[p_block->i_hour_type] ;
+        std::cout << "---- after !" << std::endl;
 
         break ;
       } else if(!((ca_future[1] <= 'z' && ca_future[1] >= 'a') || (ca_future[1] <= 'Z' && ca_future[1] >= 'A'))) {
@@ -554,6 +558,7 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
   /*  ------  初始化 这个期货合约的 每天的交易时间段 ------ */
 
   //see_err_log(0,0,"<OUT> see_block_init!");
+  std::cout << "--ooo-- after !" << std::endl;
   return SEE_OK ;
 }
 
@@ -1098,6 +1103,10 @@ CalcBar(see_fut_block_t *p_block, TICK *tick, int period)
           当新一个tick来到，时间恰好是09:31:02 500, 也就是说中间有好几秒没有tick，这种情况下，
           可以确定第N个K柱结束。于是，将p_bar1的内容copy到 p_bar0，即p_bar0是第N个K柱的结束状态。
 
+      */
+      /*
+        如果i_kbar_num>1，表示经过了多个K柱，没有收到数数据了， 不应该是以下的处理方法。
+        :::::以后再修改！:::::
       */
       memcpy((char *)p_bar0,p_bar1,sizeof(see_bar_t));
       if(see_first_tick(p_block,tick,p_bar0,p_bar1,period) == 0) {    // 新K柱，tick->UpdateTime的值可能不是 起始的时间

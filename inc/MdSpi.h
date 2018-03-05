@@ -1,5 +1,9 @@
 #include "../ctp/ThostFtdcMdApi.h"
+#include "FuList.h"
+#include "Bars.h"
+#include "Psqlpool.h"
 #include <uWS/uWS.h>
+
 
 namespace uBEE
 {
@@ -8,9 +12,13 @@ class CMdSpi : public CThostFtdcMdSpi
 {
     char *m_ppInstrumentID[];
     uWS::Group<uWS::SERVER> * m_SG;
-    //std::map<std::string,uBEE::FuBlock> m_FBmap;
+    uBEE::FuList *fl;
+    // map做为成员变量，初始化 没有搞定，所以改成全局变量了。
+    //std::map<std::string,uBEE::FuBlock *> FuBlockMap;
+    std::shared_ptr<uBEE::DBPool> dbpool;
     int x ;
 public:
+    CMdSpi();
     void Init(int a) ;
     void set_SG(uWS::Group<uWS::SERVER> * sg) ;
     void set_InstrumentID(char *pp[]) ;

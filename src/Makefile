@@ -108,6 +108,8 @@ DATASERVER:= \
 	$(OBJ)HubCtp.o \
 	$(OBJ)HubSim.o \
 	$(OBJ)HubBck.o \
+	$(OBJ)Psqlpool.o \
+    $(OBJ)PsqlFunc.o \
 	$(OBJ)MdCtp.o \
 	$(OBJ)MdSpi.o \
 	$(OBJ)Dataserver.o 
@@ -140,7 +142,7 @@ $(EXE)main.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
 
 $(EXE)dserver.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(CTPLIBS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
+	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(CTPLIBS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson -lpq
 
 $(EXE)tqdata.x: $(MAINOBJS)
 	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson -lpq

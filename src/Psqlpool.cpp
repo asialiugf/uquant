@@ -7,6 +7,7 @@
 namespace uBEE
 {
 
+// class DBConn -------------------------------------------------------------
 DBConn::DBConn()
 {
   m_connection.reset(PQsetdbLogin(m_dbhost, m_dbport, nullptr, nullptr,m_dbname, m_dbuser, m_dbpass), &PQfinish);
@@ -23,11 +24,14 @@ std::shared_ptr<PGconn> DBConn::getConn() const
   return m_connection;
 }
 
+
+// iclass DBPool -------------------------------------------------------------------------
 DBPool::DBPool()
 {
   createPool();
 }
 
+// 创建了10个连接,  POOL = 10 ;
 void DBPool::createPool()
 {
   std::lock_guard<std::mutex> locker_(m_mutex);
@@ -37,6 +41,7 @@ void DBPool::createPool()
   }
 }
 
+// 取出一个连接
 std::shared_ptr<DBConn> DBPool::getDBConn()
 {
 
@@ -52,7 +57,7 @@ std::shared_ptr<DBConn> DBPool::getDBConn()
   return  conn_;
 }
 
-
+// 释放连接
 void DBPool::freeDBConn(std::shared_ptr<DBConn> conn_)
 {
   std::unique_lock<std::mutex> lock_(m_mutex);

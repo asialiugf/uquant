@@ -45,7 +45,6 @@ private:
 
     const int POOL = 10;
 
-
 };
 
 } //end namesapce

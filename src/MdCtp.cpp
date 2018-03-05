@@ -26,7 +26,7 @@ int iInstrumentID = 200;								// 行情订阅数量
 int iRequestID = 0;                                     // 请求编号
 uWS::Group<uWS::SERVER> * sg;
 //uWS::Group<uWS::CLIENT> * cg;
-std::map<std::string,uBEE::FuBlock> FuBlockMap;
+//std::map<std::string,uBEE::FuBlock> FuBlockMap;
 
 void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
 {
@@ -34,6 +34,7 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
   //ppInstrumentID[0] = &aa[0];
   //ppInstrumentID[1] = &bb[0];
 
+  /*
   // 获取日期 .......................................................
   int y,m,d;
   time_t rawtime;
@@ -72,7 +73,7 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
     std::cout << "=============:" << ppInstrumentID[i] << std::endl;
   }
 
-  /*
+  /
   for(int i = 0; i< DCE_NUMBER; i++) {
     ppInstrumentID[i] = nullptr ;
     if(fl.pShfeList[i] == nullptr) {
@@ -87,16 +88,18 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
     }
     std::cout << "=============:" << ppInstrumentID[i] << std::endl;
   }
-  */
+  /
   // 初始化 期货列表 ... ppInstrumentID .................end........
 
 
-  /*   for testing !!
+  // for testing !!
+  /
   while(1) {
     sg->broadcast("hahaha", 6, uWS::OpCode::TEXT);
     sleep(1);
   }
-  */
+  /
+  
 
 
   // ...... 初始化 交易时间对象 ...................................
@@ -111,7 +114,7 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
     fb.Init(&fb.Block, fl.pc_futures[i], &tt.t_hours[0]);
     FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl.pc_futures[i],fb));
   }
-
+  */
 
   // ......  创建 pUserApi 并初始化................................
   pUserApi = CThostFtdcMdApi::CreateFtdcMdApi();
