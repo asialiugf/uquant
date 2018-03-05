@@ -828,7 +828,7 @@ rtn = 0; 表示为 第0秒的第0个tick,所以，这个tick的volume应该算�
 rtn = 1; 表示为 已经不是第0秒的第0个tick，所以这个tick的volume应该算到当前的K柱里
 */
 int
-see_first_tick(see_fut_block_t                                  *p_block,
+see_first_tick(see_fut_block_t *p_block,
                TICK            *tick,
                see_bar_t       *p_bar0,  //暂时没有用到
                see_bar_t       *p_bar1,
@@ -850,11 +850,8 @@ see_first_tick(see_fut_block_t                                  *p_block,
 
   int  i_sgm_idx = p_block->i_sgm_idx;
 
-//    memcpy(p_bar0->TradingDay,f,8);
-  memcpy(p_bar1->TradingDay,tick->TradingDay,8);
-
-//    memcpy(p_bar0->ActionDay,f,8);
-  memcpy(p_bar1->ActionDay,tick->ActionDay,8);
+  //memcpy(p_bar1->TradingDay,tick->TradingDay,8);
+  //memcpy(p_bar1->ActionDay,tick->ActionDay,8);
 
   f = tick->UpdateTime;
   memcpy(f_h,f,2);
@@ -868,16 +865,7 @@ see_first_tick(see_fut_block_t                                  *p_block,
   switch(period) {
   case  BAR_TICK :
     break;
-  /*
-      case  BAR_1S :
-          NEW_BAR1;
-          if(tick->UpdateMillisec == 0) {
-              rtn = 0;
-          } else {
-              rtn = 1;
-          }
-          break;
-  */
+
   case  BAR_1S :
   case  BAR_2S :
   case  BAR_3S :
@@ -887,7 +875,17 @@ see_first_tick(see_fut_block_t                                  *p_block,
   case  BAR_20S :
   case  BAR_30S :
     NEW_BAR1;
-    mo = fs%(pp[period]);
+    /*
+    // 模，即取余数 
+      假如 收到的tick时间是  21:16:21, fs = 21
+      如果要算10S 的K柱开始时间，应该是 fs%10 = 1, 然后 fs=fs-1 = 20, 即这个K柱的开始时间是 21:16:20
+      如果要算20S 的K柱开始时间，应该是 fs%20 = 1, 然后 fs=fs-1 = 20, 即这个K柱的开始时间是 21:16:20
+
+      如果要算30S 的K柱开始时间，应该是 fs%30 =21, 然后 fs=fs-21 =00, 即这个K柱的开始时间是 21:16:00
+          也就是说，当收到这个 21:16:21的tick时，才是30S新K柱的开始，前面 从 21:16:00 到 21:16:21 一
+          直没有收到数据，所以收到这个21:16:21的tick时 已经很久了。
+    */
+    mo = fs%(pp[period]);    // 取模，即取余数  21%30=21  21%10=1 21%20=1 21%5=1 
     fs = fs - mo;
     if(mo == 0) {
       if(tick->UpdateMillisec == 0) {
@@ -902,109 +900,6 @@ see_first_tick(see_fut_block_t                                  *p_block,
       rtn = 1;
     }
     break;
-  /*
-      case  BAR_3S :
-          NEW_BAR1;
-          mo = fs%3;
-          fs = fs - mo;
-          if(mo == 0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_s,'\0',3);
-              sprintf(f_s,"%02d",fs);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-      case  BAR_5S :
-          NEW_BAR1;
-          mo = fs%5;
-          fs = fs - mo;
-          if(mo == 0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_s,'\0',3);
-              sprintf(f_s,"%02d",fs);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-      case  BAR_10S :
-          NEW_BAR1;
-          mo = fs%10;
-          fs = fs - mo;
-          if(mo == 0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_s,'\0',3);
-              sprintf(f_s,"%02d",fs);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-      case  BAR_15S :
-          NEW_BAR1;
-          mo = fs%15;
-          fs = fs - mo;
-          if(mo == 0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_s,'\0',3);
-              sprintf(f_s,"%02d",fs);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-      case  BAR_30S :
-          NEW_BAR1;
-          mo = fs%30;
-          fs = fs - mo;
-          if(mo == 0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_s,'\0',3);
-              sprintf(f_s,"%02d",fs);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-  */
-  /*
-      case  BAR_1F :
-          NEW_BAR1;
-          if(memcmp(tick->UpdateTime+6,"00",2) == 0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_s,'0',3);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-  */
 
   case  BAR_1F :
   case  BAR_2F :
@@ -1029,66 +924,6 @@ see_first_tick(see_fut_block_t                                  *p_block,
       rtn = 1;
     }
     break;
-  /*
-      case  BAR_3F :
-          NEW_BAR1;
-          mo = fm%3;
-          fm = fm - mo;
-          if(mo==0 && memcmp(tick->UpdateTime+6,"00",2)==0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_m,'\0',3);
-              memset(f_s,'0',3);
-              sprintf(f_m,"%02d",fm);
-              memcpy(p_bar1->ca_btime+3,f_m,2);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-      case  BAR_5F :
-          NEW_BAR1;
-          mo = fm%5;
-          fm = fm - mo;
-          if(mo==0 && memcmp(tick->UpdateTime+6,"00",2)==0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_m,'\0',3);
-              memset(f_s,'0',3);
-              sprintf(f_m,"%02d",fm);
-              memcpy(p_bar1->ca_btime+3,f_m,2);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-
-      case  BAR_10F :
-          NEW_BAR1;
-          mo = fm%10;
-          fm = fm - mo;
-          if(mo==0 && memcmp(tick->UpdateTime+6,"00",2)==0) {
-              if(tick->UpdateMillisec == 0) {
-                  rtn = 0;
-              } else {
-                  rtn = 1;
-              }
-          } else {
-              memset(f_m,'\0',3);
-              memset(f_s,'0',3);
-              sprintf(f_m,"%02d",fm);
-              memcpy(p_bar1->ca_btime+3,f_m,2);
-              memcpy(p_bar1->ca_btime+6,f_s,2);
-              rtn = 1;
-          }
-          break;
-  */
 
   case  BAR_15F :
     NEW_BAR1;
@@ -1238,7 +1073,7 @@ CalcBar(see_fut_block_t *p_block, TICK *tick, int period)
   p_bar1 =  &p_block->bar_block[period].bar1;
 
   if(p_block->c_oc_flag == 'o') {    // 在交易时间段内
-    if(p_bar1->o == SEE_NULL) {    // 程序开启后的第一个tick
+    if(p_bar1->o == SEE_NULL) {      // 程序开启后的第一个tick
       see_first_tick(p_block,tick,p_bar0,p_bar1,period);
       memcpy((char *)p_bar0,p_bar1,sizeof(see_bar_t));
       return 0;
@@ -1277,7 +1112,7 @@ CalcBar(see_fut_block_t *p_block, TICK *tick, int period)
   return 0;
 }
 
-int is_same_k_bar(see_fut_block_t     * p_block,
+int is_same_k_bar(see_fut_block_t * p_block,
                   see_bar_t       * p_bar1,
                   TICK            *tick,
                   int             period)
@@ -1303,9 +1138,6 @@ int is_same_k_bar(see_fut_block_t     * p_block,
   see_memzero(b_m,3);
   see_memzero(b_s,3);
 
-
-
-
   int fh,fm,fs;
   int bh,bm,bs;
 
@@ -1321,14 +1153,14 @@ int is_same_k_bar(see_fut_block_t     * p_block,
   //c_bar_type = p_block->bar_block[period].c_bar_type;
 
 
-  b = p_bar1->ca_btime;
+  b = p_bar1->ca_btime;     // 一个K柱最开始的时间
   memcpy(b_h,b,2);
   memcpy(b_m,b+3,2);
   memcpy(b_s,b+6,2);
   bh = atoi(b_h);
   bm = atoi(b_m);
   bs = atoi(b_s);
-  f = tick->UpdateTime;
+  f = tick->UpdateTime;     // 收到的tick的时间
   memcpy(f_h,f,2);
   memcpy(f_m,f+3,2);
   memcpy(f_s,f+6,2);
@@ -1347,8 +1179,20 @@ int is_same_k_bar(see_fut_block_t     * p_block,
   case  BAR_20S :
   case  BAR_15S :
   case  BAR_30S :
+    /* 
+      假如 ca_btime 是 13:59:48，现在收到一个 tick 是 14:01:13
+      也就是说，中间过了长时间没有收到数据。
+
+      这时，如果是计算BAR_1S的K柱，那么肯定不是同一个K柱了，那么中间到底隔了几个K柱呢？
+      下面的rc就是 = (14-13)*3600 + (01-59)*60 + 13 - 48 = 85个 K
+  
+      如果是计算 BAR_3S :
+      rc = ((14-13)*3600 + (01-59)*60 + 13 - 48 )/3 = 28 个 K柱 
+      即，经过了28个K柱才收到数据，从图表上看，就是 -----,看起来象涨停跌停一样。
+
+    */
     fs = fs - fs%(pp[period]);
-    rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
+    rc = ((fh-bh)*3600+(fm-bm)*60+fs-bs)/(pp[period]);
     break;
   case  BAR_1F :
   case  BAR_2F :
@@ -1356,7 +1200,7 @@ int is_same_k_bar(see_fut_block_t     * p_block,
   case  BAR_5F :
   case  BAR_10F :
     fm = fm - fm%(pp[period]/60);
-    rc = (fh-bh)*60+fm-bm;
+    rc = ((fh-bh)*60+fm-bm)/(pp[period]/60);
     break;
   /*
       case  BAR_1S :

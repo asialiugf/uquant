@@ -225,7 +225,7 @@ typedef struct {
 //    char    InstrumentID[31];
   char    TradingDay[9];
   char    ActionDay[9];
-  char    ca_btime[9];   //begin time
+  char    ca_btime[9];   //begin time BAR K柱 的开始时间
   char    ca_etime[9];  //end time
   double  o ;             // open
   double  c ;             // close
