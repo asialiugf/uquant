@@ -565,9 +565,9 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
  *  pp[31] 数组 定义每个period的秒数，比如 3F 是 180秒
  */
 
-/*                         0  1 2 3 4  5  6  7  8  9   10  11  12  13  14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30   */
-/*                         1S 2 3 5 10 15 20 30 1F 2F  3F  5F  10F 15F 20 30 1H 2H 3H 4H 5H 6H 8H 10 12 1D 1W 1M 1J 1Y TICK */
-static const int pp[31] = {1, 2,3,5,10,15,20,30,60,120,180,300,600,900,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+/*                         0  1 2 3 4  5  6  7  8  9  10 11 12  13  14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30   */
+/*                         1S 2 3 5 10 15 20 30 1F 2F 3F 5F 10F 15F 20 30 1H 2H 3H 4H 5H 6H 8H 10 12 1D 1W 1M 1J 1Y TICK */
+static const int pp[31] = {1, 2,3,5,10,15,20,30,1, 2, 3, 5, 10, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 int
@@ -907,7 +907,7 @@ see_first_tick(see_fut_block_t *p_block,
   case  BAR_5F :
   case  BAR_10F :
     NEW_BAR1;
-    mo = fm%(pp[period]/60);
+    mo = fm%(pp[period]);
     fm = fm - mo;
     if(mo==0 && memcmp(tick->UpdateTime+6,"00",2)==0) {
       if(tick->UpdateMillisec == 0) {
@@ -1191,7 +1191,7 @@ int is_same_k_bar(see_fut_block_t * p_block,
       即，经过了28个K柱才收到数据，从图表上看，就是 -----,看起来象涨停跌停一样。
 
     */
-    fs = fs - fs%(pp[period]);
+    //fs = fs - fs%(pp[period]);
     rc = ((fh-bh)*3600+(fm-bm)*60+fs-bs)/(pp[period]);
     break;
   case  BAR_1F :
@@ -1199,63 +1199,10 @@ int is_same_k_bar(see_fut_block_t * p_block,
   case  BAR_3F :
   case  BAR_5F :
   case  BAR_10F :
-    fm = fm - fm%(pp[period]/60);
-    rc = ((fh-bh)*60+fm-bm)/(pp[period]/60);
+    //fm = fm - fm%(pp[period]);
+    rc = ((fh-bh)*60+fm-bm)/(pp[period]);
     break;
-  /*
-      case  BAR_1S :
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_2S :
-          fs = fs - fs%(pp[period]);
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_3S :
-          fs = fs - fs%3;
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_5S :
-          fs = fs - fs%5;
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_10S :
-          fs = fs - fs%10;
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_15S :
-          fs = fs - fs%15;
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_20S :
-          fs = fs - fs%20;
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-      case  BAR_30S :
-          fs = fs - fs%30;
-          rc = (fh-bh)*3600+(fm-bm)*60+fs-bs;
-          break;
-  */
-  /*
-      case  BAR_1F :
-          rc = (fh-bh)*60+fm-bm;
-          break;
-      case  BAR_2F :
-          fm = fm - fm%2;
-          rc = (fh-bh)*60+fm-bm;
-          break;
-      case  BAR_3F :
-          fm = fm - fm%3;
-          rc = (fh-bh)*60+fm-bm;
-          break;
-      case  BAR_5F :
-          fm = fm - fm%5;
-          rc = (fh-bh)*60+fm-bm;
-          break;
-      case  BAR_10F :
-          fm = fm - fm%10;
-          rc = (fh-bh)*60+fm-bm;
-          break;
-  */
+
   case  BAR_15F :
     if(memcmp(p_bar1->ca_btime,p_block->pt_hour->pt_segments[i_sgm_idx]->ca_15F_start,8) ==0 ||
        memcmp(p_bar1->ca_etime,p_block->pt_hour->pt_segments[i_sgm_idx]->ca_15F_end,8) ==0) {
