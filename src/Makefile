@@ -10,6 +10,7 @@ CTPLIBS:= ../ctp/thostmduserapi.so \
 EXE = ../../u/exe/
 
 SRC = ../src/
+INC = ../inc/
 OBJ = ../../u/obj/
 
 INCS = -I ../inc \
@@ -180,7 +181,7 @@ $(OBJ)Webserver.o: $(SRC)Webserver.cpp
 $(OBJ)Base.o: $(SRC)Base.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Base.o  $(SRC)Base.cpp
 
-$(OBJ)Bars.o: $(SRC)Bars.cpp
+$(OBJ)Bars.o: $(SRC)Bars.cpp $(INC)Bars.h
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Bars.o  $(SRC)Bars.cpp
 
 $(OBJ)File.o: $(SRC)File.cpp

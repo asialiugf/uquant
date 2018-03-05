@@ -70,7 +70,7 @@ void CMdSpi::OnFrontConnected()
     //it->second;
     it ++;
   }
-  exit(-1);
+  //exit(-1);
   // --- testing ----------------------------------
 
   ReqUserLogin();

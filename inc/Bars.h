@@ -32,6 +32,61 @@ namespace uBEE
 #define  FUTURE_DAYS        "../etc/tbl/see_future_days"
 #define  FUTURE_TIME        "../etc/tbl/see_future_time"
 
+#define TICK 				struct CThostFtdcDepthMarketDataField
+
+#define MOVE_BAR       p_bar0->o = p_bar1->o ; \
+                       p_bar0->c = p_bar1->c ; \
+                       p_bar0->h = p_bar1->h ; \
+                       p_bar0->l = p_bar1->l ; \
+                       p_bar0->v = p_bar1->v ;
+
+#define BAR1_TO_BAR0   memcpy(p_bar0->TradingDay,p_bar1->TradingDay,9) ; \
+                       memcpy(p_bar0->ca_btime,p_bar1->ca_btime,9) ; \
+                       memcpy(p_bar0->ActionDay,p_bar1->ActionDay,9) ; \
+                       p_bar0->o = p_bar1->o ; \
+                       p_bar0->c = p_bar1->c ; \
+                       p_bar0->h = p_bar1->h ; \
+                       p_bar0->l = p_bar1->l ; \
+                       p_bar0->v = p_bar1->v ;
+
+#define NEW_BAR1       memcpy(p_bar1->TradingDay,tick->TradingDay,9) ; \
+                       memcpy(p_bar1->ca_btime,tick->UpdateTime,9) ; \
+                       memcpy(p_bar1->ActionDay,tick->ActionDay,9) ; \
+                       p_bar1->o = tick->LastPrice ; \
+                       p_bar1->c = tick->LastPrice ; \
+                       p_bar1->h = tick->LastPrice ; \
+                       p_bar1->l = tick->LastPrice ; \
+                       p_bar1->vsum = tick->Volume ; \
+                       p_bar1->v = 0 ;
+
+#define UPDATE_BAR1    p_bar1->c = tick->LastPrice ; \
+                       if (  p_bar1->h < tick->LastPrice ) { p_bar1->h = tick->LastPrice ; } \
+                       if (  p_bar1->l > tick->LastPrice ) { p_bar1->l = tick->LastPrice ; } \
+                       p_bar1->v    = tick->Volume - p_bar0->vsum ; \
+                       p_bar1->vsum = tick->Volume ;
+
+#define FIRST_TICK     if (  p_bar0->h < 0 ) { \
+                           memcpy(p_bar0->TradingDay,tick->TradingDay,9) ; \
+                           memcpy(p_bar0->ca_btime,tick->UpdateTime,9) ; \
+                           memcpy(p_bar0->ActionDay,tick->ActionDay,9) ; \
+                           p_bar0->o = tick->LastPrice ; \
+                           p_bar0->c = tick->LastPrice ; \
+                           p_bar0->h = tick->LastPrice ; \
+                           p_bar0->l = tick->LastPrice ; \
+                           p_bar0->v = tick->Volume ; \
+                           memcpy(p_bar1->TradingDay,tick->TradingDay,9) ; \
+                           memcpy(p_bar1->ca_btime,tick->UpdateTime,9) ; \
+                           memcpy(p_bar1->ActionDay,tick->ActionDay,9) ; \
+                           p_bar1->o = tick->LastPrice ; \
+                           p_bar1->c = tick->LastPrice ; \
+                           p_bar1->h = tick->LastPrice ; \
+                           p_bar1->l = tick->LastPrice ; \
+                           p_bar1->v = tick->Volume ; \
+                           break ; \
+                       }
+
+
+
 typedef struct  {
   char c_oc_flag ;    /* 'o':open   ;c':close */
   char ca_b[9] ;      /* ca_begin             */
@@ -148,10 +203,34 @@ public:
 private:
 };
 
-
 int string_split(char *s,char _cmd[SEE_SGM_NUM][20]);
+
+int see_bars_index_next(int start_index) ;
+int see_bars_index_back(int start_index, int n) ;
+int see_bars_index_forword(int start_index, int n) ;
+
+
+int see_date_comp(char * pca_first, char * pca_last) ;
+int see_time_comp(char * pca_first, char * pca_last) ;
+see_bar_t * see_create_bar(char * p_future_id, char c_period) ;
+
+int split_string(char *s,char _cmd[SEE_SGM_NUM][20]) ;
+int see_time_to_int(char *f) ;
+int see_handle_bars(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick) ;
+int see_send_bar(see_fut_block_t *p_block,char *pc_msg) ;
+int see_save_bar(see_fut_block_t * p_block, struct CThostFtdcDepthMarketDataField *tick, int period) ;
+int see_save_bar_last(see_fut_block_t *p_block, int period, int i_another_day) ;
+int is_weekend(char * pc_day) ;
+int is_holiday(char * pc_day) ;
+int is_notrade(see_fut_block_t * p_blick,char * time0) ;
+int see_first_tick(see_fut_block_t                         *p_block,
+                   struct CThostFtdcDepthMarketDataField   *tick,
+                   see_bar_t                               *p_bar0,
+                   see_bar_t                               *p_bar1,
+                   int                                      period) ;
+int see_calc_bar_block(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick, int period) ;
+int is_mkt_open(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick) ;
 
 
 } //end namespace
-
 #endif // UBEE_BARS_H
