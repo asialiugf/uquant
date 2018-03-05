@@ -1,6 +1,7 @@
 #ifndef UBEE_BARS_H
 #define UBEE_BARS_H
 
+#include "../ctp/ThostFtdcMdApi.h"
 #include <uWS/uWS.h>
 #include <thread>
 #include <mutex>
@@ -33,6 +34,74 @@ namespace uBEE
 #define  FUTURE_TIME        "../etc/tbl/see_future_time"
 
 #define TICK 				struct CThostFtdcDepthMarketDataField
+
+/*
+   注意：
+    下面的定义，与数组下标是严格一致的。
+    block->bar_block[0]  = block->bar_block[BAR_1S]
+    block->bar_block[13]  = block->bar_block[BAR_15F]
+    block->bar_block[0]  = block->bar_block[BAR_1S]
+    block->bar_block[13]  = block->bar_block[BAR_15F]
+    各种函数的 period 也用的是下面的定义。
+
+*/
+#define  BAR_1S       0
+#define  BAR_2S       1
+#define  BAR_3S       2
+#define  BAR_5S       3
+#define  BAR_10S      4
+#define  BAR_15S      5
+#define  BAR_20S      6
+#define  BAR_30S      7
+#define  BAR_1F       8
+#define  BAR_2F       9
+#define  BAR_3F       10
+#define  BAR_5F       11
+#define  BAR_10F      12
+#define  BAR_15F      13
+#define  BAR_20F      14
+#define  BAR_30F      15
+#define  BAR_1H       16
+#define  BAR_2H       17
+#define  BAR_3H       18
+#define  BAR_4H       19
+#define  BAR_5H       20
+#define  BAR_6H       21
+#define  BAR_8H       22
+#define  BAR_10H      23
+#define  BAR_12H      24
+#define  BAR_1D       25
+#define  BAR_1W       26
+#define  BAR_1M       27
+#define  BAR_1J       28
+#define  BAR_1Y       29
+#define  BAR_TICK     30
+
+#define SAME_SEG_8       8
+#define SAME_SEG_9       9
+
+#define SAME_NO_SEG_0       -1
+#define SAME_NO_SEG_1       -1
+#define SAME_NO_SEG_2       -2
+#define SAME_NO_SEG_3       -3
+#define SAME_NO_SEG_4       -4
+#define SAME_NO_SEG_5       -5
+#define SAME_NO_SEG_6       -6
+#define SAME_NO_SEG_7       -7
+#define SAME_NO_SEG_8       -8
+#define SAME_NO_SEG_9       -9
+
+#define SEE_MKT_OPEN       10000        /*  market openning */
+#define SEE_MKT_CLOSE      10001        /*  market closed   */
+#define SEE_SAME_SEG          10002
+#define SEE_DIFF_SEG          10003
+#define SEE_SAME_NO_SEG       10004
+#define SEE_DIFF_NO_SEG       10005
+#define SEE_SAME_KBAR         10006
+#define SEE_DIFF_KBAR         10007
+
+#define SEE_START_TICK        10008   // 开机后第一个交易时间段内的tick 
+
 
 #define MOVE_BAR       p_bar0->o = p_bar1->o ; \
                        p_bar0->c = p_bar1->c ; \
@@ -86,6 +155,13 @@ namespace uBEE
                        }
 
 
+typedef struct {
+    struct CThostFtdcDepthMarketDataField   rcv_tick;
+    TThostFtdcDateType                      rcv_date;
+    TThostFtdcTimeType                      rcv_time;
+    TThostFtdcMillisecType                  rcv_msec;
+    int                                     rcv_week;
+} see_tick_t;
 
 typedef struct  {
   char c_oc_flag ;    /* 'o':open   ;c':close */
@@ -228,8 +304,13 @@ int see_first_tick(see_fut_block_t                         *p_block,
                    see_bar_t                               *p_bar0,
                    see_bar_t                               *p_bar1,
                    int                                      period) ;
-int see_calc_bar_block(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick, int period) ;
+//int see_calc_bar_block(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick, int period) ;
+int CalcBar(see_fut_block_t *p_block, TICK *tick, int period);
 int is_mkt_open(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick) ;
+int is_same_k_bar(see_fut_block_t     * p_block,
+                  see_bar_t       * p_bar1,
+                  TICK            *tick,
+                  int             period);
 
 
 } //end namespace
