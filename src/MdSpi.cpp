@@ -95,7 +95,14 @@ void CMdSpi::Init(int a)
 
 
   // ...... 初始化 数据库连接池 ...................................
+  //  charmi ---------- 数据库连接池 要改成全局变量，在Bars.cpp 中也会用到。
   dbpool = std::make_shared<uBEE::DBPool>();
+  for(int i = 0; i< FUTURE_NUMBER; i++) {
+    if(fl->pc_futures[i] == nullptr) {
+      continue ;
+    }
+    uBEE::createTickTable(dbpool,fl->pc_futures[i]);
+  }
 
   x = a;
 }
@@ -148,13 +155,6 @@ void CMdSpi::OnFrontConnected()
   //exit(-1);
   */
 
-  for(int i = 0; i< FUTURE_NUMBER; i++) {
-    if(fl->pc_futures[i] == nullptr) {
-      continue ;
-    }
-    uBEE::createTickTable(dbpool,fl->pc_futures[i]);
-  }
-  //exit(-1);
 
   // --- testing ----------------------------------
 
