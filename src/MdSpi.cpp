@@ -154,7 +154,7 @@ void CMdSpi::OnFrontConnected()
     }
     uBEE::createTickTable(dbpool,fl->pc_futures[i]);
   }
-  exit(-1);
+  //exit(-1);
 
   // --- testing ----------------------------------
 

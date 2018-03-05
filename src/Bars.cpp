@@ -1,7 +1,10 @@
 #include "Bars.h"
 #include "ErrLog.h"
+#include "FuList.h"
 #include "File.h"
 #include <iostream>
+#include <string.h>
+#include <map>
 
 
 namespace uBEE
@@ -378,7 +381,6 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
 {
   std::cout << "enter Init :" << pc_future << std::endl;
   int             i = 0 ;
-  char            ca_hours_type[3] ;
   char            ca_future[FUTRUE_ID_LEN] ;
   char            ca_line[1024] ;
   FILE            *pf_trade_time ;
@@ -476,88 +478,18 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
             p_block->bar_block[i].c_bar_type);
   }
 
-  // uBEE::ErrLog(1000,p_block->ca_home,RPT_TO_LOG,0,0 ) ;
 
-
-  /*  ------  初始化 这个期货合约的 每天的交易时间段 ------ */
-
-
-  /*
-      struct tm * p_time ;
-      time_t   rawtime ;
-  */
-  /*
-      time ( &rawtime );
-      p_time = localtime ( &rawtime );
-      if(  p->tm_wday == 6 || p_time->tm_wday == 0 ) {
-
-      }
-  */
-
-  /*
-      pf_future_days = fopen(FUTURE_DAYS,"r");
-      if(pf_future_days == NULL) {
-          uBEE::ErrLog(1000,"see_future.c see_futures_init(): open future table error!!",RPT_TO_LOG,0,0) ;
-          uBEE::ErrLog(1000,FUTURE_DAYS,RPT_TO_LOG,0,0) ;
-          return -1 ;
-      }
-
-      pf_trade_time = fopen(TRADE_TIME,"r");
-      if(pf_trade_time == NULL) {
-          uBEE::ErrLog(1000,"see_future.c see_futures_init(): open future table error!!",RPT_TO_LOG,0,0) ;
-          uBEE::ErrLog(1000,TRADE_TIME,RPT_TO_LOG,0,0) ;
-          return -1 ;
-      }
-  */
-  pf_future_time = fopen(FUTURE_TIME,"r");
-  if(pf_future_time == NULL) {
-    uBEE::ErrLog(1000,"see_future.c see_futures_init(): open future table error!!",RPT_TO_LOG,0,0) ;
-    uBEE::ErrLog(1000,FUTURE_TIME,RPT_TO_LOG,0,0) ;
-    return -1 ;
+  std::map<std::string,int>::const_iterator it;
+  it = M_FuTime.find(ca_future);
+  if(it==M_FuTime.end())
+    std::cout<<"we do not find :"<< ca_future <<std::endl;
+  else {
+    std::cout<<"-------------------------------------------------------:"<<ca_future << ":" << it->second<<std::endl;
+    p_block->i_hour_type = it->second ;
+    p_block->pt_hour = &t_hours[p_block->i_hour_type] ;
   }
 
-  memset(ca_line,'\0',1024) ;
-  while(fgets(ca_line,1024, pf_future_time) != NULL) {
-    uBEE::ErrLog(1000,ca_line,RPT_TO_LOG,0,0) ;
-    std::cout  << ca_line ;
-    if(ca_future[0] == ca_line[0]) {
-      std::cout  << ca_line[0] << "--" <<ca_future[0]  << std::endl;
-      uBEE::ErrLog(1000,pc_future,RPT_TO_LOG,0,0) ;
-      if(ca_future[1] == ca_line[1]) {
-        i = 2 ;
-        while(ca_line[i] > '9' || ca_line[i] < '0') {
-          i++;
-        }
-        memset(ca_hours_type,'\0',3) ;
-        memcpy(ca_hours_type,ca_line+i,1) ;
-        p_block->i_hour_type = atoi(ca_hours_type) ;
-        std::cout << "~~~~~~~~~~~:" << p_block->i_hour_type << std::endl;
-        p_block->pt_hour = &t_hours[p_block->i_hour_type] ;
-        std::cout << "---- after !" << std::endl;
 
-        break ;
-      } else if(!((ca_future[1] <= 'z' && ca_future[1] >= 'a') || (ca_future[1] <= 'Z' && ca_future[1] >= 'A'))) {
-        if(!((ca_line[1] <= 'z' && ca_line[1] >= 'a') || (ca_line[1] <= 'Z' && ca_line[1] >= 'A'))) {
-          i = 2 ;
-          while(ca_line[i] > '9' || ca_line[i] < '0') {
-            i++;
-          }
-          memset(ca_hours_type,'\0',3) ;
-          memcpy(ca_hours_type,ca_line+i,1) ;
-          p_block->i_hour_type = atoi(ca_hours_type) ;
-          p_block->pt_hour = &t_hours[p_block->i_hour_type] ;
-          break ;
-        }
-      }
-    }
-  }
-
-  //fclose(pf_future_days);
-  //fclose(pf_trade_time);
-  fclose(pf_future_time);
-  /*  ------  初始化 这个期货合约的 每天的交易时间段 ------ */
-
-  //see_err_log(0,0,"<OUT> see_block_init!");
   std::cout << "--ooo-- after !" << std::endl;
   return SEE_OK ;
 }
@@ -881,7 +813,7 @@ see_first_tick(see_fut_block_t *p_block,
   case  BAR_30S :
     NEW_BAR1;
     /*
-    // 模，即取余数 
+    // 模，即取余数
       假如 收到的tick时间是  21:16:21, fs = 21
       如果要算10S 的K柱开始时间，应该是 fs%10 = 1, 然后 fs=fs-1 = 20, 即这个K柱的开始时间是 21:16:20
       如果要算20S 的K柱开始时间，应该是 fs%20 = 1, 然后 fs=fs-1 = 20, 即这个K柱的开始时间是 21:16:20
@@ -890,7 +822,7 @@ see_first_tick(see_fut_block_t *p_block,
           也就是说，当收到这个 21:16:21的tick时，才是30S新K柱的开始，前面 从 21:16:00 到 21:16:21 一
           直没有收到数据，所以收到这个21:16:21的tick时 已经很久了。
     */
-    mo = fs%(pp[period]);    // 取模，即取余数  21%30=21  21%10=1 21%20=1 21%5=1 
+    mo = fs%(pp[period]);    // 取模，即取余数  21%30=21  21%10=1 21%20=1 21%5=1
     fs = fs - mo;
     if(mo == 0) {
       if(tick->UpdateMillisec == 0) {
@@ -1188,15 +1120,15 @@ int is_same_k_bar(see_fut_block_t * p_block,
   case  BAR_20S :
   case  BAR_15S :
   case  BAR_30S :
-    /* 
+    /*
       假如 ca_btime 是 13:59:48，现在收到一个 tick 是 14:01:13
       也就是说，中间过了长时间没有收到数据。
 
       这时，如果是计算BAR_1S的K柱，那么肯定不是同一个K柱了，那么中间到底隔了几个K柱呢？
       下面的rc就是 = (14-13)*3600 + (01-59)*60 + 13 - 48 = 85个 K
-  
+
       如果是计算 BAR_3S :
-      rc = ((14-13)*3600 + (01-59)*60 + 13 - 48 )/3 = 28 个 K柱 
+      rc = ((14-13)*3600 + (01-59)*60 + 13 - 48 )/3 = 28 个 K柱
       即，经过了28个K柱才收到数据，从图表上看，就是 -----,看起来象涨停跌停一样。
 
     */
