@@ -108,8 +108,6 @@ int ForkCtp()
   case -1:
     return -1;
   case 0: {
-    const char *brMsg = "from ctp dataserver HubCtp!";
-    size_t brMsgLength = strlen(brMsg);
 
     pid = getpid();
     uBEE::InitSetProcTitle();
@@ -119,18 +117,8 @@ int ForkCtp()
     hub.Init();
     sleep(2);
 
-    //    uBEE::MdCtp(hub.sg);
-
-    std::thread t([&hub,&brMsg,&brMsgLength] {
+    std::thread t([&hub] {
       uBEE::MdCtp(hub.sg);
-      /*
-        while(1)
-        {
-          //std::cout << " will broadcast !! " << std::endl;
-          hub.sg->broadcast(brMsg, brMsgLength, uWS::OpCode::TEXT);
-          sleep(1);
-        }
-      */
     });  /* thread t */
     t.detach();
     hub.Start();

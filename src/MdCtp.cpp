@@ -60,7 +60,7 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     ppInstrumentID[i] = nullptr ;
     if(fl.pc_futures[i] == nullptr) {
-      iInstrumentID = i;
+      iInstrumentID = i;                         // 最大订阅合约数
       break ;
     }
     ppInstrumentID[i] = fl.pc_futures[i] ;

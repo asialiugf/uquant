@@ -290,27 +290,19 @@ int see_date_comp(char * pca_first, char * pca_last) ;
 int see_time_comp(char * pca_first, char * pca_last) ;
 see_bar_t * see_create_bar(char * p_future_id, char c_period) ;
 
-int split_string(char *s,char _cmd[SEE_SGM_NUM][20]) ;
+//int split_string(char *s,char _cmd[SEE_SGM_NUM][20]) ;
 int see_time_to_int(char *f) ;
-int see_handle_bars(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick) ;
+int see_handle_bars(see_fut_block_t *p_block, TICK *tick) ;
 int see_send_bar(see_fut_block_t *p_block,char *pc_msg) ;
-int see_save_bar(see_fut_block_t * p_block, struct CThostFtdcDepthMarketDataField *tick, int period) ;
+int see_save_bar(see_fut_block_t * p_block, TICK *tick, int period) ;
 int see_save_bar_last(see_fut_block_t *p_block, int period, int i_another_day) ;
 int is_weekend(char * pc_day) ;
 int is_holiday(char * pc_day) ;
 int is_notrade(see_fut_block_t * p_blick,char * time0) ;
-int see_first_tick(see_fut_block_t                         *p_block,
-                   struct CThostFtdcDepthMarketDataField   *tick,
-                   see_bar_t                               *p_bar0,
-                   see_bar_t                               *p_bar1,
-                   int                                      period) ;
-//int see_calc_bar_block(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick, int period) ;
+int see_first_tick(see_fut_block_t *p_block, TICK *tick, see_bar_t *p_bar0, see_bar_t *p_bar1, int period) ;
 int CalcBar(see_fut_block_t *p_block, TICK *tick, int period);
-int is_mkt_open(see_fut_block_t *p_block, struct CThostFtdcDepthMarketDataField *tick) ;
-int is_same_k_bar(see_fut_block_t     * p_block,
-                  see_bar_t       * p_bar1,
-                  TICK            *tick,
-                  int             period);
+int is_mkt_open(see_fut_block_t *p_block, TICK *tick) ;
+int is_same_k_bar(see_fut_block_t *p_block, see_bar_t *p_bar1, TICK *tick, int period);
 
 
 } //end namespace

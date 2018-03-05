@@ -121,14 +121,24 @@ void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
   cerr << "OnRspUnSubMarketData" << endl;
 }
 
-void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
+void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
 {
   time_t t = time(0);
   char currentTime[25];
   strftime(currentTime, sizeof(currentTime), "%Y/%m/%d %X",localtime(&t));
-  cout << "OnRtnDepthMarketData " << currentTime <<
-       "instrumentId is " << pDepthMarketData->InstrumentID <<
-       " Lastprice is " << pDepthMarketData->LastPrice << endl;
+
+  map<std::string,uBEE::FuBlock>::iterator it;
+  it=FuBlockMap.find(tick->InstrumentID);
+  if(it==FuBlockMap.end())
+    std::cout<<"we do not find :"<< tick->InstrumentID <<std::endl;
+  else {
+    cout << "DateTime " << currentTime <<
+         " ID is " << tick->InstrumentID <<
+         " Lastprice is " << tick->LastPrice <<
+         " time_type is " << it->second.Block.i_hour_type << endl;
+    see_handle_bars(&(it->second.Block), tick);
+  }
+
 }
 
 bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)

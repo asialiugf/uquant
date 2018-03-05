@@ -817,6 +817,7 @@ see_handle_bars(see_fut_block_t *p_block, TICK *tick)
   */
   for(period=0; period<=30; period++) {
     CalcBar(p_block, tick, period);                   // 计算K柱 .
+    // testing !!
     see_save_bar(p_block, tick, period);                         // 保存文件.
   }
   return 0;
@@ -1682,9 +1683,11 @@ int see_save_bar(see_fut_block_t *p_block,
             ca_HighestPrice,ca_LowestPrice,ca_LastPrice,
             ca_BidPrice1,ca_BidVolume1,ca_AskPrice1,ca_AskVolume1,
             ca_Volume);
-    SaveLine(ca_filename,ca_msg);
+    // testing !!
+    std::cout << ca_msg << std::endl;
+    //SaveLine(ca_filename,ca_msg);
 
-    SaveBin(ca_tickname,(char *)&new_tick,sizeof(see_tick_t));
+    //SaveBin(ca_tickname,(char *)&new_tick,sizeof(see_tick_t));
     return 0;
   } /* tick data saving */
 
@@ -1720,7 +1723,9 @@ int see_save_bar(see_fut_block_t *p_block,
             p_block->bar_block[period].bar0.ActionDay,
             p_bar0->ca_btime,p_bar0->o,p_bar0->h,p_bar0->l,p_bar0->c,p_bar0->v);
 
-    SaveLine(ca_filename,ca_msg);
+    // testing !!
+    std::cout << ca_msg << std::endl;
+    //SaveLine(ca_filename,ca_msg);
 
     char ca_sss[1024];
     memset(ca_sss,'\0',1024);
