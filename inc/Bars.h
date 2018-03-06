@@ -154,13 +154,48 @@ namespace uBEE
                            break ; \
                        }
 
+// -----Begin ----------- 交易时间定义 ----------------------------------------
+static const std::map<int,std::string> M_TimeType = {
+  {0,"{\"time\":[                \"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
+  {1,"{\"time\":[\"21:00-23:00\",\"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
+  {2,"{\"time\":[\"21:00-23:30\",\"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
+  {3,"{\"time\":[\"21:00-01:00\",\"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
+  {4,"{\"time\":[\"21:00-02:30\",\"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
+  {5,"{\"time\":[                \"09:30-11:30\",                \"13:00-15:00\"]}"},
+  {6,"{\"time\":[                \"09:15-11:30\",                \"13:00-15:15\"]}"},
+};
+// ----- End ----------- 交易时间定义 ----------------------------------------
+
+struct ustSegment {
+  char cB[9];
+  char cE[9];
+  int  iB ;
+  int  iE ;
+  int  iI ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
+};
+
+struct ustTimeType {
+  int    		iType;  /* 不同的交易时间类型 */
+  ustSegment   *pSegs[SEE_SGM_NUM] ;
+};
+
+struct TimeBlock {
+  ustTimeType TB[7] ;   // 有7种交易时间类型。参见 M_TimeType
+public:
+  TimeBlock();
+private:
+  int Init(ustTimeType TB[]) ;
+};
+
+
+// ----- End ----------- 时间结构定义 ----------------------------------------
 
 typedef struct {
-    struct CThostFtdcDepthMarketDataField   rcv_tick;
-    TThostFtdcDateType                      rcv_date;
-    TThostFtdcTimeType                      rcv_time;
-    TThostFtdcMillisecType                  rcv_msec;
-    int                                     rcv_week;
+  struct CThostFtdcDepthMarketDataField   rcv_tick;
+  TThostFtdcDateType                      rcv_date;
+  TThostFtdcTimeType                      rcv_time;
+  TThostFtdcMillisecType                  rcv_msec;
+  int                                     rcv_week;
 } see_tick_t;
 
 typedef struct  {
@@ -216,7 +251,6 @@ public:
   TradingTime();
 private:
   int Init(see_hours_t t_hours[]) ;
-
 };
 // class TradingTime  end  -----------------------
 

@@ -11,6 +11,49 @@ namespace uBEE
 {
 char            ca_errmsg[1024] ;
 
+// ---------------------------------------------------------
+TimeBlock::TimeBlock() {
+  TimeBlock::Init(&TB[0]);
+}
+int TimeBlock::Init(ustTimeType TB[])
+{
+  
+}
+
+// ---------------------------------------------------------
+// ---------------------------------------------------------
+/*
+ 1. 调用 DealBar之前，同样需要 针对每个合约，每个period 生成一个block 存放 bar0 bar1
+ 2. 如果是周5，一个K柱，可能需要跨 几天 ，所以需要 将临时 bar0 bar1 保存在磁盘上。 
+
+int DealBar()
+{
+  if( first bar ) {
+	init bar1 ;
+    bar1.begin_time = ...
+    bar1.end_time = ...
+  }
+  //  21:15:15--21:15:20  21:15:20--21:15:25
+  if( tick.time < bar1.end_time ) {
+	update bar1
+  } else if (tick.time == bar1.end_time && ms == 000) { 
+    bar1.volume += tick.volume;
+    bar0 = bar1;
+    init bar1;
+    bar1.begin_time = ...
+    bar1.end_time = ...
+  } else {
+    bar0 = bar1;
+    // spare_time 是指 10:15:00--10:30:00 这样的非交易时间,如果有的话，要减掉
+    if( (tick.time - bar1.end_time - spare_time)/period >1 ) {
+    }
+    
+  }
+}
+*/
+// ---------------------------------------------------------
+
+
 TradingTime::TradingTime()       // constructor  new thread fot getting data APIs.
 {
   TradingTime::Init(&t_hours[0]) ;
