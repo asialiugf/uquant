@@ -604,7 +604,7 @@ std::string TicksCheck(const char * serials, cJSON *tick)
   sprintf(ca_dt,"%lf",db);
   int len = strlen(ca_dt);
   int len2 = len-6;
-  memcpy(ca_UpdateMillisec,&ca_dt[len2],3);
+  memcpy(ca_UpdateMillisec,&ca_dt[len2],6);
 
   lt =(time_t)db;
   newtime = localtime(&lt);
