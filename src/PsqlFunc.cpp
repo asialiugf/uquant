@@ -61,20 +61,21 @@ void createTickTable(std::shared_ptr<uBEE::DBPool> dbpool,const char * future)
   memset(ca_state,'\0',4096);
 
   const unsigned char strSrc[]="\
-  datetime        VARCHAR(10) NOT NULL,\
-  millisecond     VARCHAR(10) NOT NULL,\
+  TradingDay        VARCHAR(9) NOT NULL,\
+  UpdateTime        VARCHAR(9) NOT NULL,\
+  UpdateMillisec    VARCHAR(10) NOT NULL,\
+  ActionDay         VARCHAR(10),\
   serials         VARCHAR UNIQUE NOT NULL,\
-  trading_day     VARCHAR(10),\
-  highest         DOUBLE PRECISION NOT NULL,\
-  lowest          DOUBLE PRECISION NOT NULL,\
-  last_price      DOUBLE PRECISION NOT NULL,\
-  ask_price1      DOUBLE PRECISION NOT NULL,\
-  ask_volume1     DOUBLE PRECISION NOT NULL,\
-  bid_price1      DOUBLE PRECISION NOT NULL,\
-  bid_volume1     DOUBLE PRECISION NOT NULL,\
-  open_interest   DOUBLE PRECISION NOT NULL,\
-  volume          DOUBLE PRECISION NOT NULL,\
-  PRIMARY KEY(datetime, ms)\
+  HighestPrice         DOUBLE PRECISION NOT NULL,\
+  LowestPrice          DOUBLE PRECISION NOT NULL,\
+  LastPrice      DOUBLE PRECISION NOT NULL,\
+  AskPrice1      DOUBLE PRECISION NOT NULL,\
+  AskVolume1     DOUBLE PRECISION NOT NULL,\
+  BidPrice1      DOUBLE PRECISION NOT NULL,\
+  BidVolume1     DOUBLE PRECISION NOT NULL,\
+  OpenInterest   DOUBLE PRECISION NOT NULL,\
+  Volume          DOUBLE PRECISION NOT NULL,\
+  PRIMARY KEY(TradingDay,UpdateTime,ms)\
   ";
   sprintf(ca_state,"CREATE TABLE TICK_%s(%s); ",future,strSrc);
   std::cout << ca_state << std::endl;
