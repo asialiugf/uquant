@@ -508,7 +508,6 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
   memset(p_block->ca_home, '\0', 512) ;
   sprintf(p_block->ca_home, "%s/see/dat/rcv_dat/%s", (char *)getenv("HOME"), ca_future) ;
 
-
   sprintf(p_block->bar_block[30].ca_table,"%s_tick", pc_future);
   sprintf(p_block->bar_block[30].ca_home,"%s/tick", p_block->ca_home);
 
@@ -1277,6 +1276,13 @@ int is_same_k_bar(see_fut_block_t * p_block,
   }
   return rc;
 }
+
+int SaveTick(see_fut_block_t *p_block,TICK *tick)
+{
+  char            ca_filename[512];
+   
+}
+
 
 int see_save_bar(see_fut_block_t *p_block,
                  TICK *tick, int period)
