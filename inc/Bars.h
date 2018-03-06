@@ -243,16 +243,18 @@ typedef struct {
   char                c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char                ca_table[128];                 /* database table name */
   char                ca_home[512];              /* for txt ohlc saving */
-  char                ca_file[512];
+  char                caFileName[2014];          // 文件名，用于保存 bar的内容。
 } see_bar_block_t ;
 
 
 typedef struct  {
-  char                InstrumentID[31];
-  char                ca_home[512];                   // 用于记录"/home/rabbit/see/dat/rcv_dat/au" 需要初始化
-  int                 i_hour_type ;                   // 每个品种的交易时间类型不一样，有的到23:00结束，有的到 01:00
-  char                c_oc_flag ;                     //  'o' 'c' 用于记录 收到的tick是不是在交易时间段内 每收到一个记一次
-  int                 i_sgm_idx ;                     // 用于记录收到tick时，是在哪个交易时间段内 每收到一个记一次
+  char        InstrumentID[31];
+  char        ca_home[512];                   // 用于记录"/home/rabbit/see/dat/rcv_dat/au" 需要初始化
+  char	      caTickFileName[1024];
+  char	      caBarsFileName[1024];           // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",在使用时，要组合 period
+  int         i_hour_type ;                   // 每个品种的交易时间类型不一样，有的到23:00结束，有的到 01:00
+  char        c_oc_flag ;                     //  'o' 'c' 用于记录 收到的tick是不是在交易时间段内 每收到一个记一次
+  int         i_sgm_idx ;                     // 用于记录收到tick时，是在哪个交易时间段内 每收到一个记一次
   see_hours_t         *pt_hour ;                      // 每个品种的交易时间类型 不一样
   see_bar_block_t     bar_block[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
   //see_shm_t           shm ;                    /* 用于记录sharememory, 每个future有一个shmem */
