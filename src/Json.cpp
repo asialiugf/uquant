@@ -580,7 +580,7 @@ std::string TicksCheck(const char * serials, cJSON *tick)
   cJSON *trading_day = cJSON_GetObjectItem(tick,"trading_day");
 
   double d_datetime = datetime->valuedouble;
-  double d_trading_day = trading_day->valuedouble;
+  double d_ActionDay = trading_day->valuedouble;
 
   char ca_msg[1024] ;
   memset(ca_msg,'\0',1024);
@@ -598,28 +598,46 @@ std::string TicksCheck(const char * serials, cJSON *tick)
 
   // ------------------------------ mili sec -------------
   char ca_dt[100];
-  char ca_ms[7];
+  char ca_UpdateMillisec[7];
   memset(ca_dt,'\0',100);
-  memset(ca_ms,'\0',7);
+  memset(ca_UpdateMillisec,'\0',7);
   sprintf(ca_dt,"%lf",db);
   int len = strlen(ca_dt);
   int len2 = len-6;
-  memcpy(ca_ms,&ca_dt[len2],6);
+  memcpy(ca_UpdateMillisec,&ca_dt[len2],3);
 
   lt =(time_t)db;
   newtime = localtime(&lt);
   strftime(ca_datetime, 31, "%F %T", newtime);
 
-  db = d_trading_day/1000000000;
+  char ca_TradingDay[9] ;
+  memset(ca_TradingDay,'\0',9);
+  memcpy(&ca_TradingDay[0],&ca_datetime[0],4);
+  memcpy(&ca_TradingDay[4],&ca_datetime[5],2);
+  memcpy(&ca_TradingDay[6],&ca_datetime[8],2);
+
+  char ca_UpdateTime[9] ;
+  memset(ca_UpdateTime,'\0',9);
+  memcpy(&ca_UpdateTime[0],&ca_datetime[11],8);
+
+  db = d_ActionDay/1000000000;
   lt =(time_t)db;
   newtime = localtime(&lt);
   strftime(ca_trading_day, 31, "%F", newtime);
 
-  sprintf(ca_msg,"D:%s %s S:%s T:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g",
-          ca_datetime,
-          ca_ms,
+  char ca_ActionDay[9] ;
+  memset(ca_ActionDay,'\0',9);
+  memcpy(&ca_ActionDay[0],&ca_trading_day[0],4);
+  memcpy(&ca_ActionDay[4],&ca_trading_day[5],2);
+  memcpy(&ca_ActionDay[6],&ca_trading_day[8],2);
+  
+
+  sprintf(ca_msg,"D:%s %s %s S:%s T:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g",
+          ca_TradingDay,
+          ca_UpdateTime,
+          ca_UpdateMillisec,
           serials,
-          ca_trading_day,
+          ca_ActionDay,
           highest->valuedouble,
           lowest->valuedouble,
           last_price->valuedouble,
