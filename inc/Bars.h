@@ -267,6 +267,8 @@ typedef struct {
   char    ca_etime[9];  //end time
   int 	  i_btime ;
   int	  i_etime ;
+  int     iBidx;
+  int     iEidx;
   double  o ;             // open
   double  c ;             // close
   double  h ;             // high

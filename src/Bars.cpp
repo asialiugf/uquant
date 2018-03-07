@@ -83,19 +83,20 @@ int DealBar(see_fut_block_t *p_block, TICK *tick)
   // aSgms[0] aSgms[1] aSgms[2] aSgms[3] ... aSgms[idx] ......
   // begin.idx 是指 在哪一个交易时间段内。<aSgms[SGM_NUM]>
   // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 current_idx !!
-  if(tick.time > bar1.begin && tick.time < bar1.endtime) {
-    if(bar1.begin.idx == bar1.end.idx) {
-      update bar1;
-    } else if(tick.time < aSgms[bar1.begin.idx].end_time || tick.time > aSgms[bar1.end.idx].begin_time) {
-      update bar1;
+  if(memcmp(tick->UpdateTime,p_bar1->ca_btime,8)>0 &&
+     memcmp(tick->UpdateTime,p_bar1->ca_etime,8)<0) {
+    if(p_bar1->iBidx == p_bar1->iEidx) {
+      UPDATE_BAR1;
+    } else if(memcmp(tick->UpdateTime,aSgms[p_bar1->iBidx].cE,8)<0 || memcmp(tick->UpdateTime,aSgms[p_bar1->iEidx].cB,8)>0) {
+      UPDATE_BAR1;
     } else {
-      for(int i = bar1.begin.idx+1 ; i < bar1.end.idx-1 ; i++) {
+      for(int i = p_bar1->iBidx + 1 ; i < p_bar1->iEidx - 1 ; i++) {
         判断tick是否在交易时间段内。
         current_idx !!
         //下面的判断，是确认 tick 是在哪个区，如果在 begin.idx 或者是在 end.idx区，表示是 交易时间段
         内的tick，是正常的。
         if(tick in mkt_open) {
-          update bar1;
+          UPDATE_BAR1;
         } else {
           非交易时间段的tick，直接返回。
           return -1;
