@@ -157,6 +157,7 @@ namespace uBEE
                        }
 
 // -----Begin ----------- 交易时间定义 ----------------------------------------
+#define SGM_NUM 4 
 static const std::map<int,std::string> M_TimeType = {
   {0,"{\"time\":[                \"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
   {1,"{\"time\":[\"21:00-23:00\",\"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
@@ -176,9 +177,10 @@ struct ustSegment {
   int  iI ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
 };
 
+
 struct ustTimeType {
   int    		iType;  /* 不同的交易时间类型 */
-  ustSegment   *pSegs[SEE_SGM_NUM] ;
+  ustSegment    aSgms[SGM_NUM] ;
 };
 
 struct TimeBlock {

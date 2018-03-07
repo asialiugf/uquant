@@ -76,6 +76,8 @@ void CMdSpi::Init()
 
   // ...... 初始化 交易时间对象 ...................................
   uBEE::TradingTime *tt = new uBEE::TradingTime() ;
+  uBEE::TimeBlock *tb = new uBEE::TimeBlock();
+  exit(-1);
 
   // ...... 初始化 期货 block FuBlockMap ... .......................
   dbpool = std::make_shared<uBEE::DBPool>();

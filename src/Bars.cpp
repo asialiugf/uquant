@@ -2,6 +2,7 @@
 #include "ErrLog.h"
 #include "FuList.h"
 #include "File.h"
+#include <cjson/cJSON.h>
 #include <iostream>
 #include <string.h>
 #include <map>
@@ -14,7 +15,30 @@ char            ca_errmsg[1024] ;
 // ---------------------------------------------------------
 TimeBlock::TimeBlock()
 {
-  TimeBlock::Init(&TB[0]);
+  cJSON   *jRoot ;
+  cJSON   *jTime ;
+  cJSON   *jTemp ;
+  int     n ;
+  const std::map<int,std::string> *MP ;
+  MP = &M_TimeType ;
+  for(auto it = (*MP).begin(); it != (*MP).end(); ++it) {
+    TB[it->first].iType = it->first ;
+
+    jRoot = cJSON_Parse(it->second.c_str());
+    jTime = cJSON_GetObjectItem(jRoot, "time");
+    n = cJSON_GetArraySize(jTime);
+
+    for(int i=0; i<n; i++) {
+      jTemp = cJSON_GetArrayItem(jTime,i);
+      std::cout << "mmmm " << jTemp->valuestring << std::endl;
+
+      memcpy(TB[it->first].aSgms[i].cB,jTemp->valuestring,5);
+      memcpy(TB[it->first].aSgms[i].cE,jTemp->valuestring+6,5);
+      //MM[k] = jTemp->valuestring + j*12 ;
+      //k++;
+    }
+  }
+  cJSON_Delete(jRoot);
 }
 int TimeBlock::Init(ustTimeType TB[])
 {
@@ -448,7 +472,7 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
   bar_block.bar0.v = 0 ;
   bar_block.bar1.v = 0 ;
   bar_block.c_save = 0 ;
-  
+
 
   memcpy(p_block->InstrumentID,pc_future,FUTRUE_ID_LEN) ;
   for(i=0; i<=30; i++) {
