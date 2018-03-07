@@ -2,6 +2,8 @@
 #define UBEE_BARS_H
 
 #include "../ctp/ThostFtdcMdApi.h"
+#include "Psqlpool.h"
+#include "PsqlFunc.h"
 #include <uWS/uWS.h>
 #include <thread>
 #include <mutex>
@@ -261,6 +263,8 @@ typedef struct {
   char    ActionDay[9];
   char    ca_btime[9];   //begin time BAR K柱 的开始时间
   char    ca_etime[9];  //end time
+  int 	  i_btime ;
+  int	  i_etime ;
   double  o ;             // open
   double  c ;             // close
   double  h ;             // high
@@ -291,8 +295,8 @@ typedef struct  {
   int         i_sgm_idx ;                     // 用于记录收到tick时，是在哪个交易时间段内 每收到一个记一次
   see_hours_t         *pt_hour ;                      // 每个品种的交易时间类型 不一样
   see_bar_block_t     bar_block[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
-  //see_shm_t           shm ;                    /* 用于记录sharememory, 每个future有一个shmem */
 } see_fut_block_t ;
+
 
 typedef struct {
   char                InstrumentID[31];
@@ -306,8 +310,9 @@ typedef struct {
   int                 v ;             // volume
 } see_bar_save_t ;
 
-
+//每个 合约一个 FuBlock
 struct FuBlock {
+  std::shared_ptr<uBEE::DBPool> dbpool;
   see_fut_block_t Block ;
 public:
   FuBlock();

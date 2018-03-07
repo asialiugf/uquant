@@ -12,19 +12,20 @@ namespace uBEE
 char            ca_errmsg[1024] ;
 
 // ---------------------------------------------------------
-TimeBlock::TimeBlock() {
+TimeBlock::TimeBlock()
+{
   TimeBlock::Init(&TB[0]);
 }
 int TimeBlock::Init(ustTimeType TB[])
 {
-  
+
 }
 
 // ---------------------------------------------------------
 // ---------------------------------------------------------
 /*
  1. 调用 DealBar之前，同样需要 针对每个合约，每个period 生成一个block 存放 bar0 bar1
- 2. 如果是周5，一个K柱，可能需要跨 几天 ，所以需要 将临时 bar0 bar1 保存在磁盘上。 
+ 2. 如果是周5，一个K柱，可能需要跨 几天 ，所以需要 将临时 bar0 bar1 保存在磁盘上。
 
 int DealBar()
 {
@@ -36,7 +37,7 @@ int DealBar()
   //  21:15:15--21:15:20  21:15:20--21:15:25
   if( tick.time < bar1.end_time ) {
 	update bar1
-  } else if (tick.time == bar1.end_time && ms == 000) { 
+  } else if (tick.time == bar1.end_time && ms == 000) {
     bar1.volume += tick.volume;
     bar0 = bar1;
     init bar1;
@@ -47,7 +48,7 @@ int DealBar()
     // spare_time 是指 10:15:00--10:30:00 这样的非交易时间,如果有的话，要减掉
     if( (tick.time - bar1.end_time - spare_time)/period >1 ) {
     }
-    
+
   }
 }
 */
@@ -447,7 +448,7 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
   bar_block.bar0.v = 0 ;
   bar_block.bar1.v = 0 ;
   bar_block.c_save = 0 ;
-
+  
 
   memcpy(p_block->InstrumentID,pc_future,FUTRUE_ID_LEN) ;
   for(i=0; i<=30; i++) {
@@ -499,17 +500,23 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
     p_block->bar_block[i].i_bar_type = 1 ;
   }
 
+  std::cout << " --pppp-- 22222\n";
+
   memset(ca_future,'\0',FUTRUE_ID_LEN);
   memcpy(ca_future,pc_future,2);
   if(!((ca_future[1] <= 'z' && ca_future[1] >= 'a') || (ca_future[1] <= 'Z' && ca_future[1] >= 'A'))) {
     ca_future[1] = '\0' ;
   }
 
+  std::cout << " --pppp-- kkkkk\n";
+
   memset(p_block->ca_home, '\0', 512) ;
   sprintf(p_block->ca_home, "%s/see/dat/rcv_dat/%s", (char *)getenv("HOME"), ca_future) ;
 
   sprintf(p_block->bar_block[30].ca_table,"%s_tick", pc_future);
   sprintf(p_block->bar_block[30].ca_home,"%s/tick", p_block->ca_home);
+
+  std::cout << " --pppp-- 33333\n";
 
   for(i=0; i<30; i++) {
     sprintf(p_block->bar_block[i].ca_table,"%s_%d%c", pc_future,
@@ -520,6 +527,7 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
             p_block->bar_block[i].c_bar_type);
   }
 
+  std::cout << " --ppp -- \n";
 
   std::map<std::string,int>::const_iterator it;
   it = M_FuTime.find(ca_future);
@@ -878,6 +886,18 @@ see_first_tick(see_fut_block_t *p_block,
       memcpy(p_bar1->ca_btime+6,f_s,2);
       rtn = 1;
     }
+    int bh,bm,bs;
+    char temp[3];
+    temp[2] = '\0';
+
+    memcpy(temp,p_bar1->ca_btime,2);
+    bh = atoi(temp);
+    memcpy(temp,p_bar1->ca_btime+3,2);
+    bm = atoi(temp);
+    memcpy(temp,p_bar1->ca_btime+6,2);
+    bs = atoi(temp);
+    p_bar1->i_btime = bh*3600 + bh*60 + bs ;
+
     break;
 
   case  BAR_1F :
@@ -1280,7 +1300,7 @@ int is_same_k_bar(see_fut_block_t * p_block,
 int SaveTick(see_fut_block_t *p_block,TICK *tick)
 {
   char            ca_filename[512];
-   
+
 }
 
 

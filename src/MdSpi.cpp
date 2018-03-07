@@ -16,24 +16,23 @@ namespace uBEE
 using namespace std;
 
 extern CThostFtdcMdApi* pUserApi;
-extern char FRONT_ADDR[];
-extern TThostFtdcBrokerIDType	BROKER_ID;
-extern TThostFtdcInvestorIDType INVESTOR_ID;
-extern TThostFtdcPasswordType	PASSWORD;
-extern char* ppInstrumentID[];
-extern int iInstrumentID;
-extern int iRequestID;
 extern uWS::Group<uWS::SERVER> * sg;
-//extern uWS::Group<uWS::CLIENT> * cg;
-//extern std::map<std::string,uBEE::FuBlock> FuBlockMap;
+
+TThostFtdcBrokerIDType  BROKER_ID = "9999";         // 经纪公司代码
+TThostFtdcInvestorIDType INVESTOR_ID = "059979";        // 投资者代码
+TThostFtdcPasswordType  PASSWORD = "123456";            // 用户密码
+char *ppInstrumentID[2000];
+int iInstrumentID;
+int iRequestID;
 std::map<std::string,uBEE::FuBlock> FuBlockMap;
+std::shared_ptr<uBEE::DBPool> dbpool;
 
 CMdSpi::CMdSpi()
 {
-  Init(100);
+  Init();
 }
 
-void CMdSpi::Init(int a)
+void CMdSpi::Init()
 {
   // 获取日期 .......................................................
   int y,m,d;
@@ -78,33 +77,23 @@ void CMdSpi::Init(int a)
   // ...... 初始化 交易时间对象 ...................................
   uBEE::TradingTime *tt = new uBEE::TradingTime() ;
 
-  // ...... 初始化 期货 block FuBlockMap ..........................
+  // ...... 初始化 期货 block FuBlockMap ... .......................
+  dbpool = std::make_shared<uBEE::DBPool>();
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     if(fl->pc_futures[i] == nullptr) {
       break ;
     }
     //uBEE::FuBlock fb;
-    uBEE::FuBlock fb; // = new uBEE::FuBlock();
+    uBEE::FuBlock *fb = new uBEE::FuBlock();
     std::cout << " befor fb->Init  + map hahah ------------\n" ;
-    fb.Init(&fb.Block, fl->pc_futures[i], &tt->t_hours[0]);
-
+    fb->dbpool = dbpool;
+    fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
+    uBEE::createTickTable(dbpool,fl->pc_futures[i]);
+    
     // !!! map 做为成员变量有问题，所以改成了全局变量。
-    FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], fb));
+    FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
     std::cout << " after fb->Init  + map hahah ------------\n" ;
   }
-
-
-  // ...... 初始化 数据库连接池 ...................................
-  //  charmi ---------- 数据库连接池 要改成全局变量，在Bars.cpp 中也会用到。
-  dbpool = std::make_shared<uBEE::DBPool>();
-  for(int i = 0; i< FUTURE_NUMBER; i++) {
-    if(fl->pc_futures[i] == nullptr) {
-      continue ;
-    }
-    uBEE::createTickTable(dbpool,fl->pc_futures[i]);
-  }
-
-  x = a;
 }
 
 void CMdSpi::set_SG(uWS::Group<uWS::SERVER> * sg)

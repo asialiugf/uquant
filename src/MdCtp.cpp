@@ -12,21 +12,9 @@
 namespace uBEE
 {
 
-CThostFtdcMdApi* pUserApi; // UserApi对象
-
 char FRONT_ADDR[] = "tcp://180.168.146.187:10011";		// 前置地址
-TThostFtdcBrokerIDType	BROKER_ID = "9999";			// 经纪公司代码
-TThostFtdcInvestorIDType INVESTOR_ID = "059979";		// 投资者代码
-TThostFtdcPasswordType  PASSWORD = "123456";			// 用户密码
-//char *ppInstrumentID[] = {"ru1805", "ag1806"};			// 行情订阅列表
-//char aa[] = "ru1805";
-//char bb[] = "ag1806";
-char *ppInstrumentID[2000];								// 行情订阅列表
-int iInstrumentID = 200;								// 行情订阅数量
-int iRequestID = 0;                                     // 请求编号
+CThostFtdcMdApi* pUserApi; // UserApi对象
 uWS::Group<uWS::SERVER> * sg;
-//uWS::Group<uWS::CLIENT> * cg;
-//std::map<std::string,uBEE::FuBlock> FuBlockMap;
 
 void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
 {
@@ -122,7 +110,7 @@ void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
   // ......  创建 pUserSpi 并初始化................................
   //CThostFtdcMdSpi* pUserSpi = new CMdSpi();
   CMdSpi * pUserSpi = new CMdSpi();
-  pUserSpi->Init(1001);
+  //pUserSpi->Init(1001);
   pUserSpi->set_SG(new_sg);
 
   // ..............................................................
