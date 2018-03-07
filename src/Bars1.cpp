@@ -18,14 +18,9 @@ TimeBlock::TimeBlock()
   cJSON   *jRoot ;
   cJSON   *jTime ;
   cJSON   *jTemp ;
-  char ca_h[3];
-  char ca_m[3];
-  int  ih;
-  int  im;
   int     n ;
   const std::map<int,std::string> *MP ;
   MP = &M_TimeType ;
-
   for(auto it = (*MP).begin(); it != (*MP).end(); ++it) {
     TB[it->first].iType = it->first ;
 
@@ -35,83 +30,25 @@ TimeBlock::TimeBlock()
 
     for(int i=0; i<n; i++) {
       jTemp = cJSON_GetArrayItem(jTime,i);
-
-      see_memzero(TB[it->first].aSgms[i].cB,9);
-      see_memzero(TB[it->first].aSgms[i].cE,9);
+      std::cout << "mmmm " << jTemp->valuestring << std::endl;
 
       memcpy(TB[it->first].aSgms[i].cB,jTemp->valuestring,5);
-      memcpy(TB[it->first].aSgms[i].cB+5,":00",3);
+      memcpy(TB[it->first].aSgms[i].cB+5,"00",2);
+
       memcpy(TB[it->first].aSgms[i].cE,jTemp->valuestring+6,5);
-      memcpy(TB[it->first].aSgms[i].cE+5,":00",3);
-
-      see_memzero(ca_h,3);
-      see_memzero(ca_m,3);
-      memcpy(ca_h,TB[it->first].aSgms[i].cB,  2);
-      memcpy(ca_m,TB[it->first].aSgms[i].cB+3,2);
-      ih = atoi(ca_h);
-      im = atoi(ca_m);
-      TB[it->first].aSgms[i].iB = ih*3600 + im*60 ;
-
-      see_memzero(ca_h,3);
-      see_memzero(ca_m,3);
-      memcpy(ca_h,TB[it->first].aSgms[i].cE,  2);
-      memcpy(ca_m,TB[it->first].aSgms[i].cE+3,2);
-      ih = atoi(ca_h);
-      im = atoi(ca_m);
-      TB[it->first].aSgms[i].iE = ih*3600 + im*60 ;
-
+      memcpy(TB[it->first].aSgms[i].cE+5,"00",2);
+      //MM[k] = jTemp->valuestring + j*12 ;
+      //k++;
     }
-    //std::cout << "mmmm " << jTemp->valuestring << std::endl;
   }
   cJSON_Delete(jRoot);
 }
-
-
 int TimeBlock::Init(ustTimeType TB[])
 {
 
 }
 
 // ---------------------------------------------------------
-int DealBar(see_fut_block_t *p_block, TICK *tick)
-{
-  /*
-  // 将第一个bar1初始化 idx = -1; bar1.end_time 设置成 21:00:00即，最开始的时间.
-  // 这样的话，在计算 诸如 间隔为7秒这样的周期时，就从20:00:00开始，第一个K柱为：
-  // 20:00:00--20:00:07 第2个K柱的起始时间 // 就是 20:00:07-- 20:00:14。 在
-  // new bar1时，可以根据 前一个 bar1的end_time 21:00:00 来确定下一个bar1的起止时间。
-  // aSgms[0] aSgms[1] aSgms[2] aSgms[3] ... aSgms[idx] ......
-  // begin.idx 是指 在哪一个交易时间段内。<aSgms[SGM_NUM]>
-  // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 current_idx !!
-  if(tick.time > bar1.begin && tick.time < bar1.endtime) {
-    if(bar1.begin.idx == bar1.end.idx) {
-      update bar1;
-    } else if(tick.time < aSgms[bar1.begin.idx].end_time || tick.time > aSgms[bar1.end.idx].begin_time) {
-      update bar1;
-    } else {
-      for(int i = bar1.begin.idx+1 ; i < bar1.end.idx-1 ; i++) {
-        判断tick是否在交易时间段内。
-        current_idx !!
-        //下面的判断，是确认 tick 是在哪个区，如果在 begin.idx 或者是在 end.idx区，表示是 交易时间段
-        内的tick，是正常的。
-        if(tick in mkt_open) {
-          update bar1;
-        } else {
-          非交易时间段的tick，直接返回。
-          return -1;
-        }
-      }
-    }
-  } else {
-    new bar1 ;
-    bar1.begin ==  // 这个计算比较复杂
-    bar1.end ==    // 这个计算会耗时，对于比较大的时间,比如 周期为27分钟这样的时间段
-    // 一天的交易结束时间，是最后一个K柱的结束时间
-    bar1.begin.idx = 1;
-    bar1.end.idx =2 ;
-  }
-  */
-}
 // ---------------------------------------------------------
 /*
  1. 调用 DealBar之前，同样需要 针对每个合约，每个period 生成一个block 存放 bar0 bar1
