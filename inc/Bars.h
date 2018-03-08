@@ -199,11 +199,11 @@ struct stBar {
   char    cE[9];   		//end time
   int     iB ;
   int     iE ;
-  int     iBidx;
-  int     iEidx;
+  int     iBidx;          // 此bar的起始点所在的 segment idx，
+  int     iEidx;          // 此bar的结束点所在的 segment idx，
+  double  h ;             // high
   double  o ;             // open
   double  c ;             // close
-  double  h ;             // high
   double  l ;             // low
   int     v ;             // volume
   int     vsum ;          // keep volume sum

@@ -148,42 +148,43 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   // begin.idx 是指 在哪一个交易时间段内。<aSgms[SGM_NUM]>
   // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 iCurIdx !!
   // iCurIdx 一定是 交易时间段
-  if(p_bar1->iBidx == p_bar1->iEidx) {  // 如果 K柱不跨时间段
-    if(memcmp(tick->UpdateTime,p_bar1->cB,8)>=0 &&
-       memcmp(tick->UpdateTime,p_bar1->cE,8)<0) { // 如果在 一个K柱的 B ---- E 内
+  if(p_bar1->iBidx == p_bar1->iEidx) {
+    // 如果 K柱的 B E 是同一个时间段
+    if(memcmp(tick->UpdateTime,p_bar1->cB,8)>0 &&
+       memcmp(tick->UpdateTime,p_bar1->cE,8)<0) {
+      // 如果在 一个K柱的 B ---- E 内
       UPDATE_BAR1;
       return 0;
-    } else {  // 不在这个K柱内了
-      if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cB,8)>=0 &&
-         memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) { // 在当前的 iCurIdx 这个segment内
-        // new bar !!
-        return 0;
-      } else { // 不在当前的 iCurIdx 这个segment内
-        fubo->iCurIdx++ ;
-        //  判断 是否在交易时间段内？
-      }
+    } else if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cB,8)>=0 &&
+              memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) {
+      // 在当前的 iCurIdx 这个segment内
+      // new bar !!
+      return 0;
+    } else {
+     //  判断 是否在交易时间段内？
     }
-  } else {  // K柱跨时间段
-    int i = fubo->iCurIdx+1 ;
-    while(i < p_bar1->iEidx) {
+  } else {
+      int i = fubo->iCurIdx+1 ;
+      while(i < p_bar1->iEidx) {
+        if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
+           memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cE,8)<=0) {
+          fubo->iCurIdx = i;
+          UPDATE_BAR1;
+          return 0;
+        }
+        i++;
+      }
+      //i=p_bar1->iEidx ;
       if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
-         memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cE,8)<=0) {
+         memcmp(tick->UpdateTime,p_bar1->cE,8)<0) {
         fubo->iCurIdx = i;
         UPDATE_BAR1;
         return 0;
       }
-      i++;
-    }
-    //i=p_bar1->iEidx ;
-    if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
-       memcmp(tick->UpdateTime,p_bar1->cE,8)<0) {
-      fubo->iCurIdx = i;
-      UPDATE_BAR1;
-      return 0;
-    }
-    if(i > p_bar1->iEidx) {
-      // tick 不在交易时间段内
-      return 0;
+      if(i > p_bar1->iEidx) {
+        // tick 不在交易时间段内
+        return 0;
+      }
     }
   }
   memcpy((char *)p_bar0,p_bar1,sizeof(stBar));
