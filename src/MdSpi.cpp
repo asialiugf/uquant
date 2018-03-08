@@ -15,18 +15,28 @@ namespace uBEE
 {
 using namespace std;
 
+//------- from MdCtp.cpp ----------------begin ----------
 extern CThostFtdcMdApi* pUserApi;
 extern uWS::Group<uWS::SERVER> * sg;
+//------- from MdCtp.cpp ---------------- end ----------
 
 TThostFtdcBrokerIDType  BROKER_ID = "9999";         // 经纪公司代码
 TThostFtdcInvestorIDType INVESTOR_ID = "059979";        // 投资者代码
 TThostFtdcPasswordType  PASSWORD = "123456";            // 用户密码
-char *ppInstrumentID[2000];
-int iInstrumentID;
-int iRequestID;
-std::map<std::string,uBEE::FuBlock> FuBlockMap;
-std::shared_ptr<uBEE::DBPool> dbpool;
 
+char *ppInstrumentID[FUTURE_NUMBER];                             // 期货ID
+int iInstrumentID;                                      // 订阅的期货数量
+int iRequestID;
+
+std::map<std::string,uBEE::FuBlock> FuBlockMap;         // 每个期货一个 FuBlock，构成一个MAP
+std::map<std::string,uBEE::FuBo>    M_FuBo;         // 每个期货一个 FuBlock，构成一个MAP
+
+std::shared_ptr<uBEE::DBPool> dbpool;
+uBEE::TradingTime             *tt;
+uBEE::TimeBlock               *tmbo;
+uBEE::FuList                  *fl;
+
+//------- ----------------- ----------------  ----------
 CMdSpi::CMdSpi()
 {
   Init();
@@ -60,23 +70,29 @@ void CMdSpi::Init()
   // 初始化 期货列表 ... ppInstrumentID .................begin.......
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     ppInstrumentID[i] = nullptr ;
+  }
+  for(int i = 0; i< FUTURE_NUMBER; i++) {
     if(fl->pc_futures[i] == nullptr) {
       iInstrumentID = i;                         // 最大订阅合约数
       break ;
     }
     ppInstrumentID[i] = fl->pc_futures[i] ;
   }
+
+  // ---- for testing begin ---------------------------------------
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     if(ppInstrumentID[i] == nullptr) {
       break ;
     }
     std::cout << "=============:" << ppInstrumentID[i] << std::endl;
   }
-
+  // ---- for testing end  ---------------------------------------
 
   // ...... 初始化 交易时间对象 ...................................
   uBEE::TradingTime *tt = new uBEE::TradingTime() ;
   uBEE::TimeBlock *tb = new uBEE::TimeBlock();
+
+  // ---- for testing begin ---------------------------------------
   for(int j=0; j<7; j++) {
     int i = 0;
     while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
@@ -89,10 +105,10 @@ void CMdSpi::Init()
     }
     std::cout << std::endl;
   }
+  // ---- for testing end  ---------------------------------------
 
-  //exit(-1);
 
-// ...... 初始化 期货 block FuBlockMap ... .......................
+  // ...... 初始化 期货 block FuBlockMap ... .......................
   dbpool = std::make_shared<uBEE::DBPool>();
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     if(fl->pc_futures[i] == nullptr) {
@@ -108,10 +124,13 @@ void CMdSpi::Init()
     std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
     uBEE::createTickTable(dbpool,fl->pc_futures[i]);
     std::cout << " befor fb->Init  + map hahah4 ------------\n" ;
-
     // !!! map 做为成员变量有问题，所以改成了全局变量。
     FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
     std::cout << " after fb->Init  + map hahah ------------\n" ;
+
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tmbo); 
+    M_FuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
+
   }
 }
 
@@ -233,10 +252,15 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
          " time_type is " << it->second.Block.i_hour_type << endl;
     see_handle_bars(&(it->second.Block), tick);
     see_handle_bars(&(it->second.Block), tick);
-    DealBar(&(it->second.Block), tick,2);
   }
 
-
+  map<std::string,uBEE::FuBo>::iterator iter;
+  iter=M_FuBo.find(tick->InstrumentID);  
+  if(iter==M_FuBo.end())
+    std::cout<<"we do not find :"<< tick->InstrumentID <<std::endl;
+  else {
+    DealBar(&(iter->second), tick,2);
+  }
 }
 
 bool CMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)

@@ -177,7 +177,6 @@ struct stSegment {
   int  iI ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
 };
 
-
 struct stTimeType {
   int   	   iType;  /* 不同的交易时间类型 */
   stSegment    aSgms[SGM_NUM] ;
@@ -191,6 +190,7 @@ private:
   int Init(stTimeType TT[]) ;
 };
 
+// ----- End ----------- 时间结构定义 ----------------------------------------
 
 struct stBar {
   char    TradingDay[9];
@@ -222,15 +222,14 @@ struct stBarBo {
 struct FuBo {
   std::shared_ptr<uBEE::DBPool> dbpool;
   char         InstrumentID[31];
-  char         caFileName[1024];           // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",在使用时，要组合 period
-  int          iCurIdx ;                      // 用于记录收到tick时，是在哪个交易时间段内
-  stTimeType  *pTT ;                  // TimeType
+  char         caFileName[1024];            // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",在使用时，要组合 period
+  int          iCurIdx ;                    // 用于记录收到tick时，是在哪个交易时间段内
+  stTimeType  *pTimeType ;                  // TimeType
   stBarBo      aBarBo[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
 
 public:
-  FuBo();
+  FuBo(char *fuID, uBEE::TimeBlock *tmbo);
 };
-
 
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
@@ -267,7 +266,6 @@ typedef struct  {
   char ca_5H_end[9] ;
   char ca_1D_end[9] ;
 } see_segment_t ;   // 用于记录时间段，目前每个交易时间段为15分钟
-
 
 
 typedef struct {
@@ -380,7 +378,7 @@ see_bar_t * see_create_bar(char * p_future_id, char c_period) ;
 //int split_string(char *s,char _cmd[SEE_SGM_NUM][20]) ;
 int see_time_to_int(char *f) ;
 int see_handle_bars(see_fut_block_t *p_block, TICK *tick) ;
-int DealBar(see_fut_block_t *p_block, TICK *tick,int period);
+int DealBar(uBEE::FuBo *fubo, TICK *tick,int period);
 int see_send_bar(see_fut_block_t *p_block,char *pc_msg) ;
 int see_save_bar(see_fut_block_t * p_block, TICK *tick, int period) ;
 int see_save_bar_last(see_fut_block_t *p_block, int period, int i_another_day) ;

@@ -89,15 +89,20 @@ int TimeBlock::Init(stTimeType TT[])
 
 }
 
+
+FuBo::FuBo(char *fuID, uBEE::TimeBlock *tmbo){
+}
+
 // ---------------------------------------------------------
-int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
+//int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
+int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
 
-  see_bar_t       *p_bar0;
-  see_bar_t       *p_bar1;
+  stBar       *p_bar0;
+  stBar       *p_bar1;
 
-  p_bar0 =  &p_block->bar_block[period].bar0;
-  p_bar1 =  &p_block->bar_block[period].bar1;
+  p_bar0 =  &fubo->aBarBo[period].bar0;
+  p_bar1 =  &fubo->aBarBo[period].bar1;
   // 将第一个bar1初始化 idx = -1; bar1.end_time 设置成 21:00:00即，最开始的时间.
   // 这样的话，在计算 诸如 间隔为7秒这样的周期时，就从20:00:00开始，第一个K柱为：
   // 20:00:00--20:00:07 第2个K柱的起始时间 // 就是 20:00:07-- 20:00:14。 在
@@ -106,26 +111,26 @@ int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
   // begin.idx 是指 在哪一个交易时间段内。<aSgms[SGM_NUM]>
   // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 iCurIdx !!
   // iCurIdx 一定是 交易时间段
-  if(memcmp(tick->UpdateTime,p_bar1->ca_btime,8)>0 &&
-     memcmp(tick->UpdateTime,p_bar1->ca_etime,8)<0) {
+  if(memcmp(tick->UpdateTime,p_bar1->cB,8)>0 &&
+     memcmp(tick->UpdateTime,p_bar1->cE,8)<0) {
     // 如果在 一个K柱的 B ---- E 内
     if(p_bar1->iBidx == p_bar1->iEidx) {
       // 如果 K柱的 B E 是同一个时间段
       UPDATE_BAR1;
       return 0;
-    } else if(memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[p_block->iCurIdx].cB,8)>=0 &&
-              memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[p_block->iCurIdx].cE,8)<=0) {
+    } else if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cB,8)>=0 &&
+              memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) {
       // K柱的 B E 不是同一个时间段
       // 在当前的 iCurIdx 这个segment内
       UPDATE_BAR1;
       return 0;
     } else {
       // 不在当前的 iCurIdx 这个segment内
-      int i = p_block->iCurIdx+1 ;
+      int i = fubo->iCurIdx+1 ;
       while(i <= p_bar1->iEidx) {
-        if(memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[i].cB,8)>=0 ||
-           memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[i].cE,8)<=0) {
-          p_block->iCurIdx = i;
+        if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
+           memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cE,8)<=0) {
+          fubo->iCurIdx = i;
           UPDATE_BAR1;
           return 0;
         }
@@ -138,7 +143,7 @@ int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
     }
   } else {
     memcpy((char *)p_bar0,p_bar1,sizeof(see_bar_t));
-    if(memcmp(tick->UpdateTime,p_bar1->ca_etime,8) == 0) {
+    if(memcmp(tick->UpdateTime,p_bar1->cE,8) == 0) {
       if(tick->UpdateMillisec == 0) {
         p_bar0->v    = tick->Volume - p_bar0->vsum;
         p_bar0->vsum = tick->Volume;
