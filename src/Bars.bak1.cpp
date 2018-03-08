@@ -73,7 +73,7 @@ int TimeBlock::Init(ustTimeType TB[])
 }
 
 // ---------------------------------------------------------
-int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
+int DealBar(see_fut_block_t *p_block, TICK *tick)
 {
 
   see_bar_t       *p_bar0;
@@ -87,57 +87,37 @@ int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
   // new bar1时，可以根据 前一个 bar1的end_time 21:00:00 来确定下一个bar1的起止时间。
   // aSgms[0] aSgms[1] aSgms[2] aSgms[3] ... aSgms[idx] ......
   // begin.idx 是指 在哪一个交易时间段内。<aSgms[SGM_NUM]>
-  // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 iCurIdx !!
-  // iCurIdx 一定是 交易时间段
+  // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 current_idx !!
   if(memcmp(tick->UpdateTime,p_bar1->ca_btime,8)>0 &&
      memcmp(tick->UpdateTime,p_bar1->ca_etime,8)<0) {
-    // 如果在 一个K柱的 B ---- E 内
     if(p_bar1->iBidx == p_bar1->iEidx) {
-      // 如果 K柱的 B E 是同一个时间段
       UPDATE_BAR1;
-      return 0;
-    } else if(memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[p_block->iCurIdx].cB,8)>=0 &&
-              memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[p_block->iCurIdx].cE,8)<=0) {
-      // K柱的 B E 不是同一个时间段
-      // 在当前的 iCurIdx 这个segment内
+    } else if(memcmp(tick->UpdateTime,aSgms[p_bar1->iBidx].cE,8)<0 ||
+              memcmp(tick->UpdateTime,aSgms[p_bar1->iEidx].cB,8)>0) {
       UPDATE_BAR1;
-      return 0;
     } else {
-      // 不在当前的 iCurIdx 这个segment内
-      int i = p_block->iCurIdx+1 ;
-      while(i <= p_bar1->iEidx) {
-        if(memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[i].cB,8)>=0 ||
-           memcmp(tick->UpdateTime,p_block->pTimeType->aSgms[i].cE,8)<=0) {
-          p_block->iCurIdx = i;
+      for(int i = p_bar1->iBidx + 1 ; i < p_bar1->iEidx - 1 ; i++) {
+        //判断tick是否在交易时间段内。
+        //current_idx !!
+        //下面的判断，是确认 tick 是在哪个区，如果在 begin.idx 或者是在 end.idx区，表示是 交易时间段
+        //内的tick，是正常的。
+        if(tick in mkt_open) {
           UPDATE_BAR1;
-          return 0;
+        } else {
+          非交易时间段的tick，直接返回。
+          return -1;
         }
-        i++;
-      }
-      if(i > p_bar1->iEidx) {
-        // tick 不在交易时间段内
-        return 0;
       }
     }
   } else {
-    memcpy((char *)p_bar0,p_bar1,sizeof(see_bar_t));
-    if(memcmp(tick->UpdateTime,p_bar1->ca_etime,8) == 0) {
-      if(tick->UpdateMillisec == 0) {
-        p_bar0->v    = tick->Volume - p_bar0->vsum;
-        p_bar0->vsum = tick->Volume;
-      } else {
-        p_bar1->v    = tick->Volume - p_bar0->vsum;
-      }
-    }
-    /*
+    new bar1 ;
     bar1.begin ==  // 这个计算比较复杂
     bar1.end ==    // 这个计算会耗时，对于比较大的时间,比如 周期为27分钟这样的时间段
     // 一天的交易结束时间，是最后一个K柱的结束时间
     bar1.begin.idx = 1;
     bar1.end.idx =2 ;
-    */
   }
-  return 0;
+
 }
 // ---------------------------------------------------------
 /*

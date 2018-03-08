@@ -297,7 +297,9 @@ typedef struct  {
   int         i_hour_type ;                   // 每个品种的交易时间类型不一样，有的到23:00结束，有的到 01:00
   char        c_oc_flag ;                     //  'o' 'c' 用于记录 收到的tick是不是在交易时间段内 每收到一个记一次
   int         i_sgm_idx ;                     // 用于记录收到tick时，是在哪个交易时间段内 每收到一个记一次
+  int         iCurIdx ;                      // 用于记录收到tick时，是在哪个交易时间段内
   see_hours_t         *pt_hour ;                      // 每个品种的交易时间类型 不一样
+  ustTimeType         *pTimeType ;
   see_bar_block_t     bar_block[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
 } see_fut_block_t ;
 
