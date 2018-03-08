@@ -157,7 +157,7 @@ namespace uBEE
                        }
 
 // -----Begin ----------- 交易时间定义 ----------------------------------------
-#define SGM_NUM 4 
+#define SGM_NUM 10
 static const std::map<int,std::string> M_TimeType = {
   {0,"{\"time\":[                                \"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
   {1,"{\"time\":[\"21:00-23:00\",                \"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
@@ -169,7 +169,7 @@ static const std::map<int,std::string> M_TimeType = {
 };
 // ----- End ----------- 交易时间定义 ----------------------------------------
 
-struct ustSegment {
+struct stSegment {
   char cB[9];
   char cE[9];
   int  iB ;
@@ -178,17 +178,57 @@ struct ustSegment {
 };
 
 
-struct ustTimeType {
-  int    		iType;  /* 不同的交易时间类型 */
-  ustSegment    aSgms[SGM_NUM] ;
+struct stTimeType {
+  int   	   iType;  /* 不同的交易时间类型 */
+  stSegment    aSgms[SGM_NUM] ;
 };
 
 struct TimeBlock {
-  ustTimeType TB[7] ;   // 有7种交易时间类型。参见 M_TimeType
+  stTimeType TT[7] ;   // 有7种交易时间类型。参见 M_TimeType
 public:
   TimeBlock();
 private:
-  int Init(ustTimeType TB[]) ;
+  int Init(stTimeType TT[]) ;
+};
+
+
+struct stBar {
+  char    TradingDay[9];
+  char    ActionDay[9];
+  char    cB[9];   		//begin time BAR K柱 的开始时间
+  char    cE[9];   		//end time
+  int     iB ;
+  int     iE ;
+  int     iBidx;
+  int     iEidx;
+  double  o ;             // open
+  double  c ;             // close
+  double  h ;             // high
+  double  l ;             // low
+  int     v ;             // volume
+  int     vsum ;          // keep volume sum
+};
+ 
+struct stBarBo {
+  stBar         bar0 ;
+  stBar         bar1 ;
+  int			iPeriod ;           // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
+  char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
+  int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
+  char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
+  char          ca_table[128];                 /* database table name */
+} ;
+
+struct FuBo {
+  std::shared_ptr<uBEE::DBPool> dbpool;
+  char         InstrumentID[31];
+  char         caFileName[1024];           // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",在使用时，要组合 period
+  int          iCurIdx ;                      // 用于记录收到tick时，是在哪个交易时间段内
+  stTimeType  *pTT ;                  // TimeType
+  stBarBo      aBarBo[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
+
+public:
+  FuBo();
 };
 
 
@@ -299,7 +339,7 @@ typedef struct  {
   int         i_sgm_idx ;                     // 用于记录收到tick时，是在哪个交易时间段内 每收到一个记一次
   int         iCurIdx ;                      // 用于记录收到tick时，是在哪个交易时间段内
   see_hours_t         *pt_hour ;                      // 每个品种的交易时间类型 不一样
-  ustTimeType         *pTimeType ;
+  stTimeType         *pTimeType ;
   see_bar_block_t     bar_block[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
 } see_fut_block_t ;
 
@@ -340,6 +380,7 @@ see_bar_t * see_create_bar(char * p_future_id, char c_period) ;
 //int split_string(char *s,char _cmd[SEE_SGM_NUM][20]) ;
 int see_time_to_int(char *f) ;
 int see_handle_bars(see_fut_block_t *p_block, TICK *tick) ;
+int DealBar(see_fut_block_t *p_block, TICK *tick,int period);
 int see_send_bar(see_fut_block_t *p_block,char *pc_msg) ;
 int see_save_bar(see_fut_block_t * p_block, TICK *tick, int period) ;
 int see_save_bar_last(see_fut_block_t *p_block, int period, int i_another_day) ;

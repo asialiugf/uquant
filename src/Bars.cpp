@@ -22,43 +22,60 @@ TimeBlock::TimeBlock()
   char ca_m[3];
   int  ih;
   int  im;
-  int     n ;
+  int    i, n ;
   const std::map<int,std::string> *MP ;
   MP = &M_TimeType ;
 
   for(auto it = (*MP).begin(); it != (*MP).end(); ++it) {
-    TB[it->first].iType = it->first ;
+    TT[it->first].iType = it->first ;
+    for(i=0; i<SGM_NUM; i++) {
+       TT[it->first].aSgms[i].iB = -1;
+       TT[it->first].aSgms[i].iE = -1;
+       TT[it->first].aSgms[i].iI = -1;
+    }
 
     jRoot = cJSON_Parse(it->second.c_str());
     jTime = cJSON_GetObjectItem(jRoot, "time");
     n = cJSON_GetArraySize(jTime);
 
-    for(int i=0; i<n; i++) {
+    for(i=0; i<n; i++) {
       jTemp = cJSON_GetArrayItem(jTime,i);
 
-      see_memzero(TB[it->first].aSgms[i].cB,9);
-      see_memzero(TB[it->first].aSgms[i].cE,9);
+      see_memzero(TT[it->first].aSgms[i].cB,9);
+      see_memzero(TT[it->first].aSgms[i].cE,9);
 
-      memcpy(TB[it->first].aSgms[i].cB,jTemp->valuestring,5);
-      memcpy(TB[it->first].aSgms[i].cB+5,":00",3);
-      memcpy(TB[it->first].aSgms[i].cE,jTemp->valuestring+6,5);
-      memcpy(TB[it->first].aSgms[i].cE+5,":00",3);
-
-      see_memzero(ca_h,3);
-      see_memzero(ca_m,3);
-      memcpy(ca_h,TB[it->first].aSgms[i].cB,  2);
-      memcpy(ca_m,TB[it->first].aSgms[i].cB+3,2);
-      ih = atoi(ca_h);
-      im = atoi(ca_m);
-      TB[it->first].aSgms[i].iB = ih*3600 + im*60 ;
+      memcpy(TT[it->first].aSgms[i].cB,jTemp->valuestring,5);
+      memcpy(TT[it->first].aSgms[i].cB+5,":00",3);
+      memcpy(TT[it->first].aSgms[i].cE,jTemp->valuestring+6,5);
+      memcpy(TT[it->first].aSgms[i].cE+5,":00",3);
 
       see_memzero(ca_h,3);
       see_memzero(ca_m,3);
-      memcpy(ca_h,TB[it->first].aSgms[i].cE,  2);
-      memcpy(ca_m,TB[it->first].aSgms[i].cE+3,2);
+      memcpy(ca_h,TT[it->first].aSgms[i].cB,  2);
+      memcpy(ca_m,TT[it->first].aSgms[i].cB+3,2);
       ih = atoi(ca_h);
       im = atoi(ca_m);
-      TB[it->first].aSgms[i].iE = ih*3600 + im*60 ;
+      TT[it->first].aSgms[i].iB = ih*3600 + im*60 ;
+
+      see_memzero(ca_h,3);
+      see_memzero(ca_m,3);
+      memcpy(ca_h,TT[it->first].aSgms[i].cE,  2);
+      memcpy(ca_m,TT[it->first].aSgms[i].cE+3,2);
+      ih = atoi(ca_h);
+      im = atoi(ca_m);
+      TT[it->first].aSgms[i].iE = ih*3600 + im*60 ;
+
+      if(i == 0) {
+        TT[it->first].aSgms[i].iI = 0;
+      } else {
+        if(TT[it->first].aSgms[i].iB >= TT[it->first].aSgms[i-1].iE) {
+          TT[it->first].aSgms[i].iI = 
+          TT[it->first].aSgms[i].iB - TT[it->first].aSgms[i-1].iE;
+        }else{
+          TT[it->first].aSgms[i].iI = 
+          TT[it->first].aSgms[i].iB - TT[it->first].aSgms[i-1].iE + 86400;
+        }
+      }
 
     }
     //std::cout << "mmmm " << jTemp->valuestring << std::endl;
@@ -67,7 +84,7 @@ TimeBlock::TimeBlock()
 }
 
 
-int TimeBlock::Init(ustTimeType TB[])
+int TimeBlock::Init(stTimeType TT[])
 {
 
 }
@@ -646,15 +663,17 @@ int FuBlock::Init(see_fut_block_t * p_block, char * pc_future, see_hours_t t_hou
 
   std::cout << " --ppp -- \n";
 
+  // -----------------------------------------------------
+  // MAP M_FuTime : 每个合约的 交易时间段 类型。
   std::map<std::string,int>::const_iterator it;
   it = M_FuTime.find(ca_future);
   if(it==M_FuTime.end())
     std::cout<<"we do not find :"<< ca_future <<std::endl;
   else {
-    std::cout<<"-------------------------------------------------------:"<<ca_future << ":" << it->second<<std::endl;
     p_block->i_hour_type = it->second ;
     p_block->pt_hour = &t_hours[p_block->i_hour_type] ;
   }
+  //------------------------------------------------------
 
 
   std::cout << "--ooo-- after !" << std::endl;

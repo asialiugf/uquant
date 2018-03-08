@@ -77,13 +77,22 @@ void CMdSpi::Init()
   // ...... 初始化 交易时间对象 ...................................
   uBEE::TradingTime *tt = new uBEE::TradingTime() ;
   uBEE::TimeBlock *tb = new uBEE::TimeBlock();
-  std::cout << "----:"<< tb->TB[3].aSgms[0].cB << std::endl;
-  std::cout << "----:"<< tb->TB[3].aSgms[0].cE << std::endl;
-  std::cout << "----:"<< tb->TB[3].aSgms[1].cB << std::endl;
-  std::cout << "----:"<< tb->TB[3].aSgms[1].cE << std::endl;
-  exit(-1);
+  for(int j=0; j<7; j++) {
+    int i = 0;
+    while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iI << std::endl;
+      i++;
+    }
+    std::cout << std::endl;
+  }
 
-  // ...... 初始化 期货 block FuBlockMap ... .......................
+  //exit(-1);
+
+// ...... 初始化 期货 block FuBlockMap ... .......................
   dbpool = std::make_shared<uBEE::DBPool>();
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     if(fl->pc_futures[i] == nullptr) {
@@ -93,9 +102,13 @@ void CMdSpi::Init()
     uBEE::FuBlock *fb = new uBEE::FuBlock();
     std::cout << " befor fb->Init  + map hahah ------------\n" ;
     fb->dbpool = dbpool;
+    std::cout << " befor fb->Init  + map hahah1 ------------\n" ;
     fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
+    fb->Block.pTimeType = & tb->TT[fb->Block.pt_hour->i_hour_type];
+    std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
     uBEE::createTickTable(dbpool,fl->pc_futures[i]);
-    
+    std::cout << " befor fb->Init  + map hahah4 ------------\n" ;
+
     // !!! map 做为成员变量有问题，所以改成了全局变量。
     FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
     std::cout << " after fb->Init  + map hahah ------------\n" ;
@@ -219,6 +232,8 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
          " Lastprice is " << tick->LastPrice <<
          " time_type is " << it->second.Block.i_hour_type << endl;
     see_handle_bars(&(it->second.Block), tick);
+    see_handle_bars(&(it->second.Block), tick);
+    DealBar(&(it->second.Block), tick,2);
   }
 
 
