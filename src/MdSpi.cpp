@@ -35,6 +35,7 @@ std::shared_ptr<uBEE::DBPool> dbpool;
 uBEE::TradingTime             *tt;
 uBEE::TimeBlock               *tmbo;
 uBEE::FuList                  *fl;
+uBEE::TimeBlock *tb;
 
 //------- ----------------- ----------------  ----------
 CMdSpi::CMdSpi()
@@ -89,8 +90,8 @@ void CMdSpi::Init()
   // ---- for testing end  ---------------------------------------
 
   // ...... 初始化 交易时间对象 ...................................
-  uBEE::TradingTime *tt = new uBEE::TradingTime() ;
-  uBEE::TimeBlock *tb = new uBEE::TimeBlock();
+  tt = new uBEE::TradingTime() ;
+  tb = new uBEE::TimeBlock();
 
   // ---- for testing begin ---------------------------------------
   for(int j=0; j<7; j++) {
@@ -128,8 +129,8 @@ void CMdSpi::Init()
     FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
     std::cout << " after fb->Init  + map hahah ------------\n" ;
 
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tmbo); 
-    M_FuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
+    //uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tmbo); 
+    //M_FuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
   }
 }

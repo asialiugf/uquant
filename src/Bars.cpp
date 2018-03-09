@@ -38,10 +38,11 @@ TimeBlock::TimeBlock()
     jTime = cJSON_GetObjectItem(jRoot, "time");
     n = cJSON_GetArraySize(jTime);
 
-    TT[it->first].iSegNum = n;
+    //TT[it->first].iSegNum = n;
     for(i=0; i<n; i++) {
       jTemp = cJSON_GetArrayItem(jTime,i);
 
+      std::cout << jTemp->valuestring << std::endl;
       see_memzero(TT[it->first].aSgms[i].cB,9);
       see_memzero(TT[it->first].aSgms[i].cE,9);
 
@@ -49,6 +50,7 @@ TimeBlock::TimeBlock()
       memcpy(TT[it->first].aSgms[i].cB+5,":00",3);
       memcpy(TT[it->first].aSgms[i].cE,jTemp->valuestring+6,5);
       memcpy(TT[it->first].aSgms[i].cE+5,":00",3);
+      std::cout << "cE: " << TT[it->first].aSgms[i].cE << std::endl;
 
       see_memzero(ca_h,3);
       see_memzero(ca_m,3);
@@ -99,6 +101,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo)
 
   std::map<std::string,int>::const_iterator it;
   it = M_FuTime.find(InstrumentID);
+  // charmi-- ag1803 取合约 "ag"
   if(it==M_FuTime.end())
     std::cout<<"in FuBo::FuBo() error :"<< InstrumentID <<std::endl;
   else {
