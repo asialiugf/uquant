@@ -179,6 +179,7 @@ struct stSegment {
 
 struct stTimeType {
   int   	   iType;  /* 不同的交易时间类型 */
+  int          iSegNum; /* 多少个segment */
   stSegment    aSgms[SGM_NUM] ;
 };
 
@@ -212,6 +213,8 @@ struct stBar {
 struct stBarBo {
   stBar         bar0 ;
   stBar         bar1 ;
+  char          curB[9];
+  char          curE[9];
   int			iPeriod ;           // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
   char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
   int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
