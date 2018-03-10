@@ -138,7 +138,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo)
   下面的period，是指在 fubo->aBarBo[]数组的下标
   int f 以秒计的周期
 */
-int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr)
+int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
 {
   //stBar       *p_bar0;
   //stBar       *p_bar1;
@@ -166,6 +166,49 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr)
   char * f;
 
   int sum;
+  
+  // bar0 bar1交换后，执行以下：
+  if(first) {
+    fubo->aBarBo[period].pbar1->iB = fubo->aBarBo[period].pbar0->iE ;   // 当前K柱 起始时间 = 前一K 结束时间
+    memcpy(fubo->aBarBo[period].pbar1->cB,fubo->aBarBo[period].pbar0->cE,9);
+
+    fubo->aBarBo[period].pbar1->iE = fubo->aBarBo[period].pbar0->iE + fr ; // 前一K柱结束时间 + 周期 秒
+    sum = fubo->aBarBo[period].pbar0->iE+fr ; 
+    
+    if(iPeriodH!=0) {
+       H = H+H;
+       M = M+M;
+       S = S+S;
+    }else if(iPeriodM!=0) {
+    } else {
+ 
+    }
+
+    //另一种算法， if ( fr <60 ) 
+    
+    s+=1;
+    if(s>=60) {
+      s -=60;
+      m+=1;
+      if(m>=60) {
+        m-=60;
+        h+=1;
+        sprintf(tt,"%02d:%02d:%02d",h,m,s);
+        memcpy(temp,tt,9);
+      } else {
+        memcpy(tt,temp,3);
+        sprintf(tt+3,"%02d:%02d",m,s);
+        memcpy(temp,tt,9);
+      }
+    } else {
+      memcpy(tt,temp,6);
+      sprintf(tt+6,"%02d",s);
+      memcpy(temp,tt,9);
+    }
+  } else {
+
+  }
+
 
   memcpy(p_bar1->cB,p_bar0->cE,9);
 
@@ -208,16 +251,16 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   // 【1】:  tick 落入到 不跨时间段的 bar1内。
   // 【2】:  tick 落入到 跨时间段的 bar1内。
   // 【3】:  tick 落入到 bar1 外。
-  //
 
-  if(p_bar1->iBidx == p_bar1->iEidx) {  //不跨时间段
-    if(memcmp(tick->UpdateTime,p_bar1->cB,8)>=0 &&
-       memcmp(tick->UpdateTime,p_bar1->cE,8)<0) { // 【1】:  tick 落入到 不跨时间段的 bar1内。
-      UPDATE_BAR1;
-      return 0;
-    } else {  // 不在这个K柱内了
-    }
-  } else { // 跨时间段
+
+  // 经过重新设计， 不管K柱是不是跨时间段，只要tick落在 curB---curE之间，即UPDATE。
+  if(memcmp(tick->UpdateTime,fubo->aBarBo[period].curB,8)>=0 &&
+     memcmp(tick->UpdateTime,fubo->aBarBo[period].curE,8)<0) { // 在当前的 curB curE 这个segment内
+    UPDATE_BAR1;
+    return 0;
+  }
+
+  if(p_bar1->iBidx != p_bar1->iEidx) {  //跨时间段
     //【2】:  tick 落入到 跨时间段的 bar1内。
 
     // curB-curE 相当于一个滑动窗口，第一个窗口是         bar1.cB  ---   aSgms[idx].cE,
@@ -262,11 +305,14 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     // 以上情况，只有 头 和 尾 ， 没有中间区间
 
     // step1: tick 是否在 第一个区间   bar1.cB ---- current seg.cE  (当前区间，一直跟随tick时间变化)
+    // 这一步经过重新设计，一开始就处理了，合并到【1】了。
+    /*
     if(memcmp(tick->UpdateTime,fubo->aBarBo[period].curB,8)>=0 &&
        memcmp(tick->UpdateTime,fubo->aBarBo[period].curE,8)<0) { // 在当前的 curB curE 这个segment内
       UPDATE_BAR1;
       return 0;
     }
+    */
 
     // step2: tick 是否在 最后个区间    bar1->iEidx seg.cB ----------- bar1.cE
     if(memcmp(tick->UpdateTime, fubo->pTimeType->aSgms[p_bar1->iEidx].cB,8)>=0 ||
@@ -305,24 +351,23 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   // 【3】:  tick 落入到 bar1 外。 tick已经超出了 p_bar1的 cB cE 范围之外了
   // step1:
-  if(memcmp(tick->UpdateTime, p_bar1->cE,8)>=0 &&
-     memcmp(tick->UpdateTime, fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) { // 在当前的 iCurIdx 这个segment内
 
-    memcpy((char *)p_bar0,p_bar1,sizeof(stBar));
-    if(memcmp(tick->UpdateTime,p_bar1->cE,8) == 0) {
-      if(tick->UpdateMillisec == 0) {
-        p_bar0->v    = tick->Volume - p_bar0->vsum;
-        p_bar0->vsum = tick->Volume;
-      } else {
-        p_bar1->v    = tick->Volume - p_bar0->vsum;
-      }
-      //直接计算下一个bar的结束时间点
+  if(memcmp(tick->UpdateTime,p_bar1->cE,8) == 0) {
+    if(tick->UpdateMillisec == 0) {
+      p_bar0->v    = tick->Volume - p_bar0->vsum;
+      p_bar0->vsum = tick->Volume;
     } else {
-    // new bar !!
-     //  计算间隔，即当前的tick 是否过了很久了，中间经过了多少个bar ?
+      p_bar1->v    = tick->Volume - p_bar0->vsum;
     }
+    //直接计算下一个bar的结束时间点
+    return 0;
+  } else if(memcmp(tick->UpdateTime, fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) {  // 在当前的 iCurIdx 这个segment内
+    // new bar !!
+    // 计算间隔，即当前的tick 是否过了很久了，中间经过了多少个bar ?
+    // 设计 滑动窗口
     return 0;
   }
+
   int i = p_bar1->iEidx+1;
   while(i <= fubo->pTimeType->iSegNum) {
     if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||

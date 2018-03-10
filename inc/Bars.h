@@ -215,11 +215,17 @@ struct stBarBo {
   stBar         bar1 ;
   stBar         *pbar0 ;
   stBar         *pbar1 ;
+  int           iH;
+  int           iM;
+  int           iS;                 // 当前周期 秒 ，比如当前周期结束时间为09:16:32,这里的 iSec=32 在 NewBar里用到 
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
   int           iEidx;              // 此bar1的结束点所在的 segment idx，
   int			iPeriod ;           // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
+  int           iPeriodH;           // 将周期转成 H M S, 比如：周期为 97 秒 转成： iPeriodH=0 ;
+  int           iPeriodM;           // iPeriodM = 1;
+  int           iPeriodF;           // iPeriodS = 37;  需要初始化！！
   char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
   int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
   char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...

@@ -38,9 +38,11 @@ TimeBlock::TimeBlock()
     jTime = cJSON_GetObjectItem(jRoot, "time");
     n = cJSON_GetArraySize(jTime);
 
+    //TT[it->first].iSegNum = n;
     for(i=0; i<n; i++) {
       jTemp = cJSON_GetArrayItem(jTime,i);
 
+      std::cout << jTemp->valuestring << std::endl;
       see_memzero(TT[it->first].aSgms[i].cB,9);
       see_memzero(TT[it->first].aSgms[i].cE,9);
 
@@ -48,6 +50,7 @@ TimeBlock::TimeBlock()
       memcpy(TT[it->first].aSgms[i].cB+5,":00",3);
       memcpy(TT[it->first].aSgms[i].cE,jTemp->valuestring+6,5);
       memcpy(TT[it->first].aSgms[i].cE+5,":00",3);
+      std::cout << "cE: " << TT[it->first].aSgms[i].cE << std::endl;
 
       see_memzero(ca_h,3);
       see_memzero(ca_m,3);
@@ -98,6 +101,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo)
 
   std::map<std::string,int>::const_iterator it;
   it = M_FuTime.find(InstrumentID);
+  // charmi-- ag1803 取合约 "ag"
   if(it==M_FuTime.end())
     std::cout<<"in FuBo::FuBo() error :"<< InstrumentID <<std::endl;
   else {
@@ -130,6 +134,57 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo)
   }
 }
 
+/*
+  下面的period，是指在 fubo->aBarBo[]数组的下标
+  int f 以秒计的周期
+*/
+int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr)
+{
+  //stBar       *p_bar0;
+  //stBar       *p_bar1;
+  stBar       *temp = nullptr;
+
+  // pbar0 和 pbar1 交换。
+  temp = fubo->aBarBo[period].pbar0;
+  fubo->aBarBo[period].pbar0 = fubo->aBarBo[period].pbar1;
+  fubo->aBarBo[period].pbar1 = temp;
+
+#define pbar0 fubo->aBarBo[period].pbar0
+#define pbar1 fubo->aBarBo[period].pbar1
+
+  char f_h[3];
+  char f_m[3];
+  char f_s[3];
+  see_memzero(f_h,3);
+  see_memzero(f_m,3);
+  see_memzero(f_s,3);
+
+  int mo;
+  int fh;
+  int fm;
+  int fs;
+  char * f;
+
+  int sum;
+
+  memcpy(p_bar1->cB,p_bar0->cE,9);
+
+  if(memcmp(tick->UpdateTime,p_bar1->cB,5)!=0) {  // 比较小时 和 分钟
+    memcpy(f_h,f,2);
+    memcpy(f_m,f+3,2);
+    memcpy(f_s,f+6,2);
+    fh = atoi(f_h);
+    fm = atoi(f_m);
+    fs = atoi(f_s);
+    sum = fh*3600+fm*60+fs- pbar1.iE;
+
+  } else if(memcmp(tick->UpdateTime+6,p_bar1->cB+6,2)!=0) { //  比较秒
+    memcpy(f_s,f+6,2);
+    sum = atoi(f_s) + pbar1.iE;
+  }
+  int times = sum/fr;
+
+}
 // ---------------------------------------------------------
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
@@ -148,61 +203,148 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   // begin.idx 是指 在哪一个交易时间段内。<aSgms[SGM_NUM]>
   // 记录前一个tick所在的 时间段，大概率 下一个tick也会在这个时间段内 iCurIdx !!
   // iCurIdx 一定是 交易时间段
-  if(p_bar1->iBidx == p_bar1->iEidx) {
-    // 如果 K柱的 B E 是同一个时间段
-    if(memcmp(tick->UpdateTime,p_bar1->cB,8)>0 &&
-       memcmp(tick->UpdateTime,p_bar1->cE,8)<0) {
-      // 如果在 一个K柱的 B ---- E 内
+
+  // 整个过程分为三种情形：
+  // 【1】:  tick 落入到 不跨时间段的 bar1内。
+  // 【2】:  tick 落入到 跨时间段的 bar1内。
+  // 【3】:  tick 落入到 bar1 外。
+  //
+
+  if(p_bar1->iBidx == p_bar1->iEidx) {  //不跨时间段
+    if(memcmp(tick->UpdateTime,p_bar1->cB,8)>=0 &&
+       memcmp(tick->UpdateTime,p_bar1->cE,8)<0) { // 【1】:  tick 落入到 不跨时间段的 bar1内。
       UPDATE_BAR1;
       return 0;
-    } else if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cB,8)>=0 &&
-              memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) {
-      // 在当前的 iCurIdx 这个segment内
-      // new bar !!
-      return 0;
-    } else {
-     //  判断 是否在交易时间段内？
+    } else {  // 不在这个K柱内了
     }
-  } else {
-      int i = fubo->iCurIdx+1 ;
-      while(i < p_bar1->iEidx) {
-        if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
-           memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cE,8)<=0) {
-          fubo->iCurIdx = i;
-          UPDATE_BAR1;
-          return 0;
-        }
-        i++;
-      }
-      //i=p_bar1->iEidx ;
+  } else { // 跨时间段
+    //【2】:  tick 落入到 跨时间段的 bar1内。
+
+    // curB-curE 相当于一个滑动窗口，第一个窗口是         bar1.cB  ---   aSgms[idx].cE,
+    //                               第二个是     aSgms[idx+1].cB  --- aSgms[idx+1].cE
+    //                               最后一个是   aSgms[idx+n].cB  ---         bar1.cE
+    //       seg1      close       seg2      seg3       close     seg4
+    //  |----I-----|oooooooooo|----------|----------|oooooooooo|------I---|
+    //       |....................................................... |
+    //    bar1.cB                                                  bar1.cE
+    //
+    //       |-----|          |----------|----------|          |------|
+    //        win1                win2        win3               win4(last window)
+    //
+    // step1 |-----| <== current window :                      |      |
+    //       ^     ^                                           |      |
+    // curB=>|     |<=curE                                     |      |
+    //          ^                                              |      |
+    //          |<=iCurIdx                                     |      |
+    //
+    //                                                   step2 |------| <== current window :
+    //                                                         ^      ^
+    //                                                   curB=>|      |<=curE
+    //
+    //             |                                           |
+    //  |----------|oooooooooo|----------|----------|oooooooooo|----------|
+    //    step3    |<----------------------------------------->|
+    //                        |----------| <== current window :
+    //                        ^          ^
+    //                  curB=>|          |<=curE
+    //
+    // step1: tick 是否在 第一个区间               bar1.cB ---- current seg.cE
+    // step2: tick 是否在 最后个区间    bar1->iEidx seg.cB ----------- bar1.cE
+    // step3: tick 是否在 中间的区间  while() 处理
+    // 先查看 tick 是否在 最后一个区间，是因为 大部分情况，不存在 中间的区间如下：
+    // 情形 1 ：
+    //      |----I-----|oooooooooo|----I-----|----------|oooooooooo|----------|
+    //  bar1.cB=>|.....................|<=bar1.cE
+    //
+    // 情形 2 ：
+    //      |----I-----|oooooooooo|-----I-----|--I------|oooooooooo|----------|
+    //                         bar1.cB=>|........|<=bar1.cE
+    // 以上情况，只有 头 和 尾 ， 没有中间区间
+
+    // step1: tick 是否在 第一个区间   bar1.cB ---- current seg.cE  (当前区间，一直跟随tick时间变化)
+    if(memcmp(tick->UpdateTime,fubo->aBarBo[period].curB,8)>=0 &&
+       memcmp(tick->UpdateTime,fubo->aBarBo[period].curE,8)<0) { // 在当前的 curB curE 这个segment内
+      UPDATE_BAR1;
+      return 0;
+    }
+
+    // step2: tick 是否在 最后个区间    bar1->iEidx seg.cB ----------- bar1.cE
+    if(memcmp(tick->UpdateTime, fubo->pTimeType->aSgms[p_bar1->iEidx].cB,8)>=0 ||
+       memcmp(tick->UpdateTime, p_bar1->cE,8)<0) {
+      // 更新滑动窗口  将此窗口变成 当前区间
+      memcpy(fubo->aBarBo[period].curB,fubo->pTimeType->aSgms[p_bar1->iEidx].cB,9);
+      memcpy(fubo->aBarBo[period].curE,p_bar1->cE,9);
+      fubo->iCurIdx = p_bar1->iEidx;
+      UPDATE_BAR1;
+      return 0;
+    }
+
+    // step3: tick 是否在 中间的区间  while() 处理
+    int i = fubo->iCurIdx+1 ;
+    while(i < p_bar1->iEidx) {
       if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
-         memcmp(tick->UpdateTime,p_bar1->cE,8)<0) {
+         memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cE,8)<0) {
+        // 更新滑动窗口  将此窗口变成 当前区间
+        memcpy(fubo->aBarBo[period].curB,fubo->pTimeType->aSgms[i].cB,9);
+        memcpy(fubo->aBarBo[period].curE,fubo->pTimeType->aSgms[i].cE,9);
         fubo->iCurIdx = i;
         UPDATE_BAR1;
         return 0;
       }
-      if(i > p_bar1->iEidx) {
-        // tick 不在交易时间段内
-        return 0;
+      i++;
+    }
+  }
+
+  // 【3】:  tick 落入到 bar1 外。的处理过程：
+  //      |----I-----|oooooooooo|-----I-----|--I------|oooooooooo|----------|
+  //                         bar1.cB=>|........|<=bar1.cE
+  //   step1:                            win1=>|------|
+  //   step2:                                   win2=>|---------------------|
+  //   step1: tick是否在 bar1外的  bar1.cE所在的segment内，即 win1
+  //   step2: tick是否在 bar1外的  更后面的的 segment内，即 win2, 用while() 来处理。
+
+  // 【3】:  tick 落入到 bar1 外。 tick已经超出了 p_bar1的 cB cE 范围之外了
+  // step1:
+  if(memcmp(tick->UpdateTime, p_bar1->cE,8)>=0 &&
+     memcmp(tick->UpdateTime, fubo->pTimeType->aSgms[fubo->iCurIdx].cE,8)<=0) { // 在当前的 iCurIdx 这个segment内
+
+    memcpy((char *)p_bar0,p_bar1,sizeof(stBar));
+    if(memcmp(tick->UpdateTime,p_bar1->cE,8) == 0) {
+      if(tick->UpdateMillisec == 0) {
+        p_bar0->v    = tick->Volume - p_bar0->vsum;
+        p_bar0->vsum = tick->Volume;
+      } else {
+        p_bar1->v    = tick->Volume - p_bar0->vsum;
       }
-    }
-  }
-  memcpy((char *)p_bar0,p_bar1,sizeof(stBar));
-  if(memcmp(tick->UpdateTime,p_bar1->cE,8) == 0) {
-    if(tick->UpdateMillisec == 0) {
-      p_bar0->v    = tick->Volume - p_bar0->vsum;
-      p_bar0->vsum = tick->Volume;
+      //直接计算下一个bar的结束时间点
     } else {
-      p_bar1->v    = tick->Volume - p_bar0->vsum;
+    // new bar !!
+     //  计算间隔，即当前的tick 是否过了很久了，中间经过了多少个bar ?
     }
+    return 0;
   }
-  /*
-  bar1.begin ==  // 这个计算比较复杂
-  bar1.end ==    // 这个计算会耗时，对于比较大的时间,比如 周期为27分钟这样的时间段
-  // 一天的交易结束时间，是最后一个K柱的结束时间
-  bar1.begin.idx = 1;
-  bar1.end.idx =2 ;
-  */
+  int i = p_bar1->iEidx+1;
+  while(i <= fubo->pTimeType->iSegNum) {
+    if(memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cB,8)>=0 ||
+       memcmp(tick->UpdateTime,fubo->pTimeType->aSgms[i].cE,8)<0) {
+      // 更新滑动窗口  将此窗口变成 当前区间
+      memcpy(fubo->aBarBo[period].curB,fubo->pTimeType->aSgms[i].cB,9);
+      memcpy(fubo->aBarBo[period].curE,fubo->pTimeType->aSgms[i].cE,9);
+      fubo->iCurIdx = i;
+
+      //new bar1;
+      /*
+      bar1.begin ==  // 这个计算比较复杂
+      bar1.end ==    // 这个计算会耗时，对于比较大的时间,比如 周期为27分钟这样的时间段
+      // 一天的交易结束时间，是最后一个K柱的结束时间
+      bar1.begin.idx = 1;
+      bar1.end.idx =2 ;
+      */
+      return 0;
+    }
+    i++;
+  }
+  // 最后，能够执行到此，表示 这个tick不在任何一个时间段内，是闭市的tick。
   return 0;
 }
 // ---------------------------------------------------------
