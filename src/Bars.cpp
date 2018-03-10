@@ -140,9 +140,17 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo)
 */
 int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr)
 {
-  stBar       *p_bar0;
-  stBar       *p_bar1;
-  p_bar1 =  &fubo->aBarBo[period].bar1;
+  //stBar       *p_bar0;
+  //stBar       *p_bar1;
+  stBar       *temp = nullptr;
+
+  // pbar0 和 pbar1 交换。
+  temp = fubo->aBarBo[period].pbar0;
+  fubo->aBarBo[period].pbar0 = fubo->aBarBo[period].pbar1;
+  fubo->aBarBo[period].pbar1 = temp;
+
+#define pbar0 fubo->aBarBo[period].pbar0
+#define pbar1 fubo->aBarBo[period].pbar1
 
   char f_h[3];
   char f_m[3];
@@ -159,39 +167,23 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr)
 
   int sum;
 
-  f = tick->UpdateTime;
-  memcpy(f_h,f,2);
-  memcpy(f_m,f+3,2);
-  memcpy(f_s,f+6,2);
-
-//    fh = atoi(f_h);
-  fm = atoi(f_m);
-  fs = atoi(f_s);
-
   memcpy(p_bar1->cB,p_bar0->cE,9);
 
-  if(memcmp(tick->UpdateTime,p_bar1->cB,2)!=0) {
+  if(memcmp(tick->UpdateTime,p_bar1->cB,5)!=0) {  // 比较小时 和 分钟
     memcpy(f_h,f,2);
     memcpy(f_m,f+3,2);
     memcpy(f_s,f+6,2);
     fh = atoi(f_h);
     fm = atoi(f_m);
     fs = atoi(f_s);
-    sum = fh*3600+fm*60+fs;
+    sum = fh*3600+fm*60+fs- pbar1.iE;
 
-  } else if(memcmp(tick->UpdateTime+3,p_bar1->cB+3,2)!=0) {
-    memcpy(f_m,f+3,2);
+  } else if(memcmp(tick->UpdateTime+6,p_bar1->cB+6,2)!=0) { //  比较秒
     memcpy(f_s,f+6,2);
-    fm = atoi(f_m);
-    fs = atoi(f_s);
-    sum = fm*60+fs;
-
-  } else {
-    memcpy(f_s,f+6,2);
-    sum = atoi(f_s);
+    sum = atoi(f_s) + pbar1.iE;
   }
   int times = sum/fr;
-  
+
 }
 // ---------------------------------------------------------
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
@@ -324,8 +316,11 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       } else {
         p_bar1->v    = tick->Volume - p_bar0->vsum;
       }
-    }
+      //直接计算下一个bar的结束时间点
+    } else {
     // new bar !!
+     //  计算间隔，即当前的tick 是否过了很久了，中间经过了多少个bar ?
+    }
     return 0;
   }
   int i = p_bar1->iEidx+1;

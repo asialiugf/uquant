@@ -198,8 +198,8 @@ struct stBar {
   char    ActionDay[9];
   char    cB[9];   		//begin time BAR K柱 的开始时间
   char    cE[9];   		//end time
-  int     iB ;
-  int     iE ;
+  int     iB ;          // 当前K柱 起始时间 
+  int     iE ;          // 当前K柱 结束时间
   int     iBidx;          // 此bar的起始点所在的 segment idx，
   int     iEidx;          // 此bar的结束点所在的 segment idx，
   double  h ;             // high
@@ -213,8 +213,12 @@ struct stBar {
 struct stBarBo {
   stBar         bar0 ;
   stBar         bar1 ;
-  char          curB[9];
+  stBar         *pbar0 ;
+  stBar         *pbar1 ;
+  char          curB[9];            //记录当前tick所在的段
   char          curE[9];
+  int           iBidx;              // 此bar1的起始点所在的 segment idx，
+  int           iEidx;              // 此bar1的结束点所在的 segment idx，
   int			iPeriod ;           // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
   char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
   int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
