@@ -166,49 +166,27 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
   char * f;
 
   int sum;
-
-  int ih;
-  int im;
-  int is;
-
+  
   // bar0 bar1交换后，执行以下：
   if(first) {
     fubo->aBarBo[period].pbar1->iB = fubo->aBarBo[period].pbar0->iE ;   // 当前K柱 起始时间 = 前一K 结束时间
     memcpy(fubo->aBarBo[period].pbar1->cB,fubo->aBarBo[period].pbar0->cE,9);
 
     fubo->aBarBo[period].pbar1->iE = fubo->aBarBo[period].pbar0->iE + fr ; // 前一K柱结束时间 + 周期 秒
-    sum = fubo->aBarBo[period].pbar0->iE+fr ;
-    if(fubo->aBarBo[period].pbar1->iE <= fubo->pTimeType->aSgms[fubo->iCurIdx].iE) {
+    sum = fubo->aBarBo[period].pbar0->iE+fr ; 
+    
+    if(iPeriodH!=0) {
+       H = H+H;
+       M = M+M;
+       S = S+S;
+    }else if(iPeriodM!=0) {
     } else {
-      do {
-        i++;
-        if (i>fubo->pTimeType->iSegNum) {
-           fubo->aBarBo[period].pbar1->iE=fubo->pTimeType->aSgms[fubo->iCurIdx+i-1].iE;
-        }
-        fubo->aBarBo[period].pbar1->iE += fubo->pTimeType->aSgms[fubo->iCurIdx+i].iI ;
-        while(fubo->aBarBo[period].pbar1->iB > fubo->pTimeType->aSgms[fubo->iCurIdx+i].iB &&
-              fubo->aBarBo[period].pbar1->iE < fubo->pTimeType->aSgms[fubo->iCurIdx+i].iE);
-      }
+ 
     }
-    /*
-      对于周期，有严格的限制，如果超过1小时，那么就不允许出现分钟，秒。 不允许出现 1个半小时这样的周期。
-      对于超过1分钟的，不允许出现秒， 不允许出现 1分零7秒这样的时间周期。
-      这样就可以用下面的算法。 计算速度会更快。
-    */
-    if(iPeriodH>0) {
-      iH += iPeriodH ;
 
-    } else if(iPeriodM!=0) {
-    } else {
-
-    }
-    */
-
-    //另一种算法， if ( fr <60 )
-
-
-    if(fr<60)
-      s+=1;
+    //另一种算法， if ( fr <60 ) 
+    
+    s+=1;
     if(s>=60) {
       s -=60;
       m+=1;

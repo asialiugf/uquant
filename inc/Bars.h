@@ -167,6 +167,12 @@ static const std::map<int,std::string> M_TimeType = {
   {5,"{\"time\":[                                \"09:30-11:30\",                \"13:00-15:00\"]}"},
   {6,"{\"time\":[                                \"09:15-11:30\",                \"13:00-15:15\"]}"},
 };
+
+
+static const std::map<int,std::string> M_TimeType = {
+  {0,"{\"time\":[                                \"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
+}
+
 // ----- End ----------- 交易时间定义 ----------------------------------------
 
 struct stSegment {
@@ -198,7 +204,7 @@ struct stBar {
   char    ActionDay[9];
   char    cB[9];   		//begin time BAR K柱 的开始时间
   char    cE[9];   		//end time
-  int     iB ;          // 当前K柱 起始时间 
+  int     iB ;          // 当前K柱 起始时间
   int     iE ;          // 当前K柱 结束时间
   int     iBidx;          // 此bar的起始点所在的 segment idx，
   int     iEidx;          // 此bar的结束点所在的 segment idx，
@@ -209,7 +215,7 @@ struct stBar {
   int     v ;             // volume
   int     vsum ;          // keep volume sum
 };
- 
+
 struct stBarBo {
   stBar         bar0 ;
   stBar         bar1 ;
@@ -217,7 +223,7 @@ struct stBarBo {
   stBar         *pbar1 ;
   int           iH;
   int           iM;
-  int           iS;                 // 当前周期 秒 ，比如当前周期结束时间为09:16:32,这里的 iSec=32 在 NewBar里用到 
+  int           iS;                 // 当前周期 秒 ，比如当前周期结束时间为09:16:32,这里的 iSec=32 在 NewBar里用到
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
