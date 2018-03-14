@@ -136,12 +136,12 @@ BaBo::BaBo(int iFr, stTimeType  *pTimeType)
   iM = (iFr-iH*3600)/60;
   iS = iFr%60;
 
-  for(int i=0; i<100; i++) {
+  for(int i=0; i<100; i++;) {
     seg[i] = nullptr;
   }
 
   last = 0;   //
-  for(int i=0; i<pTimeType->iSegNum; i++) {
+  for(int i=0; i<pTimeType->iSegNum; i++;) {
     iB = pTimeType->aSgms[i].iB ;
     iE = pTimeType->aSgms[i].iE ;
     if(last>0) {
@@ -296,6 +296,125 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int period[])
 */
 int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
 {
+  //stBar       *p_bar0;
+  //stBar       *p_bar1;
+  stBar       *temp = nullptr;
+
+  // pbar0 和 pbar1 交换。
+  temp = fubo->aBarBo[period].pbar0;
+  fubo->aBarBo[period].pbar0 = fubo->aBarBo[period].pbar1;
+  fubo->aBarBo[period].pbar1 = temp;
+
+#define BAR0 fubo->aBarBo[period].pbar0
+#define BAR1 fubo->aBarBo[period].pbar1
+#define SGMS fubo->pTimeType->aSgms
+#define CUR fubo->iCurIdx
+
+  char f_h[3];
+  char f_m[3];
+  char f_s[3];
+  see_memzero(f_h,3);
+  see_memzero(f_m,3);
+  see_memzero(f_s,3);
+
+  int mo;
+  int fh;
+  int fm;
+  int fs;
+  char * f;
+
+  int sum;
+
+  int ih;
+  int im;
+  int is;
+
+  // bar0 bar1交换后，执行以下：
+  if(first) {
+    BAR1->iB = BAR0->iE ;   // 当前K柱 起始时间 = 前一K 结束时间
+    memcpy(BAR1->cB,BAR0->cE,9);
+
+    BAR1->iE = BAR0->iE + fr ; // 前一K柱结束时间 + 周期 秒
+    if(BAR1->iE <= SGMS[CUR].iE) {
+      // conver to char BAR1->cE
+      if(memcmp(tick->UpdateTime,BAR1->cE,8)<=0) {
+        //icurrent
+        // 其它处理
+        return 0;
+      } else {
+
+      }
+    } else {
+      do {
+        i++;
+        if(i>fubo->pTimeType->iSegNum) {
+          BAR1->iE=SGMS[CUR+i-1].iE;
+        }
+        fubo->aBarBo[period].pbar1->iE += fubo->pTimeType->aSgms[fubo->iCurIdx+i].iI ;
+        while(BAR1->iB > fubo->pTimeType->aSgms[fubo->iCurIdx+i].iB &&
+              BAR1->iE < fubo->pTimeType->aSgms[fubo->iCurIdx+i].iE);
+      }
+    }
+    /*
+      对于周期，有严格的限制，如果超过1小时，那么就不允许出现分钟，秒。 不允许出现 1个半小时这样的周期。
+      对于超过1分钟的，不允许出现秒， 不允许出现 1分零7秒这样的时间周期。
+    ->pTimeType->iSegNum
+      这样就可以用下面的算法。 计算速度会更快。
+    */
+    if(iPeriodH>0) {
+      iH += iPeriodH ;
+
+    } else if(iPeriodM!=0) {
+    } else {
+
+    }
+    */
+
+    //另一种算法， if ( fr <60 )
+
+
+    if(fr<60)
+      s+=1;
+    if(s>=60) {
+      s -=60;
+      m+=1;
+      if(m>=60) {
+        m-=60;
+        h+=1;
+        sprintf(tt,"%02d:%02d:%02d",h,m,s);
+        memcpy(temp,tt,9);
+      } else {
+        memcpy(tt,temp,3);
+        sprintf(tt+3,"%02d:%02d",m,s);
+        memcpy(temp,tt,9);
+      }
+    } else {
+      memcpy(tt,temp,6);
+      sprintf(tt+6,"%02d",s);
+      memcpy(temp,tt,9);
+    }
+  } else {
+
+  }
+
+
+  memcpy(p_bar1->cB,p_bar0->cE,9);
+
+  if(memcmp(tick->UpdateTime,p_bar1->cB,5)!=0) {  // 比较小时 和 分钟
+    memcpy(f_h,f,2);
+    memcpy(f_m,f+3,2);
+    memcpy(f_s,f+6,2);
+    fh = atoi(f_h);
+    fm = atoi(f_m);
+    fs = atoi(f_s);
+    sum = fh*3600+fm*60+fs- pbar1.iE;
+
+  } else if(memcmp(tick->UpdateTime+6,p_bar1->cB+6,2)!=0) { //  比较秒
+    memcpy(f_s,f+6,2);
+    sum = atoi(f_s) + pbar1.iE;
+  }
+  int times = sum/fr;
+
 }
 // ---------------------------------------------------------
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
@@ -308,14 +427,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   stBar       *b1;
   stBar       *bt;
 
-  b0 = fubo->pBaBo[period]->b0 ;
-  b1 = fubo->pBaBo[period]->b1 ;
-
-  p_bar0 =  &fubo->pBaBo[period]->bar0;
-  p_bar1 =  &fubo->pBaBo[period]->bar1;
-
-  char * curB = fubo->pBaBo[period]->curB ;
-  char * curE = fubo->pBaBo[period]->curE ;
+  p_bar0 =  &fubo->aBarBo[period].bar0;
+  p_bar1 =  &fubo->aBarBo[period].bar1;
 
   // 经过重新设计， 不管K柱是不是跨时间段，只要tick落在 curB---curE之间，即UPDATE。
   //-----------------------------------------------------------
@@ -401,8 +514,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       //【1】【A】
       curB=curB+fr;
       curE=curE+fr;
-      memcpy(b1->cB,curB,9);
-      memcpy(b1->cE,curE,9);
+      memcpy(b1.cB,curB,9);
+      memcpy(b1.cE,curE,9);
     }
     // ........................(tick == barE)
     if(tick >= segE) {
@@ -412,13 +525,13 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       if(mark ==0) {
         curB = segB[idx].cB ;
         curE = segB[idx].cB + fr ;
-        memcpy(b1->cB,curB,9);
-        memcpy(b1->cE,curE,9);
+        memcpy(b1.cB,curB,9);
+        memcpy(b1.cE,curE,9);
       } else {
         curB = seg[idx].cB ;
         curE = seg[idx].cE ;
-        memcpy(b1->cB,seg[idx].barB,9);
-        memcpy(b1->cE,seg[idx].barE,9);
+        memcpy(b1.cB,seg[idx].barB,9);
+        memcpy(b1.cE,seg[idx].barE,9);
       }
     }
   }
@@ -451,14 +564,14 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       //【1】【C】
       if(ms < 500) {
         NEW_B1 ;
-        b1->iB = seg[idx].iE - fr ;
-        memcpy(,b1->iB,9);
-        memcpy(b1->cE,seg[idx].cE,9);
+        b1.iB = seg[idx].iE - fr ;
+        memcpy(b1.cB,b1.iB,9);
+        memcpy(b1.cE,seg[idx].cE,9);
         send(b1) ;
         set_send();
 
-        memcpy(curB,,9);
-        memcpy(curE,b1->cE,9);
+        memcpy(curB,b1.cB,9);
+        memcpy(curE,b1.cE,9);
 
         return 0;
       } else { // ms >= 500

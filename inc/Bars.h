@@ -120,6 +120,10 @@ namespace uBEE
                        p_bar0->l = p_bar1->l ; \
                        p_bar0->v = p_bar1->v ;
 
+#define SWAP_BAR       bt = b0; \
+                       b0 = b1; \
+                       b1 = bt;
+
 #define NEW_BAR1       memcpy(p_bar1->TradingDay,tick->TradingDay,9) ; \
                        memcpy(p_bar1->ca_btime,tick->UpdateTime,9) ; \
                        memcpy(p_bar1->ActionDay,tick->ActionDay,9) ; \
@@ -135,6 +139,32 @@ namespace uBEE
                        if (  p_bar1->l > tick->LastPrice ) { p_bar1->l = tick->LastPrice ; } \
                        p_bar1->v    = tick->Volume - p_bar0->vsum ; \
                        p_bar1->vsum = tick->Volume ;
+
+#define UPDATE_B1      b1->c = tick->LastPrice ; \
+                       if ( b1->h < tick->LastPrice ) { b1->h = tick->LastPrice ; } \
+                       if ( b1->l > tick->LastPrice ) { b1->l = tick->LastPrice ; } \
+                       b1->v = tick->Volume - b1->vsum ;
+
+#define NEW_B1         memcpy(b1->TradingDay,tick->TradingDay,9) ; \
+                       memcpy(b1->ca_btime,tick->UpdateTime,9) ; \
+                       memcpy(b1->ActionDay,tick->ActionDay,9) ; \
+                       b1->o = tick->LastPrice ; \
+                       b1->c = tick->LastPrice ; \
+                       b1->h = tick->LastPrice ; \
+                       b1->l = tick->LastPrice ; \
+                       b1->vsum = tick->Volume ; \
+                       b1->v = 0 ;
+
+#define NEW_B1_Z       memcpy(b1->TradingDay,tick->TradingDay,9) ; \
+                       memcpy(b1->ca_btime,tick->UpdateTime,9) ; \
+                       memcpy(b1->ActionDay,tick->ActionDay,9) ; \
+                       b1->o = tick->LastPrice ; \
+                       b1->c = tick->LastPrice ; \
+                       b1->h = -99999999 ; \
+                       b1->l = 999999999 ; \
+                       b1->vsum = tick->Volume ; \
+                       b1->v = 0 ;
+
 
 #define FIRST_TICK     if (  p_bar0->h < 0 ) { \
                            memcpy(p_bar0->TradingDay,tick->TradingDay,9) ; \
@@ -168,11 +198,6 @@ static const std::map<int,std::string> M_TimeType = {
   {6,"{\"time\":[                                \"09:15-11:30\",                \"13:00-15:15\"]}"},
 };
 
-
-static const std::map<int,std::string> M_TimeType = {
-  {0,"{\"time\":[                                \"09:00-10:15\",\"10:30-11:30\",\"13:30-15:00\"]}"},
-}
-
 // ----- End ----------- 交易时间定义 ----------------------------------------
 
 struct stSegment {
@@ -181,6 +206,9 @@ struct stSegment {
   int  iB ;
   int  iE ;
   int  iI ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
+  int  mark ; // 0 表示 seg 包含 bar。 // 1.2.3. 表示 一个bar 包含多个 seg。
+  char barB[9];
+  char barE[9];
 };
 
 struct stTimeType {
@@ -221,21 +249,57 @@ struct stBarBo {
   stBar         bar1 ;
   stBar         *pbar0 ;
   stBar         *pbar1 ;
+  /*
   int           iH;
   int           iM;
   int           iS;                 // 当前周期 秒 ，比如当前周期结束时间为09:16:32,这里的 iSec=32 在 NewBar里用到
+  */
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
   int           iEidx;              // 此bar1的结束点所在的 segment idx，
-  int			iPeriod ;           // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
-  int           iPeriodH;           // 将周期转成 H M S, 比如：周期为 97 秒 转成： iPeriodH=0 ;
-  int           iPeriodM;           // iPeriodM = 1;
-  int           iPeriodF;           // iPeriodS = 37;  需要初始化！！
+  int			fr ;                // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
+  int           iH;                 // 将周期转成 H M S, 比如：周期为 97 秒 转成： iPeriodH=0 ;
+  int           iM;                 // iPeriodM = 1;
+  int           iF;                 // iPeriodS = 37;  需要初始化！！
   char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
   int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
   char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
+  int           iSegNum ;          // segment 数量
+  stSegment     *seg[100] ;        // segment array 
+} ;
+
+
+struct BaBo {
+  stBar         bar0 ;
+  stBar         bar1 ;
+  stBar         *pbar0 ;
+  stBar         *pbar1 ;
+  stBar         *b0 ;
+  stBar         *b1 ;
+  /*
+  int           iH;
+  int           iM;
+  int           iS;                 // 当前周期 秒 ，比如当前周期结束时间为09:16:32,这里的 iSec=32 在 NewBar里用到
+  */
+  char          curB[9];            //记录当前tick所在的段
+  char          curE[9];
+  int           iBidx;              // 此bar1的起始点所在的 segment idx，
+  int           iEidx;              // 此bar1的结束点所在的 segment idx，
+  int           iF;                 // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
+  int           iH;                 // 将周期转成 H M S, 比如：周期为 97 秒 转成： iPeriodH=0 ;
+  int           iM;                 // iPeriodM = 1;
+  int           iS;                 // iPeriodS = 37;  需要初始化！！
+  char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
+  int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
+  char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
+  char          ca_table[128];                 /* database table name */
+  int           iSegNum ;          // segment 数量
+  stSegment     *seg[100] ;        // segment array 
+public:
+  BaBo(int fr, stTimeType  *pTimeType);
+  int MakeTime(char *caTime, int T) ;
 } ;
 
 struct FuBo {
@@ -244,7 +308,8 @@ struct FuBo {
   char         caFileName[1024];            // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",在使用时，要组合 period
   int          iCurIdx ;                    // 用于记录收到tick时，是在哪个交易时间段内
   stTimeType  *pTimeType ;                  // TimeType
-  stBarBo      aBarBo[31] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
+  BaBo        *pBaBo[50] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
+  stBarBo      aBarBo[50] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
 
 public:
   FuBo(char *fuID, uBEE::TimeBlock *tmbo);

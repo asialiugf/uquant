@@ -35,7 +35,7 @@ std::shared_ptr<uBEE::DBPool> dbpool;
 uBEE::TradingTime             *tt;
 uBEE::TimeBlock               *tmbo;
 uBEE::FuList                  *fl;
-uBEE::TimeBlock *tb;
+uBEE::TimeBlock               *tb;
 
 //------- ----------------- ----------------  ----------
 CMdSpi::CMdSpi()
@@ -117,9 +117,7 @@ void CMdSpi::Init()
     }
     //uBEE::FuBlock fb;
     uBEE::FuBlock *fb = new uBEE::FuBlock();
-    std::cout << " befor fb->Init  + map hahah ------------\n" ;
     fb->dbpool = dbpool;
-    std::cout << " befor fb->Init  + map hahah1 ------------\n" ;
     fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
     fb->Block.pTimeType = & tb->TT[fb->Block.pt_hour->i_hour_type];
     std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
