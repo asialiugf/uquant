@@ -311,7 +311,7 @@ struct FuBo {
   BaBo        *pBaBo[50] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
   stBarBo      aBarBo[50] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
 public:
-  FuBo(char *fuID, uBEE::TimeBlock *tmbo,const int period[]);
+  FuBo(char *fuID, uBEE::TimeBlock *tmbo,const int period[],int len);
 };
 
 // ----- End ----------- 时间结构定义 ----------------------------------------

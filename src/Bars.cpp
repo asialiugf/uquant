@@ -38,7 +38,9 @@ TimeBlock::TimeBlock()
     jTime = cJSON_GetObjectItem(jRoot, "time");
     n = cJSON_GetArraySize(jTime);
 
-    //TT[it->first].iSegNum = n;
+    TT[it->first].iSegNum = n;
+    uBEE::ErrLog(1000," enter into Klines()!",1,0,0);
+    std::cout << TT[it->first].iSegNum << "pppppppppppppppppppppp" << std::endl;
     for(i=0; i<n; i++) {
       jTemp = cJSON_GetArrayItem(jTime,i);
 
@@ -97,7 +99,6 @@ int BaBo::MakeTime(char *caT, int T)
 {
   int h,m,s;
   char cTmp[9];
-
   h = T / 3600;
   m =(T - h*3600) / 60;
   s = T % 60;
@@ -127,40 +128,58 @@ BaBo::BaBo(int iFr, stTimeType  *pTimeType)
   int  iE ;
   int  iI ;
   int  mark ;
-  //int  mo ;
-  int  idx = 0;
-  int  last;
 
   iF = iFr ;
   iH = iFr/3600;
   iM = (iFr-iH*3600)/60;
   iS = iFr%60;
 
+  std::cout << " =========== iF: " << iF <<"H:" << iH << "M:" << iM << "S:" << iS << std::endl;
+
+  //iSegNum = pTimeType->iSegNum ;
+
   for(int i=0; i<100; i++) {
     seg[i] = nullptr;
   }
 
-  last = 0;   // 一个bar跨seg，在后面一个seg还差的时间数量
+  std::cout << " pTimeType seg number : " << pTimeType->iSegNum << std::endl;
+
+  int last = 0;   // 一个bar跨seg，在后面一个seg还差的时间数量
+  int idx  = 0;
   for(int i=0; i<pTimeType->iSegNum; i++) {
     iB = pTimeType->aSgms[i].iB ;
     iE = pTimeType->aSgms[i].iE ;
+    std::cout << "------------------------ for-------begin----- i:"<<i<<" iSegNum:"<<pTimeType->iSegNum<<" iB:"<<iB<<" iE:"<<iE<<std::endl;
+    std::cout << pTimeType->aSgms[i].cB << "----" << pTimeType->aSgms[i].cE << std::endl;
     if(last>0) {
+      std::cout << " last > 0 -- last: " << last <<  std::endl;
       if(iB + last < iE) {
+        std::cout << " if(iB + last < iE) { ------- mark: " << mark <<  std::endl;
         seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
 
         seg[idx]->iB = iB ;
         seg[idx]->iE = iB + last ;
+        std::cout << " if(iB + last < iE) { ------- idx: " << idx <<  std::endl;
+        std::cout << " if(iB + last < iE) { ------- seg[idx]->iB: " << seg[idx]->iB <<  std::endl;
+        std::cout << " if(iB + last < iE) { ------- seg[idx]->iE: " << seg[idx]->iE <<  std::endl;
 
         mark ++ ;
         seg[idx]->mark = mark;
 
         MakeTime(seg[idx]->cB,seg[idx]->iB) ;
         MakeTime(seg[idx]->cE,seg[idx]->iE) ;
+        std::cout << " if(iB + last < iE) { ------- seg[idx]->cB: " << seg[idx]->cB <<  std::endl;
+        std::cout << " if(iB + last < iE) { ------- seg[idx]->cE: " << seg[idx]->cE <<  std::endl;
+        std::cout << "idx:"<<idx<<" mark:"<<mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
 
         memcpy(seg[idx]->barB,cT , 9);
+        std::cout << " if(iB + last < iE) { ------- seg[idx]->barB:" << seg[idx]->barB <<  std::endl;
         //memcpy(seg[idx]->barE,seg[idx]->cE , 9);
         for(int j =0; j<mark; j++) {    // 【A】
-          memcpy(seg[idx-j]->barE,seg[idx]->cE , 9);
+          int k = idx-j ;
+          memcpy(seg[k]->barE,seg[idx]->cE , 9);
+          std::cout << " if(iB + last < iE) { for j=0;--idx-j barE:" << k << ":" << seg[k]->barE <<  std::endl;
+          std::cout << "idx:"<<k<<" mark:"<<mark <<" bar B E: "<< seg[k]->barB <<"----"<< seg[k]->barE << std::endl;
         }
         mark = 0;
         idx++ ;
@@ -176,11 +195,13 @@ BaBo::BaBo(int iFr, stTimeType  *pTimeType)
 
         MakeTime(seg[idx]->cB,seg[idx]->iB) ;
         MakeTime(seg[idx]->cE,seg[idx]->iE) ;
+        std::cout << "idx:"<<idx<<" mark:"<<mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
 
         memcpy(seg[idx]->barB,cT , 9);
         if(i == pTimeType->iSegNum-1) {
           for(int j =0; j<mark; j++) {    // 【A】
             memcpy(seg[idx-j]->barE,seg[idx]->cE , 9);
+            std::cout << "idx:"<<idx-j<<" mark:"<<mark <<" bar B E: "<< seg[idx-j]->barB <<"----"<< seg[idx-j]->barE << std::endl;
           }
           break;
         }
@@ -196,18 +217,30 @@ BaBo::BaBo(int iFr, stTimeType  *pTimeType)
     int len =  iE - iB ;
     int num = len / iF ;
     int mo  = len % iF ;
-    last = iF-mo;
+    if(mo>0) {
+      last = iF-mo;
+    } else {
+      last = 0 ;
+    }
+    std::cout <<"idx:"<<idx<< " iB:"<<iB<<" len:"<<len<<" num:"<<num<<" mo:"<<mo<<" last:"<<last<<std::endl;
     if(num > 0) {
+      std::cout <<"kkkk\n";
       seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
+      if(seg[idx] == NULL) {
+        std::cout <<"malloc error!!\n";
+      }
+      std::cout <<"kkkk\n";
       seg[idx]->iB = iB ;
       seg[idx]->iE = iE-mo ;
+      mark =0;
       seg[idx]->mark =0 ;
 
       MakeTime(seg[idx]->cB,seg[idx]->iB) ;
       MakeTime(seg[idx]->cE,seg[idx]->iE) ;
+      std::cout << "idx:"<<idx<<" mark:"<<mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
+      idx++;
     }
     if(mo > 0) {
-      idx ++ ;
       seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
       seg[idx]->iB = iE-mo ;
       seg[idx]->iE = iE ;
@@ -216,23 +249,25 @@ BaBo::BaBo(int iFr, stTimeType  *pTimeType)
 
       MakeTime(seg[idx]->cB,seg[idx]->iB) ;
       MakeTime(seg[idx]->cE,seg[idx]->iE) ;
+      std::cout << "idx:"<<idx<<" mo:"<<mo <<" mark:"<<mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
 
       memcpy(seg[idx]->barB,seg[idx]->cB , 9);
       if(i == pTimeType->iSegNum-1) {
         //MakeTime(seg[idx]->barE,seg[idx]->iE) ;
         memcpy(seg[idx]->barE,seg[idx]->cE,9);
+        std::cout << "idx:"<<idx<<" mark:"<<mark <<" bar B E: "<< seg[idx]->barB <<"----"<< seg[idx]->barE << std::endl;
         break;
       }
       memcpy(cT,seg[idx]->cB , 9);
+      idx ++ ;
     }
   }
-
 }
 
 /*
   Future Block !
 */
-FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int period[])
+FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
 {
   see_memzero(InstrumentID,31);
   memcpy(InstrumentID,caFuture,strlen(caFuture));
@@ -270,9 +305,15 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int period[])
    aBarBo[0-29]
    aBarBo[30-49]
   */
-
+  int m = 0;
   for(int i=30; i<50; i++) {
-    aBarBo[i].fr = period[i--];
+    if(m == len) {
+      break;
+    }
+    aBarBo[i].fr = aFr[m];
+    std::cout << aFr[m] << ": ooooooooooooooo" << std::endl;
+    BaBo *bb = new BaBo(aFr[m], pTimeType);
+    m++;
   }
 
   stBar tmpBar ;
@@ -311,7 +352,6 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-
   stBar       *p_bar0;
   stBar       *p_bar1;
   stBar       *b0;
