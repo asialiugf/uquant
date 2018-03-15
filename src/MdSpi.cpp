@@ -127,7 +127,7 @@ void CMdSpi::Init()
     FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
     std::cout << " after fb->Init  + map hahah ------------\n" ;
 
-    int fr[5] = {19,60,180,300,600};
+    int fr[5] = {19,14401,180,300,600};
     uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb,&fr[0], 5); 
     M_FuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
