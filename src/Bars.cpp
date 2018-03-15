@@ -426,7 +426,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
    */
   /*
   【2】******************** mark>0  一个bar包含多个seg的情况
-  【A】： segE ==tick < barE   { curseg结束，}
+  【A】： segE ==tick < barE   { curseg结束，}  // (charmi  注意 24小时问题, 有可能 barE < segE !!!)
   【B】： segE < tick < barE   { curseg结束，}
   【C】： segE < tick== barE   { curbar结束，}
   【D】： segE ==tick== barE   { curbar结束，在此seg之外，紧临，再new 一个bar }
