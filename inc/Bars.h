@@ -146,7 +146,7 @@ namespace uBEE
                        b1->v = tick->Volume - b1->vsum ;
 
 #define NEW_B1         memcpy(b1->TradingDay,tick->TradingDay,9) ; \
-                       memcpy(b1->ca_btime,tick->UpdateTime,9) ; \
+                       memcpy(b1->cB,tick->UpdateTime,9) ; \
                        memcpy(b1->ActionDay,tick->ActionDay,9) ; \
                        b1->o = tick->LastPrice ; \
                        b1->c = tick->LastPrice ; \
@@ -156,7 +156,7 @@ namespace uBEE
                        b1->v = 0 ;
 
 #define NEW_B1_Z       memcpy(b1->TradingDay,tick->TradingDay,9) ; \
-                       memcpy(b1->ca_btime,tick->UpdateTime,9) ; \
+                       memcpy(b1->cB,tick->UpdateTime,9) ; \
                        memcpy(b1->ActionDay,tick->ActionDay,9) ; \
                        b1->o = tick->LastPrice ; \
                        b1->c = tick->LastPrice ; \
@@ -305,14 +305,13 @@ public:
 struct FuBo {
   std::shared_ptr<uBEE::DBPool> dbpool;
   char         InstrumentID[31];
-  char         caFileName[1024];            // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",在使用时，要组合 period
+  char         caFileName[1024];            // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",要组合 period
   int          iCurIdx ;                    // 用于记录收到tick时，是在哪个交易时间段内
   stTimeType  *pTimeType ;                  // TimeType
   BaBo        *pBaBo[50] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
   stBarBo      aBarBo[50] ;                 // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
-
 public:
-  FuBo(char *fuID, uBEE::TimeBlock *tmbo);
+  FuBo(char *fuID, uBEE::TimeBlock *tmbo,const int period[]);
 };
 
 // ----- End ----------- 时间结构定义 ----------------------------------------
