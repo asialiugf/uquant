@@ -79,6 +79,47 @@ namespace uBEE
 #define  BAR_1Y       29
 #define  BAR_TICK     30
 
+/*                        0  1 2 3 4  5  6  7  8  9   10  11  12  13  14   15   16   17   18    19    20    21 22 23 24 25 26 27 28 29 */
+/*                        1S 2 3 5 10 15 20 30 1F 2F  3F  5F  10  15  20   30   1H   2H   3H    4H    5H    6H 8H 10 12 1D 1W 1M 1J 1Y */
+/*
+static const int ff[30] = {1, 2,3,5,10,15,20,30,60,120,180,300,600,900,1200,1800,3600,7200,10800,14400,18000, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+*/
+
+// -- 前面加上 100 101 ... 是为了排序需要.
+static const std::map<std::string,int> M_FF = {
+  {"100_1S",  1      },
+  {"101_2S",  2      },
+  {"102_3S",  3      },
+  {"103_5S",  5      },
+  {"104_10S", 10     },
+  {"105_15S", 15     },
+  {"106_20S", 20     },
+  {"107_30S", 30     },
+  {"108_1F",  60     },
+  {"109_2F",  120    },
+  {"110_3F",  180    },
+  {"111_5F",  300    },
+  {"112_10F", 600    },
+  {"113_15F", 900    },
+  {"114_20F", 1200   },
+  {"115_30F", 1800   },
+  {"116_1H",  3600   },
+  {"117_2H",  7200   },
+  {"118_3H",  10800  },
+  {"119_4H",  14400  },
+  {"120_5H",  18000  },
+  {"121_6H",  21600  },
+  {"122_8H",  28800  },
+  {"123_10H", 36000  },
+  {"124_12H", 43200  },
+  {"125_1D",  0   },
+  {"126_1W",  0   },
+  {"127_1M",  0   },
+  {"128_1J",  0   },
+  {"129_1Y",  0   },
+};
+
+
 #define SAME_SEG_8       8
 #define SAME_SEG_9       9
 
@@ -267,7 +308,7 @@ struct stBarBo {
   char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
-  stSegment     *seg[100] ;        // segment array 
+  stSegment     *seg[100] ;        // segment array
 } ;
 
 
@@ -291,14 +332,15 @@ struct BaBo {
   int           iH;                 // 将周期转成 H M S, 比如：周期为 97 秒 转成： iPeriodH=0 ;
   int           iM;                 // iPeriodM = 1;
   int           iS;                 // iPeriodS = 37;  需要初始化！！
+  char          cF[10] ;             // frequency ; "1S" "2S" ...
   char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
   int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
   char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
-  stSegment     *seg[100] ;        // segment array 
+  stSegment     *seg[100] ;        // segment array
 public:
-  BaBo(int fr, stTimeType  *pTimeType);
+  BaBo(const char *pF, int fr, stTimeType  *pTimeType);
   int MakeTime(char *caTime, int T) ;
 } ;
 
