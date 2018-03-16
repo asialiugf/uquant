@@ -14,7 +14,7 @@ namespace uBEE
 {
 
 static char LOG_FILE_NAME[100]= {"./errlog"} ;
-static int MAX_BAK_LOG_SIZE = 20*1024*1024 ;
+static int MAX_BAK_LOG_SIZE = 200*1024*1024 ;
 
 // int chglog(char cChgCode,char *pcChgStr);
 int ErrLog(int iErrCode,char const*message,char device,char const*buf,long length);

@@ -14,6 +14,9 @@
 
 namespace uBEE
 {
+
+#define T________  0
+
 #define see_memzero(buf, n)         (void) memset(buf, 0, n)
 #define SEE_NULL    -2147483648
 #define  SEE_OK          0
