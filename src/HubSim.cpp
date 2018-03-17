@@ -17,6 +17,8 @@ void HubSim::Init()
   memset(URL,'\0',256);
   sprintf(URL,"3004");
   port = 3004;
+  sg = &h.getDefaultGroup<uWS::SERVER>();
+  cg = &h.getDefaultGroup<uWS::CLIENT>();
 }
 
 void HubSim::S_onMessage()

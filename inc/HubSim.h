@@ -16,6 +16,9 @@ struct HubSim {
   char URL[256];
   int port;
   uWS::Hub   h;
+  uWS::Group<uWS::SERVER> * sg;
+  uWS::Group<uWS::CLIENT> * cg;
+  //h.getDefaultGroup<uWS::SERVER>().broadcast(brMsg, brMsgLength, opCode);
 public:
   HubSim();
   void Init();

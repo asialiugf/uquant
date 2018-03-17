@@ -142,12 +142,22 @@ int ForkSim()
     return -1;
 
   case 0: {
-    uBEE::HubSim hub;
     pid = getpid();
     uBEE::InitSetProcTitle();
     uBEE:: SetProcTitle("HubSim:","DataServ: ");
+
+    uBEE::HubSim hub;
     hub.Init();
-    hub.Start();
+    sleep(2);
+
+    //------ 开一个新的线程----------------
+    std::thread t([&hub] {
+      uBEE::MdCtp(hub.sg);
+    });  /* thread t */
+    t.detach();
+    hub.Start(); 
+    std::cout << "end hub.Start!!" << std::endl;
+
   }
   break;
   default:
