@@ -2,6 +2,7 @@
 #include "FuList.h"
 #include "MdSpi.h"
 #include "Bars.h"
+#include "Global.h"
 #include "Psqlpool.h"
 #include "PsqlFunc.h"
 #include <uWS/uWS.h>
@@ -35,7 +36,7 @@ std::shared_ptr<uBEE::DBPool> dbpool;
 uBEE::TradingTime             *tt;
 //uBEE::TimeBlock               *tmbo;
 uBEE::FuList                  *fl;
-uBEE::TimeBlock               *tb;
+//extern uBEE::TimeBlock        *tb;
 //------- ----------------- ----------------  ----------
 
 CMdSpi::CMdSpi()
@@ -91,9 +92,10 @@ void CMdSpi::Init()
 
   // ...... 初始化 交易时间对象 ...................................
   tt = new uBEE::TradingTime() ;
-  tb = new uBEE::TimeBlock();
+  //tb = new uBEE::TimeBlock();
 
   // ---- for testing begin ---------------------------------------
+  std::cout << "999999999999999999999\n" ;
   for(int j=0; j<7; j++) {
     int i = 0;
     while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
@@ -106,6 +108,7 @@ void CMdSpi::Init()
     }
     std::cout << std::endl;
   }
+  std::cout << "999999999999999999999\n" ;
   // ---- for testing end  ---------------------------------------
 
 

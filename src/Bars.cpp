@@ -271,7 +271,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
       MakeTime(seg[idx]->cB,seg[idx]->iB) ;
       MakeTime(seg[idx]->cE,seg[idx]->iE) ;
-      std::cout << "idx:"<<idx<<" mo:"<<mo <<" mark:"<<seg[idx]->mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
+      //std::cout << "idx:"<<idx<<" mo:"<<mo <<" mark:"<<seg[idx]->mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
 
       if(T________) {
         sprintf(ca_errmsg,"8888--- idx:%d mark:%d mo:%d seg B:%s seg E:%s",idx,mark,mo,seg[idx]->cB,seg[idx]->cE) ;

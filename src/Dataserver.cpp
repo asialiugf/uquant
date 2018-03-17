@@ -1,5 +1,8 @@
 #include "uBEE.h"
 #include "MdCtp.h"
+#include "MkSim.h"
+#include "Bars.h"
+#include "Global.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
@@ -9,6 +12,7 @@
 #include <sys/prctl.h>
 
 extern char **environ;
+//uBEE::TimeBlock               *tb;
 int ForkApi();
 int ForkBck();
 int ForkCtp();
@@ -20,6 +24,14 @@ int main(int argc, char **argv)
   int rtn;
   int pid;
   uBEE::Daemon(1,0) ;
+
+  // --- time block init !! ------------ from Global.h
+  uBEE::InitAll();
+  /*
+    std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
+    tb = new uBEE::TimeBlock();
+    std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
+  */
 
   hb.Init();
   hb.Start();
@@ -152,10 +164,10 @@ int ForkSim()
 
     //------ 开一个新的线程----------------
     std::thread t([&hub] {
-      uBEE::MdCtp(hub.sg);
+      uBEE::MkSim(hub.sg);
     });  /* thread t */
     t.detach();
-    hub.Start(); 
+    hub.Start();
     std::cout << "end hub.Start!!" << std::endl;
 
   }

@@ -29,6 +29,9 @@ DEPS = ../inc/Base.h \
 	    ../inc/HubApi.h \
 	    ../inc/HubSim.h \
 	    ../inc/HubBck.h \
+	    ../inc/MdCtp.h \
+	    ../inc/MdSpi.h \
+	    ../inc/MkSim.h \
         ../inc/Psqlpool.h \
         ../inc/PsqlFunc.h \
         ../inc/Roll.h \
@@ -62,6 +65,8 @@ objs: $(OBJ)Base.o \
 	$(OBJ)HubBck.o \
 	$(OBJ)MdCtp.o \
 	$(OBJ)MdSpi.o \
+	$(OBJ)MkSim.o \
+	$(OBJ)Global.o \
 	$(OBJ)Webserver.o \
 	$(OBJ)Dataserver.o \
 	$(OBJ)Tqdata.o \
@@ -112,6 +117,8 @@ DATASERVER:= \
     $(OBJ)PsqlFunc.o \
 	$(OBJ)MdCtp.o \
 	$(OBJ)MdSpi.o \
+	$(OBJ)MkSim.o \
+	$(OBJ)Global.o \
 	$(OBJ)Dataserver.o 
 
 TQDATA:= \
@@ -215,4 +222,10 @@ $(OBJ)MdCtp.o: $(SRC)MdCtp.cpp
 
 $(OBJ)MdSpi.o: $(SRC)MdSpi.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MdSpi.o  $(SRC)MdSpi.cpp
+
+$(OBJ)MkSim.o: $(SRC)MkSim.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MkSim.o  $(SRC)MkSim.cpp
+
+$(OBJ)Global.o: $(SRC)Global.cpp
+	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Global.o  $(SRC)Global.cpp
 
