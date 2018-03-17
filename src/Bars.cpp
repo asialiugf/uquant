@@ -335,7 +335,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
 {
 
   if(T________) {
-    sprintf(ca_errmsg,"--------------------------------------into FuBo:caFuture:%s len:%d",caFuture,len) ;
+    sprintf(ca_errmsg,"\nFuBo::FuBo() :enter!!--------into FuBo:caFuture:%s len:%d",caFuture,len) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
 
@@ -354,14 +354,16 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
   // 初始化 pTimeType [stTimeType  *pTimeType]
   std::map<std::string,int>::const_iterator it;
   it = M_FuTime.find(fn);
-  if(it==M_FuTime.end())
-    std::cout<<"in FuBo::FuBo() error :"<< InstrumentID << " M_FuTime: not defined for this future: "<< fn << std::endl;
-  else {
-    std::cout<<"--:"<<InstrumentID << ":" << it->second<<std::endl;
+  if(it==M_FuTime.end()) {
+    sprintf(ca_errmsg,"FuBo::FuBo() :M_FuTime error:not defined: %s %s",InstrumentID,fn) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  } else {
+    sprintf(ca_errmsg,"FuBo::FuBo(): future:%s %s timetype:%d, TimeType:",InstrumentID,fn,it->second) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
     pTimeType = &tmbo->TT[it->second] ;
   }
 
-  // -- 初始化 aBarBo[50] ; ----------------------------------------
+  // -- 初始化 BaBo[50] ; ----------------------------------------
   /*
    不同的周期，相当于不同的 frequency : fr
    fr= 1 表示周期为1秒
@@ -371,9 +373,9 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
    0  1 2 3 4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
    1S 2 3 5 10 15 20 30 1F 2F 3F 5F 10 15 20 30 1H 2H 3H 4H 5H 6H 8H 10 12 1D 1W 1M 1J 1Y
    用户自定义周期，可以有20个。
-   aBarBo[50] :
-   aBarBo[0-29]
-   aBarBo[30-49]
+   pBaBo[50] :
+   pBaBo[0-29]
+   pBaBo[30-49]
    ------------------------
    0  1 2 3 4  5  6  7  8  9   10  11  12  13  14   15   16   17   18    19    20    21 22 23 24 25 26 27 28 29
    1S 2 3 5 10 15 20 30 1F 2F  3F  5F  10  15  20   30   1H   2H   3H    4H    5H    6H 8H 10 12 1D 1W 1M 1J 1Y
@@ -389,8 +391,10 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
   i = 0;
   for(auto it = M_FF.begin(); it != M_FF.end(); ++it) {
     if(it->second !=0) {
-      std::cout << "HHHHHHHHHHHHHHHH:  " << it->first.c_str()+4 << std::endl;
-      pBaBo[i] = new BaBo(it->first.c_str()+4,it->second, pTimeType);
+      sprintf(ca_errmsg,"FuBo::FuBo(): %s %d",it->first.c_str(),it->second) ;
+      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+
+      pBaBo[i] = new BaBo(it->first.c_str()+4,it->second, pTimeType); // +4:去掉前面100_ 101_
     }
     i++;
   }
@@ -404,15 +408,19 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
     if(aFr[i]==0) {
       continue ;
     }
+    sprintf(ca_errmsg,"FuBo::FuBo(): custom frequency: i:%d  frequency:%d",i,aFr[i]) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+
     pBaBo[m] = new BaBo("mm",aFr[i], pTimeType);
     m++;
+
     if(m >=50) {
-      break;
-    }
+    break;
   }
-  // 周期 初始化结束  ---------------------------------------------------
-  if(T________) {
-    sprintf(ca_errmsg,"--------------------------------------out FuBo\n\n") ;
+}
+// 周期 初始化结束  ---------------------------------------------------
+if(T________) {
+    sprintf(ca_errmsg,"FuBo::FuBo():---------------------out FuBo\n\n\n") ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
 }
@@ -428,6 +436,10 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
+  if(T________) {
+    sprintf(ca_errmsg,"\n\n\n DealBar():enter!!--------:future:%s  frequency index:%d",fubo->InstrumentID,period) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  }
   stBar       *p_bar0;
   stBar       *p_bar1;
   stBar       *b0;
@@ -458,6 +470,14 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   int fr = fubo->pBaBo[period]->iF ;
 
+  if(T________) {
+    sprintf(ca_errmsg,"DealBar():tick:%s curBE:%s-%s  barBE:%s-%s  segBE:%s-%s",
+               tick->UpdateTime,
+               curB,curE,
+               barB,barE,
+               segB,segE) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  }
   // 经过重新设计， 不管K柱是不是跨时间段，只要tick落在 curB---curE之间，即UPDATE。
   //-----------------------------------------------------------
   if(memcmp(tick->UpdateTime,curB,8)>=0 &&

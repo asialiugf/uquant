@@ -111,6 +111,8 @@ void CMdSpi::Init()
 
   // ...... 初始化 期货 block FuBlockMap ... .......................
   dbpool = std::make_shared<uBEE::DBPool>();
+
+  // ...... 每个 future 生成一个 future block ( new uBEE::FuBo )
   for(int i = 0; i< FUTURE_NUMBER; i++) {
     if(fl->pc_futures[i] == nullptr) {
       break ;
