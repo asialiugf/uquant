@@ -322,11 +322,6 @@ struct BaBo {
   stBar         *pbar1 ;
   stBar         *b0 ;
   stBar         *b1 ;
-  /*
-  int           iH;
-  int           iM;
-  int           iS;                 // 当前周期 秒 ，比如当前周期结束时间为09:16:32,这里的 iSec=32 在 NewBar里用到
-  */
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
