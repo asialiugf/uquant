@@ -12,13 +12,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 
 namespace uBEE
 {
-
-int SaveLine(const char *FileName, const char *Linebuf) ;
+using namespace std;
+int SaveLine(const char *File, const char *Linebuf) ;
 //int UpdateLine(const char *FileName, char *pc_line) ;
-int SaveBin(const char *FileName, const char * buf, size_t len);
+int SaveBin(const char *File, const char * buf, size_t len);
+int CountLines(const char *File);
+string ReadLine(const char *File,int line);
 //int SaveTick(const char *pca_buf, int len);
 //int DispTick(const char *buf) ;
 

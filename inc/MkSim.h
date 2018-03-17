@@ -15,6 +15,8 @@ struct FuSim {
   char File[1024];
   char Table[512];
   char InstrumentID[31];
+  int  iLineNum ;
+  int  iCurLine ;
 public:
   FuSim(const char *Filename, char *Future);
   int MkTickF();            // make tick from tick file 
