@@ -332,8 +332,12 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
 FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
 {
-
   if(T________) {
+    /*
+    std::string cb = GetCallback();
+    sprintf(ca_errmsg,"\nFuBo::FuBo() :enter!!--------callback:%s",cb.c_str()) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    */
     sprintf(ca_errmsg,"\nFuBo::FuBo() :enter!!--------into FuBo:caFuture:%s len:%d",caFuture,len) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }

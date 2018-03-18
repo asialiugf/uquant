@@ -9,9 +9,14 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <execinfo.h>
+#include <cxxabi.h>
+#include <sstream>
 
 namespace uBEE
 {
+
+using namespace std;
 
 static char LOG_FILE_NAME[100]= {"./errlog"} ;
 static int MAX_BAK_LOG_SIZE = 200*1024*1024 ;
@@ -68,7 +73,7 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
       iRc = write(iUcpErLog,message,strlen(message));
       iRc = write(iUcpErLog,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
     } else {
-        disp_errmsg(iUcpErLog,message,buf,length);
+      disp_errmsg(iUcpErLog,message,buf,length);
     }
 
     if(iFileSize >= MAX_BAK_LOG_SIZE) {
@@ -92,7 +97,7 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
       iRc = write(iTtyDev,message,strlen(message));
       iRc = write(iTtyDev,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
     } else {
-        disp_errmsg(iTtyDev,message,buf,length);
+      disp_errmsg(iTtyDev,message,buf,length);
     }
   }
 
@@ -107,7 +112,7 @@ int ErrLog(int iErrCode, char const*message, char device, char const*buf, long l
         iRc = write(iConsole,message,strlen(message));
         iRc = write(iConsole,LOG_MSG_SEPERATE,LOG_SEPERATE_LEN);
       } else {
-          disp_errmsg(iConsole,message,buf,length);
+        disp_errmsg(iConsole,message,buf,length);
       }
       close(iConsole);
     }
@@ -184,36 +189,108 @@ void DumpHex(int ifile, char const* buf, int len)
 //---------------------
 int CheckDate(int year, int month, int day)
 {
-    int status=0; 
+  int status=0;
 
-    std::cout << year << ":" << month << ":" << day << std::endl;
-    if ((month == 1 || month == 3 || month == 5 || month == 7 ||
-        month == 8 || month == 10 || month == 12) && ( day>31 || day<1) )
-    {
-        status = 3; 
-    }
-    else if ((month == 4 || month == 6 || month == 9 || month == 11) && (day>30 || day<1) )
-    {
-        status = 4; 
-    }
-    else if ((month == 2) && (year % 4 == 0) && (day>29 || day<1))
-    {
-        status = 5; 
-    }
-    else if ((month = 2) && (year % 4 != 0) && (day>28 || day<1) )
-    {
-        status = 6; 
-    }
-    else if ((year < 999) || (year > 10000))
-    {
-        status = 1;
-    }
-    if ((month < 1) || (month > 12))
-    {
-        status = 2;
-    }
-    return status;
+  std::cout << year << ":" << month << ":" << day << std::endl;
+  if((month == 1 || month == 3 || month == 5 || month == 7 ||
+      month == 8 || month == 10 || month == 12) && (day>31 || day<1)) {
+    status = 3;
+  } else if((month == 4 || month == 6 || month == 9 || month == 11) && (day>30 || day<1)) {
+    status = 4;
+  } else if((month == 2) && (year % 4 == 0) && (day>29 || day<1)) {
+    status = 5;
+  } else if((month = 2) && (year % 4 != 0) && (day>28 || day<1)) {
+    status = 6;
+  } else if((year < 999) || (year > 10000)) {
+    status = 1;
+  }
+  if((month < 1) || (month > 12)) {
+    status = 2;
+  }
+  return status;
 }
 //----------------------
+
+static constexpr int max_frames=128;
+static constexpr size_t max_funcnamesize = 2048;
+
+std::string GetCallback()
+{
+  ostringstream out;
+  out<<"stack trace:";
+
+  // storage array for stack trace address data
+  void* addrlist[max_frames + 1];
+  // retrieve current stack addresses
+  int addrlen = backtrace(addrlist, sizeof(addrlist) / sizeof(void*));
+
+  if(addrlen == 0) {
+    out<<"\n  <empty, possibly corrupt>";
+    return out.str();
+  }
+  // resolve addresses into strings containing "filename(function+address)",
+  // this array must be free()-ed
+  char** symbollist = backtrace_symbols(addrlist, addrlen);
+  // allocate string which will be filled with the demangled function name
+//	char funcname[max_funcnamesize];
+  char* funcname=(char*)malloc(max_funcnamesize);
+  size_t funcnamesize=max_funcnamesize;
+
+  // iterate over the returned symbol lines. skip the first, it is the
+  // address of this function.
+  for(int i = 1; i < addrlen; i++) {
+//		out<<"\n"<<symbollist[i]; continue;
+    char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
+
+    // find parentheses and +address offset surrounding the mangled name:
+    // ./module(function+0x15c) [0x8048a6d]
+    for(char *p = symbollist[i]; *p; ++p) {
+      if(*p == '(')
+        begin_name = p;
+      else if(*p == '+')
+        begin_offset = p;
+      else if(*p == ')' && begin_offset) {
+        end_offset = p;
+        break;
+      }
+    }
+
+    if(begin_name && begin_offset && end_offset
+       && begin_name < begin_offset) {
+      *begin_name++ = '\0';
+      *begin_offset++ = '\0';
+      *end_offset = '\0';
+
+      // mangled name is now in [begin_name, begin_offset) and caller
+      // offset in [begin_offset, end_offset). now apply
+      // __cxa_demangle():
+
+      int status;
+      char* ret = abi::__cxa_demangle(begin_name,funcname, &funcnamesize, &status);
+      if(status == 0) {
+        funcname = ret; // use possibly realloc()-ed string
+        out<<"\n  "<<symbollist[i]<<" : "<<funcname<<"+"<<begin_offset;
+      } else {
+        // demangling failed. Output function name as a C function with
+        // no arguments.
+        out<<"\n  "<<symbollist[i]<<" : "<<begin_name<<"()+"<<begin_offset;
+      }
+    } else {
+      // couldn't parse the line? print the whole line.
+      out<<"\n  "<<symbollist[i];
+    }
+  }
+
+  free(funcname);
+  free(symbollist);
+  return out.str();
+}
+
+
+
+
+
+
+
 
 } //end namespace

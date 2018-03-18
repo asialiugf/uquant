@@ -13,7 +13,7 @@
 
 namespace uBEE
 {
-#define LOG_FUNC()    do { cout << __FUNCTION__ << endl; } while (0)
+
 //---
 uWS::Group<uWS::SERVER> * SimSG;
 std::map<std::string,uBEE::FuSim>    M_FuSim;         // 每个期货一个 FuSim  构成一个MAP
@@ -76,35 +76,30 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   SimSG = new_sg;
 
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","ag1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","bu1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","cu1603.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","m1605.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("MA605","MA605.tick.ss"));
+  V_Future.push_back("ag1801");
+  if(T________) {
+    sprintf(ca_errmsg,"MkSim(): Future:%s",V_Future[0].c_str()) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  }
 
-
-  // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
-  for(auto iter = M_SimFuFile.begin(); iter != M_SimFuFile.end(); ++iter) {
-    cout << iter->first << " : " << iter->second << endl;
-    if(T________) {
-      sprintf(ca_errmsg,"MkSim(): Future:%s file:%s",iter->first.c_str(),iter->second.c_str()) ;
+  for_each(V_Future.cbegin(), V_Future.cend(), [](string fu)->void{
+    cout << fu << endl;
+    char* p = (char*)fu.c_str();
+    if(T________)
+    {
+      sprintf(ca_errmsg,"MkSim(): Future:%s",p) ;
       uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
     }
-    char* p = (char*)iter->first.c_str();
-    char* f = (char*)iter->second.c_str();
 
     // 用户自定义 交易周期
     int fr[5] = {19,14401,180,300,600};
     uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,&fr[0], 5);
-    M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(p, *fubo));
+    M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(fu, *fubo));
 
-    uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
+    uBEE::FuSim *fusim = new uBEE::FuSim(p, "ag1801.tick");
     M_FuSim.insert(std::pair<std::string,uBEE::FuSim>(p, *fusim));
-  }
+  });
 
-
-  // -------------- 从 M_FuSim 这个map中取出 future 以及 fusim ，再 从 M_SimFuBo中 找出 这个future的 fobo--->
-  // -------------- fusim 生成tick ,  fobo 用来生成 K柱 .
   while(1) {
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
       //char * fu = it->first ;
@@ -121,12 +116,11 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       uBEE::FuBo *fubo = &(iter->second);
 
       TICK *tick = fusim->MkTickF();
-      for(int i=0; i<50; ++i) {
+      for(int i=0; i<50; i++) {
         DealBar(fubo, tick, i);
       }
     }
   }
-
 }
 
 } // end namespace uBEE

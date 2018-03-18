@@ -1,10 +1,13 @@
 #ifndef UBEE_ERRLOG_H
 #define UBEE_ERRLOG_H
 
+#include <string>
+
 namespace uBEE
 {
 int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long length);
 int CheckDate(int year, int month, int day);
+std::string GetCallback();
 
 #define  RPT_TO_LOG	    	1          /* 00000001 */
 #define  RPT_TO_TTY	    	2          /* 00000010 */
