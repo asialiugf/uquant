@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdio>
 #include <ctime>
+#include <vector>
 
 namespace uBEE
 {
@@ -17,6 +18,8 @@ namespace uBEE
 uWS::Group<uWS::SERVER> * SimSG;
 std::map<std::string,uBEE::FuSim>    M_FuSim;         // 每个期货一个 FuSim  构成一个MAP
 std::map<std::string,uBEE::FuBo>     M_SimFuBo;         // 每个期货一个 FuBlock，构成一个MAP
+std::vector<std::string>             V_future(10);
+
 //---
 
 // --- FuSim 每个期货一个FuSim,用于处理 模拟交易产生相应的tick ... bar 等.
