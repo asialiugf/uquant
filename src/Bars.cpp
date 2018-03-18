@@ -2,6 +2,7 @@
 #include "ErrLog.h"
 #include "FuList.h"
 #include "File.h"
+#include "Global.h"
 #include <cjson/cJSON.h>
 #include <iostream>
 #include <string.h>
@@ -10,8 +11,6 @@
 
 namespace uBEE
 {
-
-char            ca_errmsg[2048] ;
 
 // ---------------------------------------------------------
 TimeBlock::TimeBlock()

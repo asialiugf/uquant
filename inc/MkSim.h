@@ -2,6 +2,7 @@
 #define UBEE_MKSIM_H
 
 #include <uWS/uWS.h>
+#include "Bars.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -12,14 +13,15 @@
 namespace uBEE
 {
 struct FuSim {
+  TICK Tick;
   char File[1024];
   char Table[512];
   char InstrumentID[31];
   int  iLineNum ;
   int  iCurLine ;
 public:
-  FuSim(const char *Filename, char *Future);
-  int MkTickF();            // make tick from tick file 
+  FuSim(char *Future, const char *Filename);
+  TICK * MkTickF();            // make tick from tick file 
   int MkBarsF(int Fr);      // make bars from bars file
   int MkTickBarsF(int Fr);  // make bars from tick file
   int MkTickT();            // make tick from database tick table
