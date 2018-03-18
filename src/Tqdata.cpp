@@ -67,7 +67,7 @@ int main()
   usleep(2000000);
 
   // 创建数据库连接池
-  auto dbpool = std::make_shared<uBEE::DBPool>();
+  //auto dbpool = std::make_shared<uBEE::DBPool>();
 
 
   memset(filename,'\0',256);
@@ -81,7 +81,7 @@ int main()
     if(strlen(fl.ShfeList[i]) == 0) continue;
     uBEE::SaveLine(fn_shfe,fl.ShfeList[i]);
     //createTable(dbpool,fl.ShfeList[i]);
-    uBEE::createTickTable(dbpool,fl.ShfeList[i]);
+    //uBEE::createTickTable(dbpool,fl.ShfeList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.ShfeList[i]);
     }
@@ -98,7 +98,7 @@ int main()
     if(strlen(fl.CzceList[i]) == 0) continue;
     uBEE::SaveLine(fn_czce,fl.CzceList[i]);
     //createTable(dbpool,fl.CzceList[i]);
-    uBEE::createTickTable(dbpool,fl.CzceList[i]);
+   // uBEE::createTickTable(dbpool,fl.CzceList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.CzceList[i]);
     }
@@ -115,7 +115,7 @@ int main()
     if(strlen(fl.DceList[i]) == 0) continue;
     uBEE::SaveLine(fn_dce,fl.DceList[i]);
     //createTable(dbpool,fl.DceList[i]);
-    uBEE::createTickTable(dbpool,fl.DceList[i]);
+    // uBEE::createTickTable(dbpool,fl.DceList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.DceList[i]);
     }
@@ -132,7 +132,7 @@ int main()
     if(strlen(fl.CffeList[i]) == 0) continue;
     uBEE::SaveLine(fn_cffe,fl.CffeList[i]);
     //createTable(dbpool,fl.CffeList[i]);
-    uBEE::createTickTable(dbpool,fl.CffeList[i]);
+    // uBEE::createTickTable(dbpool,fl.CffeList[i]);
     if(ft==7) {
       uBEE::SaveLine(filename,fl.CffeList[i]);
     }
