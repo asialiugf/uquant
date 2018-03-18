@@ -5,6 +5,7 @@
 
 namespace uBEE
 {
+extern char ca_errmsg[];
 int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long length);
 int CheckDate(int year, int month, int day);
 std::string GetCallback();

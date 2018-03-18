@@ -1,11 +1,14 @@
 #include "File.h"
+#include "ErrLog.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 
 namespace uBEE
 {
+
 using namespace std;
+
 int SaveLine(const char *FileName, const char *pcLine)
 {
   int iRc = 0 ;
@@ -73,6 +76,8 @@ int CountLines(const char *filename)
   string tmp;
   ReadFile.open(filename,ios::in);//ios::in 表示以只读的方式读取文件
   if(ReadFile.fail()) { //文件打开失败:返回0
+    sprintf(ca_errmsg,"CountLines(): open file error!! : %s",filename) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
     return 0;
   } else { //文件存在
     while(getline(ReadFile,tmp,'\n')) {
@@ -91,6 +96,8 @@ string ReadLine(const char *filename,int line)
   fstream file;
   file.open(filename,ios::in);
   lines=CountLines(filename);
+
+  std::cout << filename << std::endl;
 
   if(line<=0) {
     return "Error 1: 行数错误，不能为0或负数。";

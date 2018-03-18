@@ -3,6 +3,7 @@
 #include "Bars.h"
 #include "MkSim.h"
 #include "Global.h"
+#include "ErrLog.h"
 #include "File.h"
 #include <map>
 #include <string>
@@ -32,7 +33,7 @@ FuSim::FuSim(char *Future, const char *pFile)
   memcpy(File,pFile,strlen(pFile));
 
   iLineNum = CountLines(pFile) ;
-  iCurLine = 0;
+  iCurLine = 1;
   if(Future !=nullptr && strlen(Future) <= 31) {
     memcpy(InstrumentID,Future,strlen(Future));
   }
@@ -40,6 +41,18 @@ FuSim::FuSim(char *Future, const char *pFile)
 }
 TICK * FuSim::MkTickF()             // make tick from tick file
 {
+  if(iLineNum<=0) {
+    return nullptr ;
+  }
+  if(iCurLine <= iLineNum) {
+    std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum << std::endl;
+    std::string TickLine =  ReadLine(File,iCurLine) ;
+    std::cout << TickLine << std::endl;
+    iCurLine++ ;
+  }
+  if(iCurLine>iLineNum) {
+    iCurLine = 1;
+  }
   return &Tick ;
 }
 int FuSim::MkBarsF(int Fr)       // make bars from bars file
@@ -76,11 +89,11 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   SimSG = new_sg;
 
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","ag1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","bu1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","cu1603.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","m1605.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("MA605","MA605.tick.ss"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("MA605","../Sim/tick/MA605.tick.ss"));
 
 
   // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
@@ -122,6 +135,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
       TICK *tick = fusim->MkTickF();
       for(int i=0; i<50; ++i) {
+        if( fubo->pBaBo[i] == nullptr ) {
+          continue;
+        }
         DealBar(fubo, tick, i);
       }
     }

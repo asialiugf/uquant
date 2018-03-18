@@ -3,7 +3,7 @@
 
 namespace uBEE
 {
-char ca_errmsg[2048];
+//char ca_errmsg[2048];
 uBEE::TimeBlock               *tb;
 int InitAll()
 {

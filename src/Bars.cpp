@@ -418,11 +418,11 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
     m++;
 
     if(m >=50) {
-    break;
+      break;
+    }
   }
-}
 // 周期 初始化结束  ---------------------------------------------------
-if(T________) {
+  if(T________) {
     sprintf(ca_errmsg,"FuBo::FuBo():---------------------out FuBo\n\n\n") ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
@@ -440,7 +440,7 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   if(T________) {
-    sprintf(ca_errmsg,"\n\n\n DealBar():enter!!--------:future:%s  frequency index:%d",fubo->InstrumentID,period) ;
+    sprintf(ca_errmsg,"\n\n\nDealBar():enter!!--------:future:%s  frequency index:%d",fubo->InstrumentID,period) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
   stBar       *p_bar0;
@@ -475,10 +475,10 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   if(T________) {
     sprintf(ca_errmsg,"DealBar():tick:%s curBE:%s-%s  barBE:%s-%s  segBE:%s-%s",
-               tick->UpdateTime,
-               curB,curE,
-               barB,barE,
-               segB,segE) ;
+            tick->UpdateTime,
+            curB,curE,
+            barB,barE,
+            segB,segE) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
   // 经过重新设计， 不管K柱是不是跨时间段，只要tick落在 curB---curE之间，即UPDATE。
@@ -694,6 +694,10 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   }
   // -----------------------------------------------------------------------------------------
+  if(T________) {
+    sprintf(ca_errmsg,"\n\n\n DealBar():--out!!--------") ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  }
   return 0;
 }
 
