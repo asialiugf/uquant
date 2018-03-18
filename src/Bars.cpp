@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string.h>
 #include <map>
+#include <float.h>
+#include <limits.h>
 
 
 namespace uBEE
@@ -296,6 +298,18 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   }
 
   // ---------------------------- 初始化  bar0 bar1 ----------------
+  if(seg[0]->mark>0) {
+    memcpy(curB,seg[0]->cB,9);
+    memcpy(curE,seg[0]->cE,9);
+    curiB = seg[0]->iB;
+    curiE = seg[0]->iE;
+  } else {
+    memcpy(curB,seg[0]->cB,9);
+    MakeTime(curE,(seg[0]->iB + iF)) ;
+    curiB = seg[0]->iB;
+    curiE = seg[0]->iB + iF;
+  }
+
   pbar0 = &bar0 ;
   pbar1 = &bar1 ;
   b0 = pbar0;
@@ -305,20 +319,40 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   see_memzero(tmpBar.TradingDay,9);
   see_memzero(tmpBar.ActionDay,9);
   see_memzero(tmpBar.cB,9);
-  memcpy(tmpBar.cE,pTimeType->aSgms[0].cB,9);
-  tmpBar.iB = -1;
-  tmpBar.iE = -1;
-  tmpBar.iBidx = -1;
-  tmpBar.iEidx = -1;
-  tmpBar.h = SEE_NULL;
+  see_memzero(tmpBar.cE,9);
+  if(seg[0]->mark>0) {
+    memcpy(tmpBar.cB,seg[0]->barB,9);
+    memcpy(tmpBar.cE,seg[0]->barE,9);
+    //tmpBar.iB = -1;
+    //tmpBar.iE = -1;
+  } else {
+    memcpy(tmpBar.cB,curB,9);
+    memcpy(tmpBar.cE,curE,9);
+    //tmpBar.iB = -1;
+    //tmpBar.iE = -1;
+  }
+  //tmpBar.iBidx = -1;
+  //tmpBar.iEidx = -1;
+  tmpBar.h = DBL_MIN;
   tmpBar.o = SEE_NULL;
   tmpBar.c = SEE_NULL;
-  tmpBar.l = SEE_NULL;
+  tmpBar.l = DBL_MAX;
   tmpBar.v = 0;
-  tmpBar.vsum = 0;
+  tmpBar.vsum = 0;   // 开始的第一个bar 的 v 值 可能会有问题！！
+  // ----------请参见 #define UPDATE_B1 的定义
 
   memcpy((char *)pbar0,&tmpBar,sizeof(stBar)) ;
   memcpy((char *)pbar1,&tmpBar,sizeof(stBar)) ;
+
+  //------ 初始化bar block成员变量 curB curE
+  if(seg[0]->mark>0) {
+    memcpy(curB,seg[0]->cB,9);
+    memcpy(curE,seg[0]->cE,9);
+  } else {
+    memcpy(curB,seg[0]->cB,9);
+    MakeTime(curE,(seg[0]->iB + iF)) ;
+  }
+
 
   if(T________) {
     sprintf(ca_errmsg,"--------------------------------------out BaBo\n\n") ;
@@ -333,11 +367,6 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
 {
   if(T________) {
-    /*
-    std::string cb = GetCallback();
-    sprintf(ca_errmsg,"\nFuBo::FuBo() :enter!!--------callback:%s",cb.c_str()) ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-    */
     sprintf(ca_errmsg,"\nFuBo::FuBo() :enter!!--------into FuBo:caFuture:%s len:%d",caFuture,len) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
@@ -443,6 +472,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     sprintf(ca_errmsg,"\n\n\nDealBar():enter!!--------:future:%s  frequency index:%d",fubo->InstrumentID,period) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
+
+  if(fubo==nullptr || tick==nullptr || period >=50 || period<0) {
+    uBEE::ErrLog(1000,"DealBar():input error!!",1,0,0) ;
+    return -1;
+  }
+
   stBar       *p_bar0;
   stBar       *p_bar1;
   stBar       *b0;
@@ -457,6 +492,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
+  int &curiB = fubo->pBaBo[period]->curiB ;
+  int &curiE = fubo->pBaBo[period]->curiB ;
 
   char * barB = b1->cB ;
   char * barE = b1->cE ;
@@ -485,7 +522,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   //-----------------------------------------------------------
   if(memcmp(tick->UpdateTime,curB,8)>=0 &&
      memcmp(tick->UpdateTime,curE,8)<0) { // 在当前的 curB curE 这个segment内
-    UPDATE_BAR1;
+    UPDATE_B1;
     return 0;
   }
   // 只有两种情况：
@@ -547,36 +584,54 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   // ***********【1】 mark==0  一个seg包含一个或多个bar的情况
 
   // -----------------------------------------------------------------------------------------
-  //if(tik == barE) {
+  //if(tick == barE) {
   if(memcmp(tik,barE,8)==0) {
     if(tick->UpdateMillisec < 500) {  // 前一个K柱收盘
       UPDATE_B1;
-      //send(b1);
-      //set_sent();   //send save 标志位设置在 bar1内。在NEW_B1时，设置为 0。
+      SendBar();
+      b1->sent = 1;  // send save 标志位设置在 bar1内。在NEW_B1时，设置为 0。
       return 0;
+      /*
+        为什么不在这里new bar的原因，是因为这个ms<500的tick，只能标志这个bar的结束。下一个tick有可能过非常
+        久才到来，已经不确定是第几个bar了。所以只能等到新的tick到来时，才能确定新的bar
+      */
     } else {
-      if(!sent) {
-        //send(b1) ;
+      //  说明：
+      //  当收到一个tick==barE时，如果 ms<500，那么会执行上面的部分，然后 不 new bar!!!! 等走到下面
+      //  第二个 tick==bar ms>=500 时
+      if(!b1->sent) {
+        SendBar();
       }
       SWAP_BAR ;
       NEW_B1 ;
     }
-    // ........................(tick == barE)
-    //if(tik < segE) {
+    // ........................( barE==tick )( tick < segE )
+    //if(tick < segE) {
     if(memcmp(tik,segE,8)<0) {  // charmi 24H       segE=23:30:00    barE=01:00:00
-
       //【1】【A】
-      curB=curB+fr;
-      curE=curE+fr;
+      curiB = curiB+fr;
+      curiE = curiE+fr;
+      uBEE::MakeTime(curB,curiB);
+      uBEE::MakeTime(curE,curiE);
       memcpy(b1->cB,curB,9);
       memcpy(b1->cE,curE,9);
     }
-    // ........................(tick == barE)
+    // ........................ ( segE=<tick )( tick == barE )
     //if(tik >= segE) {
     if(memcmp(tik,segE,8)>=0) {
       //【1】:【D】  【2】:【C】【D】
       int idx = 0; //charmi
       int last = 0 ; //charmi
+      while(idx < fubo->pBaBo[period]->iSegNum) {
+        if(bb->seg[idx+1]->mark >  bb->seg[idx]->mark) {
+          break;
+        }
+        idx++;
+      }
+      if(idx == fubo->pBaBo[period]->iSegNum) {
+        // 一天中，最后一个tick。
+      } else {
+      }
       //idx = bb->seg[last]->idx +1; //charmi
       mark = bb->seg[idx]->mark ;
       if(mark ==0) {
@@ -602,7 +657,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   //if(tik > barE) {
   if(memcmp(tik,barE,8)>0) {
     if(!sent) {
-      //send(b1) ;
+      SendBar();
     }
     // ........................ (tick > barE)
     //if(tik < segE) {
@@ -640,8 +695,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         b1->iB = bb->seg[idx]->iE - fr ;
         //memcpy(,b1->iB,9); charmi
         memcpy(b1->cE,bb->seg[idx]->cE,9);
-        //send(b1) ;
-        //set_send();
+        SendBar();
+        b1->sent = 1;
 
         //memcpy(curB,,9); charmi
         memcpy(curE,b1->cE,9);
@@ -2281,6 +2336,28 @@ int see_save_bar_last(see_fut_block_t *p_block, int period, int i_another_day)
   return 0;
 }
 
+
+int MakeTime(char *caT, int T)
+{
+  int h,m,s;
+  char cTmp[9];
+  h = T / 3600;
+  m =(T - h*3600) / 60;
+  s = T % 60;
+  see_memzero(cTmp,9);
+  sprintf(cTmp,"%02d:%02d:%02d",h,m,s);
+  memcpy(caT, cTmp, 9);
+  return 0;
+}
+
+int SendBar()
+{
+  return 0;
+}
+int SaveBar()
+{
+  return 0;
+}
 
 
 } //namespace

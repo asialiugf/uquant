@@ -253,6 +253,8 @@ struct stSegment {
   int  mark ; // 0 表示 seg 包含 bar。 // 1.2.3. 表示 一个bar 包含多个 seg。
   char barB[9];
   char barE[9];
+  int  bariB;
+  int  bariE;
 };
 
 struct stTimeType {
@@ -286,6 +288,7 @@ struct stBar {
   double  l ;             // low
   int     v ;             // volume
   int     vsum ;          // keep volume sum
+  int     sent ;          // 有没有sent 或者写入
 };
 
 struct stBarBo {
@@ -324,6 +327,8 @@ struct BaBo {
   stBar         *b1 ;
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
+  int           curiB ;             //记录当前tick所在的段
+  int           curiE ;
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
   int           iEidx;              // 此bar1的结束点所在的 segment idx，
   int           iF;                 // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
@@ -512,6 +517,9 @@ int see_first_tick(see_fut_block_t *p_block, TICK *tick, see_bar_t *p_bar0, see_
 int CalcBar(see_fut_block_t *p_block, TICK *tick, int period);
 int is_mkt_open(see_fut_block_t *p_block, TICK *tick) ;
 int is_same_k_bar(see_fut_block_t *p_block, see_bar_t *p_bar1, TICK *tick, int period);
+int MakeTime(char *caT, int T) ;
+int SendBar();
+int SaveBar();
 
 
 } //end namespace

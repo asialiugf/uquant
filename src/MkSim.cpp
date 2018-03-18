@@ -116,6 +116,33 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   }
 
 
+  // ----------------  test ----------------------------------------------begin
+  for(auto it = M_SimFuBo.begin(); it != M_SimFuBo.end(); ++it) {
+    sprintf(ca_errmsg,"rrrrrrrrr");
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+    uBEE::FuBo *fubo = &(it->second);
+
+    for(int i=0; i<50; ++i) {
+      if(fubo->pBaBo[i] == nullptr) {
+        continue;
+      }
+      for(int j=0;j<fubo->pBaBo[i]->iSegNum;++j) {
+        stSegment *seg = fubo->pBaBo[i]->seg[j] ;
+        sprintf(ca_errmsg,"rrrrrrrrr:future:%s  i:%d iF:%d  segid:%d, mark:%d  segB segE:%s--%s  barB barE:%s--%s",
+          fubo->InstrumentID,
+          i,fubo->pBaBo[i]->iF,j,seg->mark,
+                      seg->cB,seg->cE,seg->barB,seg->barE);
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+      }
+    }
+
+    sprintf(ca_errmsg,"rrrrrrrrr");
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+  }
+  // ----------------  test ----------------------------------------------end
+
   // -------------- 从 M_FuSim 这个map中取出 future 以及 fusim ，再 从 M_SimFuBo中 找出 这个future的 fobo--->
   // -------------- fusim 生成tick ,  fobo 用来生成 K柱 .
   while(1) {
@@ -135,7 +162,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
       TICK *tick = fusim->MkTickF();
       for(int i=0; i<50; ++i) {
-        if( fubo->pBaBo[i] == nullptr ) {
+        if(fubo->pBaBo[i] == nullptr) {
           continue;
         }
         DealBar(fubo, tick, i);
