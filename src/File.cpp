@@ -89,24 +89,22 @@ int CountLines(const char *filename)
 }
 
 
-string ReadLine(const char *filename,int line)
+string ReadLine(const char *filename,int line, int lines)
 {
-  int lines,i=0;
+  int i=0;
   string temp;
   fstream file;
   file.open(filename,ios::in);
-  lines=CountLines(filename);
-
-  std::cout << filename << std::endl;
-
+  //lines=CountLines(filename);
+  //std::cout << filename << std::endl;
   if(line<=0) {
-    return "Error 1: 行数错误，不能为0或负数。";
+    return nullptr;
   }
   if(file.fail()) {
-    return "Error 2: 文件不存在。";
+    return nullptr;
   }
   if(line>lines) {
-    return "Error 3: 行数超出文件长度。";
+    return nullptr;
   }
   while(getline(file,temp)&&i<line-1) {
     i++;

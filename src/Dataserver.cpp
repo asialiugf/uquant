@@ -27,11 +27,22 @@ int main(int argc, char **argv)
 
   // --- time block init !! ------------ from Global.h
   uBEE::InitAll();
-  /*
-    std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
-    tb = new uBEE::TimeBlock();
-    std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
-  */
+  /* ----------test 
+  std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
+  for(int j=0; j<7; j++) {
+    int i = 0;
+    while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iI << std::endl;
+      i++;
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
+  ---------- test---------- */
 
   hb.Init();
   hb.Start();
@@ -43,8 +54,6 @@ int main(int argc, char **argv)
   uBEE:: SetProcTitle("master ","DataServ: ");
 
 
-  rtn = ForkCtp();
-  sleep(1);
   std::cout << "befor fork api !!\n" ;
   rtn = ForkApi();
   std::cout << "after fork api !!\n" ;
@@ -55,6 +64,8 @@ int main(int argc, char **argv)
   }
   sleep(1);
   rtn = ForkSim();
+  sleep(1);
+  rtn = ForkCtp();
   sleep(1);
 
   while(true) {

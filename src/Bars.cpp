@@ -535,8 +535,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   int fr = fubo->pBaBo[period]->iF ;
 
   if(T________) {
-    sprintf(ca_errmsg,"DealBar():tick:%s curBE:%s-%s  barBE:%s-%s  segBE:%s-%s",
-            tick->UpdateTime,
+    sprintf(ca_errmsg,"DealBar():tick:%s %s %d curBE:%s-%s  barBE:%s-%s  segBE:%s-%s",
+            tick->TradingDay, tick->UpdateTime, tick->UpdateMillisec,
             curB,curE,
             barB,barE,
             SEGB,SEGE) ;
@@ -646,6 +646,15 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       //  说明：
       //  当收到一个tick==barE时，如果 ms<500，那么会执行上面的部分，然后 不 new bar!!!! 等走到下面
       //  第二个 tick==bar ms>=500 时
+      if(T________) {
+        sprintf(ca_errmsg,"DealBar()00002:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec,
+                curB,curE,
+                barB,barE,
+                SEGB,SEGE,
+                curiX,fubo->pBaBo[period]->curiX) ;
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      }
       if(!b1->sent) {
         SendBar();
       }
@@ -655,6 +664,15 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     // ........................( tick == barE )
     if(memcmp(tik,SEGE,8)<0) {  // charmi 24H       segE=23:30:00    barE=01:00:00
       //-------------------------------------------------------( tick == barE )---------- 1  【A】： barE ==tick < segE
+      if(T________) {
+        sprintf(ca_errmsg,"DealBar()00003:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec,
+                curB,curE,
+                barB,barE,
+                SEGB,SEGE,
+                curiX,fubo->pBaBo[period]->curiX) ;
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      }
       curiB = curiB+fr;
       curiE = curiE+fr;
       uBEE::MakeTime(curB,curiB);
@@ -667,6 +685,15 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       //-------------------------------------------------------( tick == barE )---------- 1  【D】： barE ==tick== segE
       //                                                                                  2  【D】： segE ==tick== barE
       //                                                                                  2  【C】： segE < tick== barE
+      if(T________) {
+        sprintf(ca_errmsg,"DealBar()00004:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec,
+                curB,curE,
+                barB,barE,
+                SEGB,SEGE,
+                curiX,fubo->pBaBo[period]->curiX) ;
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      }
       int idx ;
       if(memcmp(tik,SEGE,8)>0) {
         curiX = babo->seg[curiX]->barEx+1 ;
@@ -714,12 +741,28 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   // ---------------------2222 【tick > barE】--------------------------------------------------------------------
   if(memcmp(tik,barE,8)>0) {
+    if(T________) {
+      sprintf(ca_errmsg,"DealBar()00005:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+              period,fr,tick->UpdateTime,tick->UpdateMillisec,
+              curB,curE,
+              barB,barE,
+              SEGB,SEGE,
+              curiX,fubo->pBaBo[period]->curiX) ;
+      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    }
+
     if(!sent) {
       SendBar();
     }
     // ........................ (tick > barE)
     if(memcmp(tik,SEGE,8)<0) {
       //-----------------------------------------------------(tick > barE)---------- 1  【B】： barE < tick < segE
+      if(T________) {
+        sprintf(ca_errmsg,"DealBar()00006:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
+                curiX,fubo->pBaBo[period]->curiX) ;
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      }
       int i = 0;
       while(curiE < babo->seg[curiX]->iE) {
         /*
@@ -745,6 +788,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     // ........................(tick > barE)
     if(memcmp(tik,SEGE,8)==0) {
       //-------------------------------------------------------(tick > barE)---------- 1  【C】： barE < tick== segE
+      if(T________) {
+        sprintf(ca_errmsg,"DealBar()00007:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
+                curiX,fubo->pBaBo[period]->curiX) ;
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      }
       int idx =1; // charmi
       if(tick->UpdateMillisec < 500) {
         NEW_B1 ;
@@ -774,6 +823,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     if(memcmp(tik,SEGE,8)>0) {
       //--------------------------------------------------------(tick > barE)---------1 【E】： tick > (barE segE)
       //                                                                              2 【E】： tick > (barE segE)
+      if(T________) {
+        sprintf(ca_errmsg,"DealBar()00008:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
+                curiX,fubo->pBaBo[period]->curiX) ;
+        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      }
       //int i = sn+1 ; charmi
       int i = curiX+1;
       //while(segE[i]<barE) {
@@ -816,6 +871,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(memcmp(tik,barE,8)<0) {         //  segE <= tick < barE  表示仍在 barB -- barE 这个bar界内
     //2 【A】： segE ==tick < barE   { curseg结束，}  // (charmi  注意 24小时问题, 有可能 barE < segE !!!)
     //2 【B】： segE < tick < barE   { curseg结束，}
+    if(T________) {
+      sprintf(ca_errmsg,"DealBar()00009:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s criX:%d, pBaBo[]->criX:%d",
+              period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
+              curiX,fubo->pBaBo[period]->curiX) ;
+      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    }
     /* charmi
     while(1) {
       if(tick in market !)

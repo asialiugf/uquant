@@ -41,13 +41,58 @@ FuSim::FuSim(char *Future, const char *pFile)
 }
 TICK * FuSim::MkTickF()             // make tick from tick file
 {
+  char          TradingDay[9];          ///交易日
+  char          InstrumentID[31];       ///合约代码
+  double        LastPrice;              ///最新价
+  double        OpenPrice;              ///今开盘
+  double        HighestPrice;           ///最高价
+  double        LowestPrice;            ///最低价
+  int           Volume;                 ///数量
+  double        OpenInterest;           ///持仓量
+  char          UpdateTime[9];          ///最后修改时间
+  int           UpdateMillisec;         ///最后修改毫秒
+  double        BidPrice1;              ///申买价一
+  int           BidVolume1;             ///申买量一
+  double        AskPrice1;              ///申卖价一
+  int           AskVolume1;             ///申卖量一
+  char          ActionDay[9];           ///业务日期
+  int ss;
   if(iLineNum<=0) {
     return nullptr ;
   }
   if(iCurLine <= iLineNum) {
-    std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum << std::endl;
-    std::string TickLine =  ReadLine(File,iCurLine) ;
-    std::cout << TickLine << std::endl;
+    std::string TickLine =  ReadLine(File,iCurLine,iLineNum) ;
+    std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum <<" " << TickLine << std::endl;
+    if( TickLine.empty() ) {
+       return nullptr ; 
+    }
+
+    see_memzero(TradingDay,9);
+    see_memzero(ActionDay,9);
+    see_memzero(UpdateTime,9);
+    see_memzero(InstrumentID,31);
+    sscanf(TickLine.c_str(), "D:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+           TradingDay, UpdateTime, &UpdateMillisec, &ss, ActionDay,
+           &HighestPrice, &LowestPrice, &LastPrice,
+           &AskPrice1, &AskVolume1,
+           &BidPrice1, &BidVolume1,
+           &OpenInterest, &Volume);
+    see_memzero(Tick.InstrumentID,31);
+
+    memcpy(Tick.TradingDay,TradingDay,9) ;
+    memcpy(Tick.ActionDay,ActionDay,9) ;
+    memcpy(Tick.UpdateTime,UpdateTime,9) ;
+    Tick.UpdateMillisec = UpdateMillisec/1000;
+    Tick.HighestPrice = HighestPrice;
+    Tick.LowestPrice = LowestPrice;
+    Tick.LastPrice = LastPrice;
+    Tick.AskPrice1 = AskVolume1;
+    Tick.AskVolume1 = AskVolume1;
+    Tick.BidPrice1 = BidPrice1;
+    Tick.BidVolume1 = BidVolume1;
+    Tick.OpenInterest = OpenInterest;
+    Tick.Volume = Volume;
+
     iCurLine++ ;
   }
   if(iCurLine>iLineNum) {
@@ -87,13 +132,31 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
 
+
+  std::cout << "sssssssssssssssssssss\n" ;
+  for(int j=0; j<7; j++) {
+    int i = 0;
+    while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iI << std::endl;
+      i++;
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "sssssssssssssssssssss\n" ;
+
+  //exit(0);
+
   SimSG = new_sg;
 
   M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("MA605","../Sim/tick/MA605.tick.ss"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("MA605","../Sim/tick/MA605.tick.ss"));
 
 
   // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
@@ -127,14 +190,14 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       if(fubo->pBaBo[i] == nullptr) {
         continue;
       }
-      for(int j=0;j<fubo->pBaBo[i]->iSegNum;++j) {
+      for(int j=0; j<fubo->pBaBo[i]->iSegNum; ++j) {
         stSegment *seg = fubo->pBaBo[i]->seg[j] ;
         sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d, mk:%d  sgB sgE:%s-%s baBbaE:%s--%s  sgiB:%d  sgiE:%d  bariB:%d  bariE:%d   barBx:%d  barEx:%d ",
-          fubo->InstrumentID,
-          i,fubo->pBaBo[i]->iF,j,seg->mark,
-                      seg->cB,seg->cE,seg->barB,seg->barE,
-                      seg->iB,seg->iE,
-                      seg->bariB,seg->bariE,seg->barBx,seg->barEx);
+                fubo->InstrumentID,
+                i,fubo->pBaBo[i]->iF,j,seg->mark,
+                seg->cB,seg->cE,seg->barB,seg->barE,
+                seg->iB,seg->iE,
+                seg->bariB,seg->bariE,seg->barBx,seg->barEx);
         uBEE::ErrLog(1000,ca_errmsg,1,0,0);
       }
     }
@@ -163,6 +226,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       uBEE::FuBo *fubo = &(iter->second);
 
       TICK *tick = fusim->MkTickF();
+      memcpy(tick->InstrumentID,fubo->InstrumentID,strlen(fubo->InstrumentID)) ;
       for(int i=0; i<50; ++i) {
         if(fubo->pBaBo[i] == nullptr) {
           continue;

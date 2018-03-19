@@ -23,7 +23,7 @@ int SaveLine(const char *File, const char *Linebuf) ;
 //int UpdateLine(const char *FileName, char *pc_line) ;
 int SaveBin(const char *File, const char * buf, size_t len);
 int CountLines(const char *File);
-string ReadLine(const char *File,int line);
+string ReadLine(const char *File,int line,int lines);
 //int SaveTick(const char *pca_buf, int len);
 //int DispTick(const char *buf) ;
 
