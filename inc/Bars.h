@@ -305,6 +305,7 @@ struct stBarBo {
   */
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
+  int           curiX ;              //记录当前tick所在的段的下标
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
   int           iEidx;              // 此bar1的结束点所在的 segment idx，
   int			fr ;                // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计
@@ -331,6 +332,7 @@ struct BaBo {
   char          curE[9];
   int           curiB ;             //记录当前tick所在的段
   int           curiE ;
+  int           curiX ;              //记录当前tick所在的段的下标
   int           iBidx;              // 此bar1的起始点所在的 segment idx，
   int           iEidx;              // 此bar1的结束点所在的 segment idx，
   int           iF;                 // 0:tick 1:2s, 60:1F ---- 周期 ： 以秒计

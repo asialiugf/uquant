@@ -316,6 +316,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   }
 
   // ---------------------------- 初始化  bar0 bar1 ----------------
+
+  curiX = 0 ;
   if(seg[0]->mark>0) {
     memcpy(curB,seg[0]->cB,9);
     memcpy(curE,seg[0]->cE,9);
@@ -512,6 +514,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   char * curE = fubo->pBaBo[period]->curE ;
   int &curiB = fubo->pBaBo[period]->curiB ;
   int &curiE = fubo->pBaBo[period]->curiB ;
+  int &curiX = fubo->pBaBo[period]->curiX ;
 
   char * barB = b1->cB ;
   char * barE = b1->cE ;
@@ -641,7 +644,13 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       //1  【D】： barE ==tick== segE
       //2  【D】： segE ==tick== barE
       //2  【C】： segE < tick== barE
-      int idx = 0; //charmi
+      int idx ;
+      if(memcmp(tik,segE,8)>0) {
+        curiX = babo->seg[curiX]->barEx+1 ;
+      } else {
+        curiX++ ;
+      }
+      /*
       //int last = 0 ; //charmi
       while(idx < fubo->pBaBo[period]->iSegNum) {
         if(babo->seg[idx+1]->mark >  babo->seg[idx]->mark) {
@@ -649,30 +658,36 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         }
         idx++;
       }
-      if(idx == fubo->pBaBo[period]->iSegNum) {
+      */
+      if(curiX > babo->iSegNum) {
+        // 应该不会走到这里来！ 这里是 tick == barE  并且 ms >=500 的情况。
+        // 如果是最后一个BAR, 不会出现在 ms >= 500的情况.
         // 一天中，最后一个tick。
-      } else {
+        // 从头再来！！！
+        return 0 ;
       }
       //idx = babo->seg[last]->idx +1; //charmi
-      mark = babo->seg[idx]->mark ;
-      if(mark ==0) {
+      if(0 == babo->seg[curiX]->mark) {
         //curB = segB[idx].cB ;
         //curE = segB[idx].cB + fr ;
-        memcpy(curB,babo->seg[idx]->cB,9);
-        memcpy(curE,babo->seg[idx]->cE,9); // charmi + fr;
+        curiB = babo->seg[curiX]->iB ;
+        curiE = babo->seg[curiX]->iB + fr ;
+        memcpy(curB,babo->seg[curiX]->cB,9);
+        MakeTime(curE,curiE);
 
+        NEW_B1;
         memcpy(b1->cB,curB,9);
         memcpy(b1->cE,curE,9);
       } else {
-        //curB = babo->seg[idx]->cB ;
-        //curE = babo->seg[idx]->cE ;
-        memcpy(curB,babo->seg[idx]->cB,9);
-        memcpy(curE,babo->seg[idx]->cE,9);
-        memcpy(b1->cB,babo->seg[idx]->barB,9);
-        memcpy(b1->cE,babo->seg[idx]->barE,9);
+        memcpy(curB,babo->seg[curiX]->cB,9);
+        memcpy(curE,babo->seg[curiX]->cE,9);
+        curiB = babo->seg[curiX]->iB ;
+        curiE = babo->seg[curiX]->iE ;
+        memcpy(b1->cB,babo->seg[curiX]->barB,9);
+        memcpy(b1->cE,babo->seg[curiX]->barE,9);
       }
     }
-  }
+  }  // end ---- 1111
 
   // ---------------------2222 【tick > barE】--------------------------------------------------------------------
   if(memcmp(tik,barE,8)>0) {
@@ -682,26 +697,30 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     // ........................ (tick > barE)
     if(memcmp(tik,segE,8)<0) {
       //1  【B】： barE < tick < segE
-      //int i = sn+1 ;  // charmi  need to define sn ==> idx !!
       int i = 0;
-      //while(segE[i]<barE) {
-      while(memcmp(babo->seg[i]->cE,barE,8)<0) {
+      while(curiE < babo->seg[curiX]->iE) {
+        /*
         //if(segB[i] <= tik <= segE[i]) {
         if(memcmp(babo->seg[i]->cB,tik,8)<=0 && memcmp(tik,babo->seg[i]->cE,8)<=0) {
           SWAP_BAR ;
           NEW_B1 ;
-          //curB = segB[i] ;
-          //curE = segE[i] ;
-          memcpy(curB,babo->seg[i]->cB,9);
-          memcpy(curE,babo->seg[i]->cE,9);
           //update;
           UPDATE_BAR1;
           return 0 ;
         }
-        i++;
+        */
+        curiB = curiB+fr;
+        curiE = curiE+fr;
+        uBEE::MakeTime(curB,curiB);
+        uBEE::MakeTime(curE,curiE);
+        if(memcmp(curB,tik,8)<=0 && memcmp(tik,curE,8)<0) {
+          break;
+        }
+        i++ ;
       }
       //if(segB[i] == barE) {
       if(memcmp(babo->seg[i]->cB,barE,8)==0) {
+      // 让其走到下面 tick == segE 
       }
     }
     // ........................(tick > barE)
@@ -719,7 +738,14 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         //memcpy(curB,,9); charmi
         memcpy(curE,b1->cE,9);
 
+		curiB = seg[curiX]->iE - fr;
+        curiE = seg[curiX]->iE ;
+        uBEE::MakeTime(curB,curiB);
+        memcpy(curE,seg[curiX]->cE,9);
         return 0;
+        // 不在这里new下一个bar，那它执行到 下一个tick，看它走到哪里！
+        // 要判断是不是 一天的结束。
+
       } else { // tick->UpdateMillisec >= 500
         // 程序不会走到这里，这种情况 会执行  tick == barE == segE 。
       }
