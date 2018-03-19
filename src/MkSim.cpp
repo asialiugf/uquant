@@ -129,10 +129,12 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       }
       for(int j=0;j<fubo->pBaBo[i]->iSegNum;++j) {
         stSegment *seg = fubo->pBaBo[i]->seg[j] ;
-        sprintf(ca_errmsg,"rrrrrrrrr:future:%s  i:%d iF:%d  segid:%d, mark:%d  segB segE:%s--%s  barB barE:%s--%s",
+        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d, mk:%d  sgB sgE:%s-%s baBbaE:%s--%s  sgiB:%d  sgiE:%d  bariB:%d  bariE:%d   barBx:%d  barEx:%d ",
           fubo->InstrumentID,
           i,fubo->pBaBo[i]->iF,j,seg->mark,
-                      seg->cB,seg->cE,seg->barB,seg->barE);
+                      seg->cB,seg->cE,seg->barB,seg->barE,
+                      seg->iB,seg->iE,
+                      seg->bariB,seg->bariE,seg->barBx,seg->barEx);
         uBEE::ErrLog(1000,ca_errmsg,1,0,0);
       }
     }

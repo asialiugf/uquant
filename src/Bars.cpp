@@ -125,7 +125,11 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 {
   char cB[9];
   char cE[9];
+
   char cT[9];
+  int  iT ;
+  int  idxT ;
+
   char cTmp[9];
   int  iB ;
   int  iE ;
@@ -178,9 +182,13 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
         }
 
         memcpy(seg[idx]->barB,cT , 9);
+        seg[idx]->bariB = iT ;
+        seg[idx]->barBx = idxT ;
         for(int j =0; j<mark; j++) {    // 【A】
           int k = idx-j ;
           memcpy(seg[k]->barE,seg[idx]->cE , 9);
+          seg[k]->bariE = seg[idx]->iE ;
+          seg[k]->barEx = idx ;
 
           if(T________) {
             sprintf(ca_errmsg,"3333--- idx:%d mark:%d seg[idx]->barB:%s seg[idx]->barE:%s",idx,seg[k]->mark,seg[k]->barB,seg[k]->barE) ;
@@ -211,10 +219,14 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
         }
 
         memcpy(seg[idx]->barB,cT , 9);
+        seg[idx]->bariB = iT ;
+        seg[idx]->barBx = idxT ;
         if(i == pTimeType->iSegNum-1) {
           for(int j =0; j<mark; j++) {    // 【A】
             int k = idx-j ;
             memcpy(seg[k]->barE,seg[idx]->cE , 9);
+            seg[k]->bariE = seg[idx]->iE ;
+            seg[k]->barEx = idx ;
 
             if(T________) {
               sprintf(ca_errmsg,"5555--- idx:%d mark:%d seg[idx]->barB:%s seg[idx]->barE:%s",idx,seg[k]->mark,seg[k]->barB,seg[k]->barE) ;
@@ -280,14 +292,20 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
       }
 
       memcpy(seg[idx]->barB,seg[idx]->cB , 9);
+      seg[idx]->bariB = seg[idx]->iB ;
+      seg[idx]->barBx = idx ;
       if(i == pTimeType->iSegNum-1) {
         memcpy(seg[idx]->barE,seg[idx]->cE,9);
+        seg[idx]->bariE = seg[idx]->iE ;
+        seg[idx]->barEx = idx ;
         if(T________) {
           sprintf(ca_errmsg,"9999--- idx:%d mark:%d seg[idx]->barB:%s seg[idx]->barE:%s",idx,seg[idx]->mark,seg[idx]->barB,seg[idx]->barE) ;
           uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
         }
       }
       memcpy(cT,seg[idx]->cB , 9);
+      iT = seg[idx]->iB ;
+      idxT = idx ;
       idx++ ;
     }
   }
@@ -498,7 +516,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   char * barB = b1->cB ;
   char * barE = b1->cE ;
 
-  BaBo * bb = fubo->pBaBo[period] ;
+  BaBo * babo = fubo->pBaBo[period] ;
 
   char * segB = fubo->pBaBo[period]->seg[1]->cB ;
   char * segE = fubo->pBaBo[period]->seg[1]->cE ;
@@ -581,9 +599,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     mark ==> 每个seg的类型, 0:表示这个seg包含多个bar。 1：2：3：表示 此seg属于某个bar。
     idx  ==> seg 数组下标
   */
-  // ***********【1】 mark==0  一个seg包含一个或多个bar的情况
 
-  // -----------------------------------------------------------------------------------------
+  /*
+   程序是按   tick==barE    tick>barE     tick<barE   这三种情况来分类写的
+  */
+
+  // ---------------------1111 【tick = barE】--------------------------------------------------------------------
   //if(tick == barE) {
   if(memcmp(tik,barE,8)==0) {
     if(tick->UpdateMillisec < 500) {  // 前一个K柱收盘
@@ -605,10 +626,9 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       SWAP_BAR ;
       NEW_B1 ;
     }
-    // ........................( barE==tick )( tick < segE )
-    //if(tick < segE) {
+    // ........................( tick == barE )
     if(memcmp(tik,segE,8)<0) {  // charmi 24H       segE=23:30:00    barE=01:00:00
-      //【1】【A】
+      //1  【A】： barE ==tick < segE
       curiB = curiB+fr;
       curiE = curiE+fr;
       uBEE::MakeTime(curB,curiB);
@@ -616,13 +636,15 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       memcpy(b1->cB,curB,9);
       memcpy(b1->cE,curE,9);
     }
-    // ........................ ( segE=<tick )( tick == barE )
+    // ........................ ( tick == barE )
     if(memcmp(tik,segE,8)>=0) {
-      //【1】:【D】  【2】:【C】【D】
+      //1  【D】： barE ==tick== segE
+      //2  【D】： segE ==tick== barE
+      //2  【C】： segE < tick== barE
       int idx = 0; //charmi
-      int last = 0 ; //charmi
+      //int last = 0 ; //charmi
       while(idx < fubo->pBaBo[period]->iSegNum) {
-        if(bb->seg[idx+1]->mark >  bb->seg[idx]->mark) {
+        if(babo->seg[idx+1]->mark >  babo->seg[idx]->mark) {
           break;
         }
         idx++;
@@ -631,49 +653,47 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         // 一天中，最后一个tick。
       } else {
       }
-      //idx = bb->seg[last]->idx +1; //charmi
-      mark = bb->seg[idx]->mark ;
+      //idx = babo->seg[last]->idx +1; //charmi
+      mark = babo->seg[idx]->mark ;
       if(mark ==0) {
         //curB = segB[idx].cB ;
         //curE = segB[idx].cB + fr ;
-        memcpy(curB,bb->seg[idx]->cB,9);
-        memcpy(curE,bb->seg[idx]->cE,9); // charmi + fr;
+        memcpy(curB,babo->seg[idx]->cB,9);
+        memcpy(curE,babo->seg[idx]->cE,9); // charmi + fr;
 
         memcpy(b1->cB,curB,9);
         memcpy(b1->cE,curE,9);
       } else {
-        //curB = bb->seg[idx]->cB ;
-        //curE = bb->seg[idx]->cE ;
-        memcpy(curB,bb->seg[idx]->cB,9);
-        memcpy(curE,bb->seg[idx]->cE,9);
-        memcpy(b1->cB,bb->seg[idx]->barB,9);
-        memcpy(b1->cE,bb->seg[idx]->barE,9);
+        //curB = babo->seg[idx]->cB ;
+        //curE = babo->seg[idx]->cE ;
+        memcpy(curB,babo->seg[idx]->cB,9);
+        memcpy(curE,babo->seg[idx]->cE,9);
+        memcpy(b1->cB,babo->seg[idx]->barB,9);
+        memcpy(b1->cE,babo->seg[idx]->barE,9);
       }
     }
   }
 
-  // -----------------------------------------------------------------------------------------
-  //if(tik > barE) {
+  // ---------------------2222 【tick > barE】--------------------------------------------------------------------
   if(memcmp(tik,barE,8)>0) {
     if(!sent) {
       SendBar();
     }
     // ........................ (tick > barE)
-    //if(tik < segE) {
     if(memcmp(tik,segE,8)<0) {
-      //【1】【B】
+      //1  【B】： barE < tick < segE
       //int i = sn+1 ;  // charmi  need to define sn ==> idx !!
       int i = 0;
       //while(segE[i]<barE) {
-      while(memcmp(bb->seg[i]->cE,barE,8)<0) {
+      while(memcmp(babo->seg[i]->cE,barE,8)<0) {
         //if(segB[i] <= tik <= segE[i]) {
-        if(memcmp(bb->seg[i]->cB,tik,8)<=0 && memcmp(tik,bb->seg[i]->cE,8)<=0) {
+        if(memcmp(babo->seg[i]->cB,tik,8)<=0 && memcmp(tik,babo->seg[i]->cE,8)<=0) {
           SWAP_BAR ;
           NEW_B1 ;
           //curB = segB[i] ;
           //curE = segE[i] ;
-          memcpy(curB,bb->seg[i]->cB,9);
-          memcpy(curE,bb->seg[i]->cE,9);
+          memcpy(curB,babo->seg[i]->cB,9);
+          memcpy(curE,babo->seg[i]->cE,9);
           //update;
           UPDATE_BAR1;
           return 0 ;
@@ -681,19 +701,18 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         i++;
       }
       //if(segB[i] == barE) {
-      if(memcmp(bb->seg[i]->cB,barE,8)==0) {
+      if(memcmp(babo->seg[i]->cB,barE,8)==0) {
       }
     }
     // ........................(tick > barE)
-    //if(tik == segE) {
     if(memcmp(tik,segE,8)==0) {
-      //【1】【C】
+      //1  【C】： barE < tick== segE
       int idx =1; // charmi
       if(tick->UpdateMillisec < 500) {
         NEW_B1 ;
-        b1->iB = bb->seg[idx]->iE - fr ;
+        b1->iB = babo->seg[idx]->iE - fr ;
         //memcpy(,b1->iB,9); charmi
-        memcpy(b1->cE,bb->seg[idx]->cE,9);
+        memcpy(b1->cE,babo->seg[idx]->cE,9);
         SendBar();
         b1->sent = 1;
 
@@ -708,17 +727,18 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     // ........................(tick > barE)
     //if(tik > segE) {
     if(memcmp(tik,segE,8)>0) {
-      //【1】【E】 【2】【E】
+      //1 【E】： tick > (barE segE)
+      //2 【E】： tick > (barE segE)
       //int i = sn+1 ; charmi
       int i = 0;
       //while(segE[i]<barE) {
-      while(memcmp(bb->seg[i]->cE,barE,8)<0) {
+      while(memcmp(babo->seg[i]->cE,barE,8)<0) {
         //if(segB[i] <= tik <= segE[i]) {
-        if(memcmp(bb->seg[i]->cB,tik,8)<=0 && memcmp(tik,bb->seg[i]->cE,8)<=0) {
+        if(memcmp(babo->seg[i]->cB,tik,8)<=0 && memcmp(tik,babo->seg[i]->cE,8)<=0) {
           //curB = segB[i] ;
           //curE = segE[i] ;
-          memcpy(curB,bb->seg[i]->cB,9);
-          memcpy(curE,bb->seg[i]->cE,9);
+          memcpy(curB,babo->seg[i]->cB,9);
+          memcpy(curE,babo->seg[i]->cE,9);
           SWAP_BAR ;
           NEW_B1 ;
           return 0 ;
@@ -726,15 +746,15 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         i++;
       }
       //if(segB[i] == barE) {
-      if(memcmp(bb->seg[i]->cB,barE,8)>0) {
+      if(memcmp(babo->seg[i]->cB,barE,8)>0) {
       }
     }
   }
 
-  // -----------------------------------------------------------------------------------------
-  //if(tik < barE) {         //  segE <= tick < barE  表示仍在 barB -- barE 这个bar界内
+  // --------------3333 【tick < barE】---------------------------------------------------------------------------
   if(memcmp(tik,barE,8)<0) {         //  segE <= tick < barE  表示仍在 barB -- barE 这个bar界内
-    // tick >= segE  【2】【A】【B】
+    //2 【A】： segE ==tick < barE   { curseg结束，}  // (charmi  注意 24小时问题, 有可能 barE < segE !!!)
+    //2 【B】： segE < tick < barE   { curseg结束，}
     /* charmi
     while(1) {
       if(tick in market !)

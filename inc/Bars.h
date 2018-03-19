@@ -255,6 +255,8 @@ struct stSegment {
   char barE[9];
   int  bariB;
   int  bariE;
+  int  barBx;
+  int  barEx;
 };
 
 struct stTimeType {
