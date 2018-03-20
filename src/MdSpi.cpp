@@ -19,6 +19,7 @@ using namespace std;
 //------- from MdCtp.cpp ----------------begin ----------
 extern CThostFtdcMdApi* pUserApi;
 extern uWS::Group<uWS::SERVER> * sg;
+//extern uBEE::TimeBlock         *tb;
 //------- from MdCtp.cpp ---------------- end ----------
 
 TThostFtdcBrokerIDType  BROKER_ID = "9999";         // 经纪公司代码
@@ -36,7 +37,7 @@ std::shared_ptr<uBEE::DBPool> dbpool;
 uBEE::TradingTime             *tt;
 //uBEE::TimeBlock               *tmbo;
 uBEE::FuList                  *fl;
-uBEE::TimeBlock        *tbb;
+//uBEE::TimeBlock        *tb;
 //------- ----------------- ----------------  ----------
 
 CMdSpi::CMdSpi()
@@ -92,18 +93,18 @@ void CMdSpi::Init()
 
   // ...... 初始化 交易时间对象 ...................................
   tt = new uBEE::TradingTime() ;
-  tbb = new uBEE::TimeBlock();
+  tb = new uBEE::TimeBlock();
 
   // ---- for testing begin ---------------------------------------
   std::cout << "999999999999999999999\n" ;
   for(int j=0; j<7; j++) {
     int i = 0;
-    while(i<SGM_NUM &&tbb->TT[j].aSgms[i].iI !=-1) {
-      std::cout << "----:"<< tbb->TT[j].aSgms[i].cB ;
-      std::cout << "----:"<< tbb->TT[j].aSgms[i].cE ;
-      std::cout << "----:"<< tbb->TT[j].aSgms[i].iB ;
-      std::cout << "----:"<< tbb->TT[j].aSgms[i].iE ;
-      std::cout << "----:"<< tbb->TT[j].aSgms[i].iI << std::endl;
+    while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iI << std::endl;
       i++;
     }
     std::cout << std::endl;
@@ -124,7 +125,7 @@ void CMdSpi::Init()
     uBEE::FuBlock *fb = new uBEE::FuBlock();
     fb->dbpool = dbpool;
     fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
-    fb->Block.pTimeType = & tbb->TT[fb->Block.pt_hour->i_hour_type];
+    fb->Block.pTimeType = & tb->TT[fb->Block.pt_hour->i_hour_type];
     std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
     //uBEE::createTickTable(dbpool,fl->pc_futures[i]);
     std::cout << " befor fb->Init  + map hahah4 ------------\n" ;
@@ -133,7 +134,7 @@ void CMdSpi::Init()
     std::cout << " after fb->Init  + map hahah ------------\n" ;
 
     int fr[5] = {19,14401,180,300,600};
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tbb,&fr[0], 5); 
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb,&fr[0], 5); 
     M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
   }

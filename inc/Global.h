@@ -5,7 +5,6 @@
 
 namespace uBEE
 {
-//extern char ca_errmsg[] ;
 extern uBEE::TimeBlock         *tb;
 int InitAll();
 

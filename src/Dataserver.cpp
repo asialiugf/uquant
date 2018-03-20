@@ -1,8 +1,8 @@
+#include "Global.h"
 #include "uBEE.h"
 #include "MdCtp.h"
 #include "MkSim.h"
 #include "Bars.h"
-#include "Global.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
@@ -12,12 +12,16 @@
 #include <sys/prctl.h>
 
 extern char **environ;
-//uBEE::TimeBlock               *tb;
+namespace uBEE
+{
+} // end namespace
 int ForkApi();
 int ForkBck();
 int ForkCtp();
 int ForkSim();
 uBEE::HubBck hb;
+using namespace uBEE ;
+
 int main(int argc, char **argv)
 {
 
@@ -27,7 +31,7 @@ int main(int argc, char **argv)
 
   // --- time block init !! ------------ from Global.h
   uBEE::InitAll();
-  /* ----------test 
+  /* ----------test  */
   std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
   for(int j=0; j<7; j++) {
     int i = 0;
@@ -42,7 +46,7 @@ int main(int argc, char **argv)
     std::cout << std::endl;
   }
   std::cout << "uuuuuuuuuuuuuuuuuuuuu\n";
-  ---------- test---------- */
+  /*---------- test---------- */
 
   hb.Init();
   hb.Start();

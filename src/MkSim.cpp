@@ -63,8 +63,8 @@ TICK * FuSim::MkTickF()             // make tick from tick file
   if(iCurLine <= iLineNum) {
     std::string TickLine =  ReadLine(File,iCurLine,iLineNum) ;
     std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum <<" " << TickLine << std::endl;
-    if( TickLine.empty() ) {
-       return nullptr ; 
+    if(TickLine.empty()) {
+      return nullptr ;
     }
 
     see_memzero(TradingDay,9);
@@ -227,12 +227,15 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
       TICK *tick = fusim->MkTickF();
       memcpy(tick->InstrumentID,fubo->InstrumentID,strlen(fubo->InstrumentID)) ;
+      DealBar(fubo, tick, 1);
+      /*
       for(int i=0; i<50; ++i) {
         if(fubo->pBaBo[i] == nullptr) {
           continue;
         }
         DealBar(fubo, tick, i);
       }
+      */
     }
   }
 
