@@ -660,12 +660,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     if(memcmp(tik,SEGE,8)<0) {  // charmi 24H       segE=23:30:00    barE=01:00:00
       //-------------------------------------------------------( tick == barE )---------- 1  【A】： barE ==tick < segE
       if(T________) {
-        sprintf(ca_errmsg,"DealBar()00003:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec,
-                curB,curE,
-                barB,barE,
-                SEGB,SEGE,
-                curiX,fubo->pBaBo[period]->curiX) ;
+        sprintf(ca_errmsg,"DealBar()00003:p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
+                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
         uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
       }
       curiB = curiB+fr;
@@ -677,6 +673,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     }
     // ........................ ( tick == barE )
     if(memcmp(tik,SEGE,8)>=0) {
+      // 这里要判断 24小问题 在 seg[idx]里设置标示位。 对于 segE < tick== barE 这种情况，有可能 segE > barE (segE=23:30:00  barE=01:00:00)
       //-------------------------------------------------------( tick == barE )---------- 1  【D】： barE ==tick== segE
       //                                                                                  2  【D】： segE ==tick== barE
       //                                                                                  2  【C】： segE < tick== barE
@@ -771,6 +768,11 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         }
         i++ ;  //用于计数，中间间隔了几个bar ? 暂时还没有用到.
       }
+
+      NEW_B1;
+      memcpy(barB,curB,9);
+      memcpy(barE,curE,9);
+
       //if(segB[i] == barE) {
       if(memcmp(babo->seg[i]->cB,barE,8)==0) {
         // 让其走到下面 tick == segE

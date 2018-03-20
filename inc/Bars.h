@@ -251,12 +251,13 @@ struct stSegment {
   int  iE ;
   int  iI ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
   int  mark ; // 0 表示 seg 包含 bar。 // 1.2.3. 表示 一个bar 包含多个 seg。
+  int  h24 ;  // 记录 跨0点的段。比如 有一个bar(barB:23:00:00 barE:00:01:00) 这样，这个bar的前后段均要设置 这个值为1
   char barB[9];
   char barE[9];
   int  bariB;
   int  bariE;
-  int  barBx;
-  int  barEx;
+  int  barBx;  //记录 起始barB所在的 seg[]的 index .
+  int  barEx;  //记录 结束barE所在的 seg[]的 index .
 };
 
 struct stTimeType {
