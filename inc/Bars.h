@@ -523,8 +523,9 @@ int CalcBar(see_fut_block_t *p_block, TICK *tick, int period);
 int is_mkt_open(see_fut_block_t *p_block, TICK *tick) ;
 int is_same_k_bar(see_fut_block_t *p_block, see_bar_t *p_bar1, TICK *tick, int period);
 int MakeTime(char *caT, int T) ;
-int SendBar();
-int SaveBar();
+int SendBars();
+int SaveBars();
+int SendBar(uBEE::FuBo *fubo, TICK *tick,int period);
 
 
 } //end namespace

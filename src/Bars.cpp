@@ -604,12 +604,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(memcmp(tik,barE,8)==0) {
     if(tick->UpdateMillisec < 500) {  // 前一个K柱收盘
       UPDATE_B1;
-      SendBar();
+      SendBars();
       b1->sent = 1;  // send save 标志位设置在 bar1内。在NEW_B1时，设置为 0。
       return 0;
     } else {
       if(!b1->sent) {
-        SendBar();
+        SendBars();
       }
       SWAP_BAR ;
     }
@@ -839,7 +839,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
       }
       UPDATE_B1;
-      SendBar();
+      SendBars();
       b1->sent = 1;  // send save 标志位设置在 bar1内。在NEW_B1时，设置为 0。
       return 0;
       /*
@@ -856,7 +856,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
       }
       if(!b1->sent) {
-        SendBar();
+        SendBars();
       }
       SWAP_BAR ;
       NEW_B1 ;
@@ -945,7 +945,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     }
 
     if(!sent) {
-      SendBar();
+      SendBars();
     }
     // ........................ (tick > barE)
     if(memcmp(tik,SEGE,8)<0) {
@@ -999,7 +999,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         b1->iB = babo->seg[idx]->iE - fr ;
         //memcpy(,b1->iB,9); charmi
         memcpy(b1->cE,babo->seg[idx]->cE,9);
-        SendBar();
+        SendBars();
         b1->sent = 1;
 
         //memcpy(curB,,9); charmi
@@ -2708,7 +2708,7 @@ int MakeTime(char *caT, int T)
   return 0;
 }
 
-int SendBar()
+int SendBars()
 {
   return 0;
 }
@@ -2717,5 +2717,93 @@ int SaveBar()
   return 0;
 }
 
+int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
+{
+  stBar       *p_bar0;
+  stBar       *p_bar1;
+  stBar       *b0;
+  stBar       *b1;
+  stBar       *bt;
+
+  b0 = fubo->pBaBo[period]->b0 ;
+  b1 = fubo->pBaBo[period]->b1 ;
+
+  p_bar0 =  &fubo->pBaBo[period]->bar0;
+  p_bar1 =  &fubo->pBaBo[period]->bar1;
+
+  char * curB = fubo->pBaBo[period]->curB ;
+  char * curE = fubo->pBaBo[period]->curE ;
+  int &curiB = fubo->pBaBo[period]->curiB ;
+  int &curiE = fubo->pBaBo[period]->curiE ;
+  int &curiX = fubo->pBaBo[period]->curiX ;
+
+  char * barB = b1->cB ;
+  char * barE = b1->cE ;
+
+  BaBo * babo = fubo->pBaBo[period] ;
+
+//  char * segB = fubo->pBaBo[period]->seg[1]->cB ;
+//  char * segE = fubo->pBaBo[period]->seg[1]->cE ;
+
+#define SEGB fubo->pBaBo[period]->seg[curiX]->cB
+#define SEGE fubo->pBaBo[period]->seg[curiX]->cE
+#define MARK babo->seg[curiX]->mark
+
+  char * tik = tick->UpdateTime ;
+
+  int sent ;
+  int mark ;
+
+  int fr = fubo->pBaBo[period]->iF ;
+
+
+  if(memcmp(tick->UpdateTime,curB,8)>=0 &&
+     memcmp(tick->UpdateTime,curE,8)<0) { // 在当前的 curB curE 这个segment内
+    UPDATE_B1;
+    return 0;
+  }
+
+  if(MARK == 0) {
+    // 1------- tick=barE
+    if(memcmp(barE,tik,8)==0) {   // 【A】：barE==tick <segE  内   ==>  e         s         {结束当前bar}
+                                  // 【D】：barE==tick==segE  外   ==>  a         s         {结束当前bar}
+      SendBars();
+    }  
+    // 2------- tick>barE
+    if(memcmp(barE,tik,8)< 0) {
+      if(memcmp(tik,SEGE,8)< 0) {//--- tick<segE //【C】：barE <tick==segE  外   ==>  a         s +  2    {一次结束两个bar}
+      }
+      if(memcmp(tik,SEGE,8)==0) {//--- tick=segE //【B】：barE <tick <segE  内   ==>  f         s or 2    {可能结束两个bar}
+      }
+      if(memcmp(tik,SEGE,8)> 0) {//--- tick>segE //【E】：barE<=segE <tick  外   ==>  b         s
+      }
+    }
+    // 3------- tick<barE
+    if(memcmp(barE,tik,8)> 0) {     //【F】：tick <barE<=segE  外   ==>  b + 0?    s         {结束当前bar}   1：0点问题
+      if(memcpy(barE,"24:00:00",8)==0 && memcpy(tik,"00:00:00",8)==0 && tick->UpdateMillisec < 500) {
+      }
+      SendBars();
+    }
+  }
+
+  if(MARK > 0) {
+    if(memcmp(tik,barE,8)==0) {
+      SendBars();
+    }
+    if(memcmp(tik,barE,8)>0) {
+      if(memcmp(barE,SEGE,8)>=0 || memcmp(SEGE,tik,8)>0) {
+        SendBars();
+      }
+    }
+    if(memcmp(tik,barE,8)<0) {  // tick比barE小,特例
+      if(memcmp(barE,SEGE,8)>=0) {  //【F】：tick <segE<=barE    外  ==>  b + 0?     s    tick< barE
+        if(memcpy(barE,"24:00:00",8)==0 && memcpy(tik,"00:00:00",8)==0 && tick->UpdateMillisec < 500) {
+        }
+        SendBars();
+      }
+    }
+  }
+
+}
 
 } //namespace
