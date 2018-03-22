@@ -615,6 +615,34 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     }
   }
   /* 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 */
+
+  if(MARK == 0) {
+    // 1------- tick=barE
+    if(memcmp(barE,tik,8)==0) {   // 【A】：barE==tick <segE  内   ==>  e         s         {结束当前bar}
+                                  // 【D】：barE==tick==segE  外   ==>  a         s         {结束当前bar}
+      SendBars();
+    }
+    // 2------- tick>barE
+    if(memcmp(barE,tik,8)< 0) {
+      if(memcmp(tik,SEGE,8)< 0) {//--- tick<segE //【C】：barE <tick==segE  外   ==>  a         s +  2    {一次结束两个bar}
+      }
+      if(memcmp(tik,SEGE,8)==0) {//--- tick=segE //【B】：barE <tick <segE  内   ==>  f         s or 2    {可能结束两个bar}
+      }
+      if(memcmp(tik,SEGE,8)> 0) {//--- tick>segE //【E】：barE<=segE <tick  外   ==>  b         s
+      }
+    }
+    // 3------- tick<barE
+    if(memcmp(barE,tik,8)> 0) {     //【F】：tick <barE<=segE  外   ==>  b + 0?    s         {结束当前bar}   1：0点问题
+      if(memcpy(barE,"24:00:00",8)==0 && memcpy(tik,"00:00:00",8)==0 && tick->UpdateMillisec < 500) {
+      }
+      SendBars();
+    }
+  }
+
+  ////xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
   if(MARK == 0) {
     if(memcmp(tik,barE,8)==0) {           // tick == barE
       if(memcmp(tik,SEGE,8)<0) {
@@ -2787,7 +2815,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   }
 
   if(MARK > 0) {
-    if(memcmp(tik,barE,8)==0) {
+    if(memcmp(tik,barE,8)==0) {    //   【4】 【C】 【D】
       SendBars();
     }
     if(memcmp(tik,barE,8)>0) {
@@ -2795,7 +2823,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
         SendBars();
       }
     }
-    if(memcmp(tik,barE,8)<0) {  // tick比barE小,特例
+    if(memcmp(tik,SEGE,8)<0) {  // tick比barE小,特例
       if(memcmp(barE,SEGE,8)>=0) {  //【F】：tick <segE<=barE    外  ==>  b + 0?     s    tick< barE
         if(memcpy(barE,"24:00:00",8)==0 && memcpy(tik,"00:00:00",8)==0 && tick->UpdateMillisec < 500) {
         }
