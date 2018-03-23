@@ -19,7 +19,7 @@ using namespace std;
 //------- from MdCtp.cpp ----------------begin ----------
 extern CThostFtdcMdApi* pUserApi;
 extern uWS::Group<uWS::SERVER> * sg;
-//extern uBEE::TimeBlock         *tb;
+//extern uBEE::TimeBlock         *tmbo;
 //------- from MdCtp.cpp ---------------- end ----------
 
 TThostFtdcBrokerIDType  BROKER_ID = "9999";         // ¾­¼Í¹«Ë¾´úÂë
@@ -34,10 +34,9 @@ std::map<std::string,uBEE::FuBlock> FuBlockMap;     // Ã¿¸öÆÚ»õÒ»¸ö FuBlock£¬¹¹³
 std::map<std::string,uBEE::FuBo>    M_CtpFuBo;         // Ã¿¸öÆÚ»õÒ»¸ö FuBlock£¬¹¹³ÉÒ»¸öMAP
 
 std::shared_ptr<uBEE::DBPool> dbpool;
-uBEE::TradingTime             *tt;
-//uBEE::TimeBlock               *tmbo;
+//uBEE::TradingTime             *tt;
 uBEE::FuList                  *fl;
-//uBEE::TimeBlock        *tb;
+uBEE::TimeBlock        *tmbo;
 //------- ----------------- ----------------  ----------
 
 CMdSpi::CMdSpi()
@@ -92,19 +91,19 @@ void CMdSpi::Init()
   // ---- for testing end  ---------------------------------------
 
   // ...... ³õÊ¼»¯ ½»Ò×Ê±¼ä¶ÔÏó ...................................
-  tt = new uBEE::TradingTime() ;
-  tb = new uBEE::TimeBlock();
+  //tt = new uBEE::TradingTime() ;
+  //tmbo = new uBEE::TimeBlock();
 
   // ---- for testing begin ---------------------------------------
   std::cout << "999999999999999999999\n" ;
   for(int j=0; j<7; j++) {
     int i = 0;
-    while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
-      std::cout << "----:"<< tb->TT[j].aSgms[i].cB ;
-      std::cout << "----:"<< tb->TT[j].aSgms[i].cE ;
-      std::cout << "----:"<< tb->TT[j].aSgms[i].iB ;
-      std::cout << "----:"<< tb->TT[j].aSgms[i].iE ;
-      std::cout << "----:"<< tb->TT[j].aSgms[i].iI << std::endl;
+    while(i<SGM_NUM &&tmbo->TT[j].aSgms[i].iI !=-1) {
+      std::cout << "----:"<< tmbo->TT[j].aSgms[i].cB ;
+      std::cout << "----:"<< tmbo->TT[j].aSgms[i].cE ;
+      std::cout << "----:"<< tmbo->TT[j].aSgms[i].iB ;
+      std::cout << "----:"<< tmbo->TT[j].aSgms[i].iE ;
+      std::cout << "----:"<< tmbo->TT[j].aSgms[i].iI << std::endl;
       i++;
     }
     std::cout << std::endl;
@@ -122,19 +121,19 @@ void CMdSpi::Init()
       break ;
     }
     //uBEE::FuBlock fb;
-    uBEE::FuBlock *fb = new uBEE::FuBlock();
-    fb->dbpool = dbpool;
-    fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
-    fb->Block.pTimeType = & tb->TT[fb->Block.pt_hour->i_hour_type];
-    std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
+    //uBEE::FuBlock *fb = new uBEE::FuBlock();
+    //fb->dbpool = dbpool;
+    //fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
+    //fb->Block.pTimeType = & tmbo->TT[fb->Block.pt_hour->i_hour_type];
+    //std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
     //uBEE::createTickTable(dbpool,fl->pc_futures[i]);
-    std::cout << " befor fb->Init  + map hahah4 ------------\n" ;
+    //std::cout << " befor fb->Init  + map hahah4 ------------\n" ;
     // !!! map ×öÎª³ÉÔ±±äÁ¿ÓÐÎÊÌâ£¬ËùÒÔ¸Ä³ÉÁËÈ«¾Ö±äÁ¿¡£
-    FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
-    std::cout << " after fb->Init  + map hahah ------------\n" ;
+    //FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
+    //std::cout << " after fb->Init  + map hahah ------------\n" ;
 
     int fr[5] = {19,14401,180,300,600};
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb,&fr[0], 5); 
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tmbo,&fr[0], 5); 
     M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
   }

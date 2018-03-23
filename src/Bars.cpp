@@ -498,16 +498,6 @@ int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  if(T________) {
-    sprintf(ca_errmsg,"\n\n\nDealBar():enter!!--------:future:%s  frequency index:%d",fubo->InstrumentID,period) ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-  }
-
-  if(fubo==nullptr || tick==nullptr || period >=50 || period<0) {
-    uBEE::ErrLog(1000,"DealBar():input error!!",1,0,0) ;
-    return -1;
-  }
-
   stBar       *p_bar0;
   stBar       *p_bar1;
   stBar       *b0;
@@ -545,59 +535,231 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   int fr = fubo->pBaBo[period]->iF ;
 
-  Display(fubo,tick,period,"DealBar():---");
+  Display(fubo,tick,period,"eeee:enter:");
 
   // 只要tick落在 curB---curE之间，即UPDATE。
   if(memcmp(tick->UpdateTime,curB,8)>=0 &&
      memcmp(tick->UpdateTime,curE,8)<0) { // 在当前的 curB curE 这个segment内
     UPDATE_B1;
-    Display(fubo,tick,period,"DealBar():000---");
+    Display(fubo,tick,period,"eeee:000---");
     return 0;
   }
-  ////xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   if(MARK == 0) {
-    if(memcmp(barE,tik,8)==0) {
+
+    if(memcmp(tik,SEGE,8) <0) {
       // 【A】：barE==tick <segE  内   ==>  e         s         {结束当前bar}
-      if(memcmp(tik,SEGE,8) <0) {
-        Display(fubo,tick,period,"Deal:=0,A---");
+      if(memcmp(barE,tik,8)==0) {
+        if(tick->UpdateMillisec < 500) {
+          return 0;
+        }
+        NEW_B1;
+        curiB = curiB+fr;
+        curiE = curiE+fr;
+        memcpy(curB,curE,9) ;
+        uBEE::MakeTime(curE,curiE);
+        memcpy(b1->cB,curB,9);
+        memcpy(b1->cE,curE,9);
 
+        Display(fubo,tick,period,"eeee:000---");
+        return 0;
       } //------- A
-      // 【D】：barE==tick==segE  外   ==>  a         s         {结束当前bar}
-      if(memcmp(tik,SEGE,8)==0) {
-        Display(fubo,tick,period,"Deal:=0,D---");
 
-      }  //------- D
-    }
-    if(memcmp(barE,tik,8)< 0) {
-      //【B】：barE <tick <segE  内   ==>  f         s or 2    {可能结束两个bar}
-      if(memcmp(tik,SEGE,8)< 0) {
-        Display(fubo,tick,period,"Deal:=0,B---");
+      // 【B】：barE <tick <segE  内   ==>  f         s or 2    {可能结束两个bar}
+      if(memcmp(barE,tik,8)<0) {
+        do {
+          curiB +=fr ;
+          curiE +=fr ;
+          memcpy(curB,curE,9) ;
+          uBEE::MakeTime(curE,curiE);
+        } while(memcmp(curB,tik,8)<0 && memcmp(tik,curE,8)<=0);
+
+        if(tick->UpdateMillisec < 500) {
+          NEW_B1;
+          memcpy(barB,curB,9);
+          memcpy(barE,curE,9);
+          SendBars();
+          b1->sent = 1;
+        } else {
+          if(!b1->sent) {
+            SendBars();
+          }
+          curiB +=fr ;
+          curiE +=fr ;
+          memcpy(curB,curE,9) ;
+          uBEE::MakeTime(curE,curiE);
+          NEW_B1;
+          memcpy(barB,curB,9);
+          memcpy(barE,curE,9);
+        }
+
+        Display(fubo,tick,period,"eeee:001---");
+        return 0;
 
       } //------- B
-      //【C】：barE <tick==segE  外   ==>  a         s +  2    {一次结束两个bar}
-      if(memcmp(tik,SEGE,8)==0) {
-        Display(fubo,tick,period,"Deal:=0,C---");
-
-      } //------- C
     }
 
-    //【E】：barE<=segE <tick  外   ==>  b         s
-    if(memcmp(tik,SEGE,8)>0 && memcmp(SEGE,barE,8)>=0) {
-      Display(fubo,tick,period,"Deal:=0,E---");
+    // -------------------------------------------------------------------------------
+    if(memcmp(tik,SEGE,8)==0) {
+      // 【C】：barE==tick==segE  外   ==>  a         s         {结束当前bar}
+      // 【D】：barE <tick==segE  外   ==>  a         s +  2    {一次结束两个bar}
 
-    }  //------- E
-
-    //【F】：tick <barE<=segE  外   ==>  b + 0?    s         {结束当前bar}   1：0点问题
-    if(memcmp(tick,barE,8)<0) {
-      Display(fubo,tick,period,"Deal:=0,F---");
-      if(memcpy(barE,"24:00:00",8)==0 && memcpy(tik,"00:00:00",8)==0 && tick->UpdateMillisec < 500) {
-
+      // exexexex: 如果 tick->UpdateMillisec < 500 表示这个tick属于K,不属于K+1 不应该new K
+      if(tick->UpdateMillisec < 500) {
+        Display(fubo,tick,period,"eeee:002---");
+        return 0;
       }
-      SendBars();
-    }  //------- F
-  } //------- (MARK == 0)
 
-  ////xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      if(memcmp(barE,tik,8)<=0) {
+
+        // exexexex: 这个tick == segE 但 tick->UpdateMillisec >= 500 , 如果下一个seg不是紧相连的话，此 tick 无效。
+        if(curiX < babo->iSegNum -1) {
+          if(memcmp(babo->seg[curiX]->cE,babo->seg[curiX+1]->cB,8)!=0) {
+            Display(fubo,tick,period,"eeee:003---");
+            return 0;
+          }
+        }
+
+        // exexexex: 只有一种情况，会走到下面的流程：即前一个seg和后一个seg相连，
+        // 比如 seg1:[09:00:00-10:00:00] seg2:[10:00:00-11:00:00] 在10:00:00是相连的
+        curiX++;
+        if(curiX < babo->iSegNum -1) {
+          if(MARK==0) {
+            curiB = babo->seg[curiX]->iB ;
+            curiE = babo->seg[curiX]->iB + fr ;
+            memcpy(curB,babo->seg[curiX]->cB,9);
+            uBEE::MakeTime(curE,curiE);
+            NEW_B1;
+            memcpy(barB,curB,9);
+            memcpy(barE,curE,9);
+
+            Display(fubo,tick,period,"eeee:004---");
+            return 0;
+          }
+          if(MARK>0) {
+            curiB = babo->seg[curiX]->iB ;
+            curiE = babo->seg[curiX]->iE ;
+            memcpy(curB,babo->seg[curiX]->cB,9);
+            memcpy(curE,babo->seg[curiX]->cE,9);
+            NEW_B1;
+            memcpy(barB,babo->seg[curiX]->barB,9);
+            memcpy(barE,babo->seg[curiX]->barE,9);
+
+            Display(fubo,tick,period,"eeee:005---");
+            return 0;
+          }
+        }
+
+        if(curiX == babo->iSegNum -1) {
+          if(MARK==0) {
+            if(fr < babo->seg[curiX]->iE-babo->seg[curiX]->iB) {
+              curiB = babo->seg[curiX]->iB ;
+              curiE = babo->seg[curiX]->iB + fr ;
+              memcpy(curB,babo->seg[curiX]->cB,9);
+              uBEE::MakeTime(curE,curiE);
+              NEW_B1;
+              memcpy(barB,curB,9);
+              memcpy(barE,curE,9);
+
+              Display(fubo,tick,period,"eeee:006---");
+              return 0;
+            } else {
+              curiB = babo->seg[curiX]->iB ;
+              curiE = babo->seg[curiX]->iE ;
+              memcpy(curB,babo->seg[curiX]->cB,9);
+              memcpy(curE,babo->seg[curiX]->cE,9);
+              NEW_B1;
+              memcpy(barB,curB,9);
+              memcpy(barE,curE,9);
+
+              Display(fubo,tick,period,"eeee:007---");
+              return 0;
+            }
+          }
+          if(MARK>0) {
+            curiB = babo->seg[curiX]->iB ;
+            curiE = babo->seg[curiX]->iE ;
+            memcpy(curB,babo->seg[curiX]->cB,9);
+            memcpy(curE,babo->seg[curiX]->cE,9);
+            NEW_B1;
+            memcpy(barB,babo->seg[curiX]->barB,9);
+            memcpy(barE,babo->seg[curiX]->barE,9);
+
+            Display(fubo,tick,period,"eeee:008---");
+            return 0;
+          }
+        }
+
+        if(curiX > babo->iSegNum-1) {
+          curiX=0;
+          // 重新初始化，新一天！
+          return 0;
+        }
+      } //------- C D
+    }
+
+    // -------------------------------------------------------------------------------
+    //【E】：barE<=segE <tick  外   ==>  b         s
+    //【F】：tick <barE<=segE  外   ==>  b + 0?    s         {结束当前bar}   1：0点问题
+    if((memcmp(barE,SEGE,8)<=0 && memcmp(SEGE,tik,8)<0) ||
+       memcmp(tick,barE,8)<0) {
+      Display(fubo,tick,period,"eeee:xxx---");
+
+      if(memcpy(barE,"24:00:00",8)==0 && memcpy(tik,"00:00:00",8)==0 && tick->UpdateMillisec < 500) {
+        Display(fubo,tick,period,"eeee:009---");
+        return 0;
+      }
+
+      int i=0;
+      if(curiX < babo->iSegNum-1) {  //一天结束，从头开始。
+        i = curiX;
+      }
+      while(!(memcmp(babo->seg[i]->cB,tik,8)<=0 && memcmp(tik,babo->seg[i]->cE,8)<=0)) {
+        Display(fubo,tick,period,"eeee:010---");
+        i++;
+        if(i>=babo->iSegNum) {
+          return 0;
+        }
+      }
+
+      curiX = i ;
+      Display(fubo,tick,period,"eeee:yyy---");
+      if(babo->seg[curiX]->mark ==0) { // mark ==0
+        i=0;
+        curiB = babo->seg[curiX]->iB-fr ;
+        curiE = babo->seg[curiX]->iB ;
+        do {
+          curiB +=fr ;
+          curiE +=fr ;
+          uBEE::MakeTime(curB,curiB);
+          uBEE::MakeTime(curE,curiE);
+          i++;
+        } while(memcmp(tik,curB,8)<0 || memcmp(tik,curE,8)>0);
+
+        NEW_B1;
+        memcpy(barB,curB,9);
+        memcpy(barE,curE,9);
+        SWAP_BAR ;
+
+        Display(fubo,tick,period,"eeee:011---");
+        return 0;
+      }
+
+      if(babo->seg[curiX]->mark > 0) {  // mark >0
+        curiB = babo->seg[i]->iB ;
+        curiE = babo->seg[i]->iE ;
+        memcpy(curB,babo->seg[i]->cB,9);
+        memcpy(curE,babo->seg[i]->cE,9);
+        // b1->iB cB ...
+        // b1->iE cE ...
+        Display(fubo,tick,period,"eeee:011---");
+        return 0;
+      }
+
+    } //------- E F
+  }
+
+  ////xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   if(MARK > 0) {
     //【A】：segE==tick <barE    内  ==   c
     //【1】：tick==segE> barE    内  ==>  c                          图中seg1
@@ -629,56 +791,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
     } //-------- E F 5
   } //-------(MARK>0)
-  ////xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  // 只有两种情况：
-  // {
-  // ***********【1】 mark==0  一个seg包含一个或多个bar的情况
-
-  //    【A】【B】【C】:  barE <= tick <= segE
-  //  ------| ----------|...cur...|-----------------|------
-  //    segB|        barB      barE             segE|
-  //
-  //    【D】 : barE == segE == tick
-  //  ------| ----------------------------|...cur...|------
-  //        |                         barB|     barE|
-  //    segB|                                   segE|
-  //
-  //    【E】  tick 落在 segE 之外
-  // }
-  //
-  //
-  // {
-  // ***********【2】 mark>0  一个bar包含多个seg的情况
-  //  -------|........seg1|.......seg2|^^^^^^^^|.......seg3|----
-  //     barB|                                         barE|----
-  //   【A】【B】【C】 属于 barE > cur_segE的情况
-  //   【D】 属于 barE = segE的情况
-  //   【E】  tick 落在 segE 之外
-  // }
-
-  /*
-  【1】******************* mark==0  一个seg包含一个或多个bar的情况
-  【A】： barE ==tick < segE   { curBar结束，newBar}
-  【B】： barE < tick < segE   { curBar结束，newBar也可能结束，再new一个bar}
-  【C】： barE < tick== segE   { curBar结束，此seg最后一个bar也结束，此seg外紧临，再newbar} 除多结束一个bar以外，和下面一样 bar结束， seg也结束
-  【D】： barE ==tick== segE   { curBar结束，在此seg之外，紧临，再new 一个bar }    和后面一样 bar结束， seg也结束
-  【E】： tick > (segE barE)   { curBar结束，在此seg之外，while，再new 一个bar }   这种情况要处理 00:00:00 ----
-  情形【E】要修改， 如果tick 是 00:00:00 其实也在 barE 之外，因为barE 是 24:00:00。但 tick < segE
-   */
-
-  /*
-  【2】******************** mark>0  一个bar包含多个seg的情况
-  【A】： segE ==tick < barE   { curseg结束，}  // (charmi  注意 24小时问题, 有可能 barE < segE !!!)
-  【B】： segE < tick < barE   { curseg结束，}
-  【C】： segE < tick== barE   { curbar结束，}
-  【D】： segE ==tick== barE   { curbar结束，在此seg之外，紧临，再new 一个bar }
-  【E】： tick > (barE segE)   { curbar结束，在此seg之外，while，再new 一个bar }
-   情形【E】要修改， 如果tick 是 00:00:00 其实也在 barE 之外，因为barE 是 24:00:00。但 tick < barE
-   以上【A】和【B】 合成一个 ： if( tick < barE) {  从next   seg   开始检查 tick是否在  其中  }
-   以上【C】和【D】 合成一个 ： tick  == barE   {  本 bar  结束 ，在此 bar 之外，紧临，再new 一个bar }  和前面一样 bar结束， seg也结束
-  【E】单独成一项。 检查  tick在哪个 seg中，然后计算 在哪个bar中。 和前面一种情况的【E】 处理方法一样。
-   */
-  /* 33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333 */
+  //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   if(MARK < 0) {           // 第一个bar处理
     int i = 0;
     while(!(memcmp(babo->seg[i]->cB,tik,8)<=0 && memcmp(tik,babo->seg[i]->cE,8)<=0)) {
@@ -721,8 +834,6 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     }
 
   }
-
-  /* 33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333 */
   /*
     curB--curE
     barB--barE
@@ -730,293 +841,6 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     mark ==> 每个seg的类型, 0:表示这个seg包含多个bar。 1：2：3：表示 此seg属于某个bar。
     idx  ==> seg 数组下标
   */
-
-  /*
-   程序是按   tick==barE    tick>barE     tick<barE   这三种情况来分类写的
-  */
-
-// ---------------------1111 【tick = barE】--------------------------------------------------------------------
-//if(tick == barE) {
-  if(memcmp(tik,barE,8)==0) {
-    if(tick->UpdateMillisec < 500) {  // 前一个K柱收盘
-      if(T________) {
-        sprintf(ca_errmsg,"DealBar()00001:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
-        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-      }
-      UPDATE_B1;
-      SendBars();
-      b1->sent = 1;  // send save 标志位设置在 bar1内。在NEW_B1时，设置为 0。
-      return 0;
-      /*
-        为什么不在这里new bar的原因，是因为这个ms<500的tick，只能标志这个bar的结束。下一个tick有可能过非常
-        久才到来，已经不确定是第几个bar了。所以只能等到新的tick到来时，才能确定新的bar
-      */
-    } else {
-      //  说明：
-      //  当收到一个tick==barE时，如果 ms<500，那么会执行上面的部分，然后 不 new bar!!!! 等走到下面
-      //  第二个 tick==bar ms>=500 时
-      if(T________) {
-        sprintf(ca_errmsg,"DealBar()00002:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
-        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-      }
-      if(!b1->sent) {
-        SendBars();
-      }
-      SWAP_BAR ;
-      NEW_B1 ;
-    }
-    // ........................( tick == barE )
-    if(memcmp(tik,SEGE,8)<0) {
-      //-------------------------------------------------------( tick == barE )---------- 1  【A】： barE ==tick < segE
-      if(T________) {
-        sprintf(ca_errmsg,"DealBar()00003:p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
-        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-      }
-      if(babo->seg[curiX]->mark==0) {
-        curiB = curiB+fr;
-        curiE = curiE+fr;
-        //memcpy(curB,curE) ;
-        uBEE::MakeTime(curE,curiE);
-        memcpy(b1->cB,curB,9);
-        memcpy(b1->cE,curE,9);
-      } else {
-        // 执行 下面一段！！  2 【C】
-      }
-    }
-    // ........................ ( tick == barE )
-    //if(memcmp(tik,SEGE,8)>=0) {
-    // 这里要判断 24小问题 在 seg[idx]里设置标示位。 对于 segE < tick== barE 这种情况，有可能 segE > barE (segE=23:30:00  barE=01:00:00)
-    //-------------------------------------------------------( tick == barE )---------- 1  【D】： barE ==tick== segE
-    //                                                                                  2  【D】： segE ==tick== barE
-    //                                                                                  2  【C】： segE < tick== barE
-    if(T________) {
-      sprintf(ca_errmsg,"DealBar()00004:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-              period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
-      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-    }
-    int idx ;
-    if(memcmp(tik,SEGE,8)>0) {
-      curiX = babo->seg[curiX]->barEx+1 ;
-    } else {
-      curiX++ ;
-    }
-    /*
-    //int last = 0 ; //charmi
-    while(idx < fubo->pBaBo[period]->iSegNum) {
-      if(babo->seg[idx+1]->mark >  babo->seg[idx]->mark) {
-        break;
-      }
-      idx++;
-    }
-    */
-    if(curiX > babo->iSegNum) {
-      // 应该不会走到这里来！ 这里是 tick == barE  并且 ms >=500 的情况。
-      // 如果是最后一个BAR, 不会出现在 ms >= 500的情况.
-      // 一天中，最后一个tick。
-      // 从头再来！！！
-      return 0 ;
-    }
-    //idx = babo->seg[last]->idx +1; //charmi
-    if(0 == babo->seg[curiX]->mark) {
-      //curB = segB[idx].cB ;
-      //curE = segB[idx].cB + fr ;
-      curiB = babo->seg[curiX]->iB ;
-      curiE = babo->seg[curiX]->iB + fr ;
-      memcpy(curB,babo->seg[curiX]->cB,9);
-      MakeTime(curE,curiE);
-
-      NEW_B1;
-      memcpy(b1->cB,curB,9);
-      memcpy(b1->cE,curE,9);
-    } else {
-      memcpy(curB,babo->seg[curiX]->cB,9);
-      memcpy(curE,babo->seg[curiX]->cE,9);
-      curiB = babo->seg[curiX]->iB ;
-      curiE = babo->seg[curiX]->iE ;
-      memcpy(b1->cB,babo->seg[curiX]->barB,9);
-      memcpy(b1->cE,babo->seg[curiX]->barE,9);
-    }
-    // }
-  }  // end ---- 1111
-
-// ---------------------2222 【tick > barE】--------------------------------------------------------------------
-  if(memcmp(tik,barE,8)>0) {
-    if(T________) {
-      sprintf(ca_errmsg,"DealBar()00005:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-              period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
-      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-    }
-
-    if(!sent) {
-      SendBars();
-    }
-    // ........................ (tick > barE)
-    if(memcmp(tik,SEGE,8)<0) {
-      //24H ???
-      //-----------------------------------------------------(tick > barE)---------- 1  【B】： barE < tick < segE
-      if(T________) {
-        sprintf(ca_errmsg,"DealBar()00006:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
-                curiX,fubo->pBaBo[period]->curiX) ;
-        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-      }
-      int i = 0;
-      while(curiE < babo->seg[curiX]->iE) {
-        /*
-          SWAP_BAR ;
-          NEW_B1 ;
-          UPDATE_BAR1;
-          return 0 ;
-        */
-        curiB = curiB+fr;
-        curiE = curiE+fr;
-        uBEE::MakeTime(curB,curiB);
-        uBEE::MakeTime(curE,curiE);
-        if(memcmp(curB,tik,8)<=0 && memcmp(tik,curE,8)<0) {
-          break;
-        }
-        i++ ;  //用于计数，中间间隔了几个bar ? 暂时还没有用到.
-      }
-
-      NEW_B1;
-      memcpy(barB,curB,9);
-      memcpy(barE,curE,9);
-
-      //if(segB[i] == barE) {
-      if(memcmp(babo->seg[i]->cB,barE,8)==0) {
-        // 让其走到下面 tick == segE
-      }
-    }
-    // ........................(tick > barE)
-    if(memcmp(tik,SEGE,8)==0) {
-      //-------------------------------------------------------(tick > barE)---------- 1  【C】： barE < tick== segE
-      if(T________) {
-        sprintf(ca_errmsg,"DealBar()00007:【tick == barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
-                curiX,fubo->pBaBo[period]->curiX) ;
-        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-      }
-      int idx =1; // charmi
-      if(tick->UpdateMillisec < 500) {
-        NEW_B1 ;
-        b1->iB = babo->seg[idx]->iE - fr ;
-        //memcpy(,b1->iB,9); charmi
-        memcpy(b1->cE,babo->seg[idx]->cE,9);
-        SendBars();
-        b1->sent = 1;
-
-        //memcpy(curB,,9); charmi
-        memcpy(curE,b1->cE,9);
-
-        curiB = babo->seg[curiX]->iE - fr;
-        curiE = babo->seg[curiX]->iE ;
-        uBEE::MakeTime(curB,curiB);
-        memcpy(curE,babo->seg[curiX]->cE,9);
-        return 0;
-        // 不在这里new下一个bar，那它执行到 下一个tick，看它走到哪里！
-        // 要判断是不是 一天的结束。
-
-      } else { // tick->UpdateMillisec >= 500
-        // 程序不会走到这里，这种情况 会执行  tick == barE == segE 。
-      }
-    }
-    // ........................(tick > barE)
-    //if(tik > segE) {
-    if(memcmp(tik,SEGE,8)>0) {
-      //--------------------------------------------------------(tick > barE)---------1 【E】： tick > (barE segE)
-      //                                                                              2 【E】： tick > (barE segE)
-      if(T________) {
-        sprintf(ca_errmsg,"DealBar()00008:p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d iSegNum:%d",
-                period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
-                curiX,fubo->pBaBo[period]->curiX,babo->iSegNum) ;
-        uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-      }
-      //int i = sn+1 ; charmi
-      int i = curiX+1;
-      if(i>=babo->iSegNum) {
-        i=0;
-      }
-      while(!(memcmp(babo->seg[i]->cB,tik,8)<=0 && memcmp(tik,babo->seg[i]->cE,8)<=0)) {
-        i++;
-        if(i>=babo->iSegNum) {
-          return 0;
-        }
-      }
-      curiX = i ;
-      if(babo->seg[curiX]->mark ==0) { // mark ==0
-        i=0;
-        curiB = babo->seg[curiX]->iB-fr ;
-        curiE = babo->seg[curiX]->iB ;
-        do {
-          curiB +=fr ;
-          curiE +=fr ;
-          uBEE::MakeTime(curB,curiB);
-          uBEE::MakeTime(curE,curiE);
-          i++;
-        } while(memcmp(tik,curB,8)<0 || memcmp(tik,curE,8)>0);
-
-        NEW_B1;
-        memcpy(barB,curB,9);
-        memcpy(barE,curE,9);
-
-        if(T________) {
-          sprintf(ca_errmsg,"DealBar()00008-2:p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d iSegNum:%d",
-                  period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
-                  curiX,fubo->pBaBo[period]->curiX,babo->iSegNum) ;
-          uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-        }
-
-        SWAP_BAR ;
-        NEW_B1 ;
-        // b1->iB cB ...
-        // b1->iE cE ...
-      } else {  // mark >0
-        curiB = babo->seg[i]->iB ;
-        curiE = babo->seg[i]->iE ;
-        memcpy(curB,babo->seg[i]->cB,9);
-        memcpy(curE,babo->seg[i]->cE,9);
-        // b1->iB cB ...
-        // b1->iE cE ...
-
-      }
-
-      //if(segB[i] == barE) {
-      if(memcmp(babo->seg[i]->cB,barE,8)>0) {
-      }
-
-    }
-  }
-
-// --------------3333 【tick < barE】---------------------------------------------------------------------------
-  if(memcmp(tik,barE,8)<0) {         //  segE <= tick < barE  表示仍在 barB -- barE 这个bar界内
-    //2 【A】： segE ==tick < barE   { curseg结束，}  // (charmi  注意 24小时问题, 有可能 barE < segE !!!)
-    //2 【B】： segE < tick < barE   { curseg结束，}
-    if(T________) {
-      sprintf(ca_errmsg,"DealBar()00009:【tick < barE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
-              period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE,
-              curiX,fubo->pBaBo[period]->curiX) ;
-      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-    }
-    /* charmi
-    while(1) {
-      if(tick in market !)
-        update ;
-    }
-
-    if(tick not in market !) {
-      return 0;
-    }
-    */
-
-  }
-// -----------------------------------------------------------------------------------------
-  if(T________) {
-    sprintf(ca_errmsg,"\n\n\n DealBar():--out!!--------") ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-  }
   return 0;
 }
 
@@ -2672,7 +2496,8 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(MARK == 0) {
     if(memcmp(barE,tik,8)==0) {
       // 【A】：barE==tick <segE  内   ==>  e         s         {结束当前bar}
-      if(memcmp(tik,SEGE,8) <0) {
+      // 【C】：barE==tick==segE  外   ==>  a         s         {结束当前bar}
+      if(memcmp(tik,SEGE,8)<=0) {
         if(tick->UpdateMillisec < 500) {
           UPDATE_B1;
           SendBars();
@@ -2683,21 +2508,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
           }
         }
         return 0;
-      } //------- A
-
-      // 【D】：barE==tick==segE  外   ==>  a         s         {结束当前bar}
-      if(memcmp(tik,SEGE,8)==0) {
-        if(tick->UpdateMillisec < 500) {
-          UPDATE_B1;
-          SendBars();
-          b1->sent = 1;
-        } else {
-          if(!b1->sent) {
-            SendBars();
-          }
-        }
-        return 0;
-      } //------- D
+      } //------- A C
     }
 
     if(memcmp(barE,tik,8)< 0) {
@@ -2707,7 +2518,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
       } //------- B
 
-      //【C】：barE <tick==segE  外   ==>  a         s +  2    {一次结束两个bar}
+      //【D】：barE <tick==segE  外   ==>  a         s +  2    {一次结束两个bar}
       if(memcmp(tik,SEGE,8)==0) {
         SendBars();
         if(tick->UpdateMillisec < 500) {
@@ -2720,7 +2531,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     }
 
     //【E】：barE<=segE <tick  外   ==>  b         s
-    if(memcmp(tik,SEGE,8)>0 && memcmp(SEGE,barE,8)>=0) {
+    if(memcmp(barE,SEGE,8)<=0 && memcmp(SEGE,tik,8)<0) {
       SendBars();
     } // ------- E
 

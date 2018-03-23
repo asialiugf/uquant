@@ -228,6 +228,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       TICK *tick = fusim->MkTickF();
       memcpy(tick->InstrumentID,fubo->InstrumentID,strlen(fubo->InstrumentID)) ;
 
+      if(fubo==nullptr || tick==nullptr) {
+         continue;
+      }
       SendBar(fubo, tick, 1);
       DealBar(fubo, tick, 1);
       /*
