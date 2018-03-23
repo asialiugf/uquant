@@ -525,6 +525,7 @@ int MakeTime(char *caT, int T) ;
 int SendBars();
 int SaveBars();
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period);
+int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 
 
 } //end namespace
