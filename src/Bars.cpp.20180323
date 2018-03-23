@@ -557,7 +557,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
     UPDATE_B1;
 
     if(T________) {
-      sprintf(ca_errmsg,"DealBar()00000:【curB <= tick < curE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
+  sprintf(ca_errmsg,"DealBar()00000:【curB <= tick < curE】p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s curiX:%d, pBaBo[]->curiX:%d",
               period,fr,tick->UpdateTime,tick->UpdateMillisec, curB,curE, barB,barE, SEGB,SEGE, curiX,fubo->pBaBo[period]->curiX) ;
       uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
     }
