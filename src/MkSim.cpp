@@ -67,20 +67,32 @@ TICK * FuSim::MkTickF()             // make tick from tick file
       return nullptr ;
     }
 
+    char Ttemp[15] ;
+    char Atemp[15] ;
+
+    see_memzero(Ttemp,15);
+    see_memzero(Atemp,15);
+
     see_memzero(TradingDay,9);
     see_memzero(ActionDay,9);
     see_memzero(UpdateTime,9);
     see_memzero(InstrumentID,31);
     sscanf(TickLine.c_str(), "D:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
-           TradingDay, UpdateTime, &UpdateMillisec, &ss, ActionDay,
+           Ttemp, UpdateTime, &UpdateMillisec, &ss, Atemp,
            &HighestPrice, &LowestPrice, &LastPrice,
            &AskPrice1, &AskVolume1,
            &BidPrice1, &BidVolume1,
            &OpenInterest, &Volume);
     see_memzero(Tick.InstrumentID,31);
 
-    memcpy(Tick.TradingDay,TradingDay,9) ;
-    memcpy(Tick.ActionDay,ActionDay,9) ;
+    memcpy(Tick.TradingDay,Ttemp,4) ;
+    memcpy(Tick.TradingDay+4,Ttemp+5,2) ;
+    memcpy(Tick.TradingDay+6,Ttemp+8,2) ;
+
+    memcpy(Tick.ActionDay,Atemp,4) ;
+    memcpy(Tick.ActionDay+4,Atemp+5,2) ;
+    memcpy(Tick.ActionDay+6,Atemp+8,2) ;
+
     memcpy(Tick.UpdateTime,UpdateTime,9) ;
     Tick.UpdateMillisec = UpdateMillisec/1000;
     Tick.HighestPrice = HighestPrice;

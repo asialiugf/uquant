@@ -197,7 +197,8 @@ static const std::map<std::string,int> M_FF = {
                        b1->h = tick->LastPrice ; \
                        b1->l = tick->LastPrice ; \
                        b1->vsum = tick->Volume ; \
-                       b1->v = 0 ;
+                       b1->v = 0 ; \
+                       b1->sent = 0;
 
 #define NEW_B1_Z       memcpy(b1->TradingDay,tick->TradingDay,9) ; \
                        memcpy(b1->cB,tick->UpdateTime,9) ; \
@@ -523,9 +524,10 @@ int is_mkt_open(see_fut_block_t *p_block, TICK *tick) ;
 int is_same_k_bar(see_fut_block_t *p_block, see_bar_t *p_bar1, TICK *tick, int period);
 int MakeTime(char *caT, int T) ;
 int SendBars();
-int SaveBars();
+int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period);
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period);
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
+int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 
 
 } //end namespace
