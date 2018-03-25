@@ -204,9 +204,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       }
       for(int j=0; j<fubo->pBaBo[i]->iSegNum; ++j) {
         stSegment *seg = fubo->pBaBo[i]->seg[j] ;
-        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d, mk:%d  sgB sgE:%s-%s baBbaE:%s--%s  sgiB:%d  sgiE:%d  bariB:%d  bariE:%d   barBx:%d  barEx:%d ",
+        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d:%d, mk:%d  segBE:%s-%s barBE:%s--%s  sgiBE:%d--%d  bariBE:%d--%d   barBxEx:%d--%d",
                 fubo->InstrumentID,
-                i,fubo->pBaBo[i]->iF,j,seg->mark,
+                i,fubo->pBaBo[i]->iF,j,fubo->pBaBo[i]->iSegNum,seg->mark,
                 seg->cB,seg->cE,seg->barB,seg->barE,
                 seg->iB,seg->iE,
                 seg->bariB,seg->bariE,seg->barBx,seg->barEx);
@@ -244,6 +244,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
          continue;
       }
       SendBar(fubo, tick, 1);
+      SaveBar(fubo, tick, 1);
       DealBar(fubo, tick, 1);
       /*
       for(int i=0; i<50; ++i) {

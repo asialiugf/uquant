@@ -229,10 +229,11 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
             seg[k]->barEx = idx ;
 
             if(T________) {
-              sprintf(ca_errmsg,"5555--- idx:%d mark:%d seg[idx]->barB:%s seg[idx]->barE:%s",idx,seg[k]->mark,seg[k]->barB,seg[k]->barE) ;
+              sprintf(ca_errmsg,"5555--- idx:%d mark:%d segBE:%s--%s  barBE:%s--%s",idx,seg[k]->mark,seg[k]->cB,seg[k]->cE,seg[k]->barB,seg[k]->barE) ;
               uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
             }
           }
+          idx++;
           break;
         }
 
@@ -273,8 +274,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
       }
 
       idx++;
-
     }
+
     if(mo > 0) {
       seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
       seg[idx]->iB = iE-mo ;
@@ -284,7 +285,6 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
       MakeTime(seg[idx]->cB,seg[idx]->iB) ;
       MakeTime(seg[idx]->cE,seg[idx]->iE) ;
-      //std::cout << "idx:"<<idx<<" mo:"<<mo <<" mark:"<<seg[idx]->mark <<" seg B E: "<< seg[idx]->cB <<"----"<< seg[idx]->cE << std::endl;
 
       if(T________) {
         sprintf(ca_errmsg,"8888--- idx:%d mark:%d mo:%d seg B:%s seg E:%s",idx,mark,mo,seg[idx]->cB,seg[idx]->cE) ;
@@ -519,6 +519,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   char * barB = b1->cB ;
   char * barE = b1->cE ;
   int x = 0;
+  int i = 0;
 
   BaBo * babo = fubo->pBaBo[period] ;
 
@@ -569,14 +570,11 @@ mark0:
         return 0;
       } //------- A
 
-
-
       // 【B】：barE <tick <segE  内   ==>  f         s or 2    {可能结束两个bar}
       //  1： 调用此函数之前，调用 SendBar()，处理当前K。
       //  2： 找到 tick所在的区间，如果刚好 memcmp(tik,barE,8)==0，即，这个tick 也是一个K+1的结束点，就执行下面 3 4.
       //  3： NEW_B1; 这样的话，当前的tick就在 K+1。 相当于 一个新的状态处于K+1时，来了这个tick
       //  4:  重新来一遍： SendBar() SaveBar() ---> goto mark0:
-
       // 【B】：barE <tick <segE  内   ==>  f         s or 2    {可能结束两个bar}
       if(memcmp(barE,tik,8)<0) {
         do {
@@ -626,6 +624,7 @@ mark0:
         SendBar(fubo,tick,period);
         SaveBar(fubo,tick,period);
         goto  aaa;
+        //goto  mark0;
       }
     } //------- C D
 
@@ -706,81 +705,7 @@ aaa:
       // exexexex: 只有一种情况，会走到下面的流程：即前一个seg和后一个seg相连，
       // 比如 seg1:[09:00:00-10:00:00] seg2:[10:00:00-11:00:00] 在10:00:00是相连的
       curiX++;
-      if(curiX < babo->iSegNum -1) {
-        if(MARK==0) {
-          curiB = babo->seg[curiX]->iB ;
-          curiE = babo->seg[curiX]->iB + fr ;
-          memcpy(curB,babo->seg[curiX]->cB,9);
-          uBEE::MakeTime(curE,curiE);
-          NEW_B1;
-          memcpy(barB,curB,9);
-          memcpy(barE,curE,9);
-
-          Display(fubo,tick,period,"eeee:004---");
-          // 这里要修改！
-          //goto mark0;
-          return 0;
-        }
-
-
-        if(MARK>0) {
-          curiB = babo->seg[curiX]->iB ;
-          curiE = babo->seg[curiX]->iE ;
-          memcpy(curB,babo->seg[curiX]->cB,9);
-          memcpy(curE,babo->seg[curiX]->cE,9);
-          NEW_B1;
-          memcpy(barB,babo->seg[curiX]->barB,9);
-          memcpy(barE,babo->seg[curiX]->barE,9);
-
-          Display(fubo,tick,period,"eeee:005---");
-          return 0;
-        }
-      }
-      if(curiX == babo->iSegNum -1) {
-        if(MARK==0) {
-          if(fr < babo->seg[curiX]->iE-babo->seg[curiX]->iB) {
-            curiB = babo->seg[curiX]->iB ;
-            curiE = babo->seg[curiX]->iB + fr ;
-            memcpy(curB,babo->seg[curiX]->cB,9);
-            uBEE::MakeTime(curE,curiE);
-            NEW_B1;
-            memcpy(barB,curB,9);
-            memcpy(barE,curE,9);
-
-            Display(fubo,tick,period,"eeee:006---");
-            return 0;
-          } else {
-            curiB = babo->seg[curiX]->iB ;
-            curiE = babo->seg[curiX]->iE ;
-            memcpy(curB,babo->seg[curiX]->cB,9);
-            memcpy(curE,babo->seg[curiX]->cE,9);
-            NEW_B1;
-            memcpy(barB,curB,9);
-            memcpy(barE,curE,9);
-
-            Display(fubo,tick,period,"eeee:007---");
-            return 0;
-          }
-        }
-        if(MARK>0) {
-          curiB = babo->seg[curiX]->iB ;
-          curiE = babo->seg[curiX]->iE ;
-          memcpy(curB,babo->seg[curiX]->cB,9);
-          memcpy(curE,babo->seg[curiX]->cE,9);
-          NEW_B1;
-          memcpy(barB,babo->seg[curiX]->barB,9);
-          memcpy(barE,babo->seg[curiX]->barE,9);
-
-          Display(fubo,tick,period,"eeee:008---");
-          return 0;
-        }
-      }
-
-      if(curiX > babo->iSegNum-1) {
-        curiX=0;
-        // 重新初始化，新一天！
-        return 0;
-      }
+      goto ddd;
 
     } //------- C D 4
 
@@ -804,7 +729,7 @@ bbb:
       }
 
 ccc:
-      int i=x;
+      i=x;
       if(MARK<0) {
         i=0;
       }
@@ -812,19 +737,20 @@ ccc:
       while(memcmp(tik,babo->seg[i]->cB,8)<0 || memcmp(tik,babo->seg[i]->cE,8)>0) {
         Display(fubo,tick,period,"eeee:010---");
         i++;
-        if(i>=babo->iSegNum) {
+        if(i >= babo->iSegNum) {
           return 0;
         }
       }  // 找到 tick 在哪个段中
       curiX = i ;  // tick所在的段
-
-
+ddd:
+      //if(curiX <= babo->iSegNum-1) {
       // 当tick在一个新的段中，处于一个新的 bar中，这个bar在段内（ mark ==0 ）
       // 就有可能 出现 memcmp(tik,barE,8)==0 的情况，那么 这个tick所在的bar此时就要结束，
       // 于是就要再走一遍 SendBar() SaveBar() ---> goto mark0 。
       // 见下面的 goto mark0;
-      if(babo->seg[curiX]->mark ==0) { // mark ==0
-        i=0;
+      if(MARK==0) {
+eee:
+        //i=0;
         curiB = babo->seg[curiX]->iB-fr ;
         curiE = babo->seg[curiX]->iB ;
         do {
@@ -832,11 +758,9 @@ ccc:
           curiE +=fr ;
           uBEE::MakeTime(curB,curiB);
           uBEE::MakeTime(curE,curiE);
-          i++;
+          //i++;
         } while(memcmp(tik,curB,8)<0 || memcmp(tik,curE,8)>0);
 
-
-        //SWAP_BAR ;
         NEW_B1;
         memcpy(barB,curB,9);
         memcpy(barE,curE,9);
@@ -854,7 +778,9 @@ ccc:
 
       // 当 mark >0 时，当前 tick如果刚好是这个段的结束点 (memcmp(tik,babo->seg[curiX]->cE,8)==0)
       // 那 也需要重新来过，处理一遍。见下面的 goto mark1 ;
-      if(babo->seg[curiX]->mark > 0) {  // mark >0
+      if(MARK > 0) {
+fff:
+        NEW_B1;
         curiB = babo->seg[curiX]->iB ;
         curiE = babo->seg[curiX]->iE ;
         memcpy(curB,babo->seg[curiX]->cB,9);
@@ -873,11 +799,31 @@ ccc:
         }
         return 0;
       }
+      //} // if(curiX<babo->iSegNum-1)
+
+      /*
+      if(curiX == babo->iSegNum-1) {  // 最后一个seg!!
+        if(MARK==0) {
+          if(fr < babo->seg[curiX]->iE - babo->seg[curiX]->iB) {
+            Display(fubo,tick,period,"eeee:006---");
+            goto eee;
+          } else {
+            goto fff;
+          }
+        }
+
+        if(MARK > 0) {
+          goto fff;
+        }
+
+      } // if(curiX==babo->iSegNum-1)
+      */
+
     } //-------- E F 5
   } //-------(MARK>0)
 
 
-  //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   if(MARK < 0) {           // 第一个bar处理
     goto ccc;
     /*
@@ -2532,6 +2478,30 @@ int SendBars()
 }
 int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
+
+  BaBo * babo = fubo->pBaBo[period] ;
+  stBar *b0 = babo->b0 ;
+  stBar *b1 = babo->b1 ;
+  stBar *p_bar0 =  &babo->bar0;
+  stBar *p_bar1 =  &babo->bar1;
+
+  char msg[] = "hhhh:";
+
+  if(b1->sent = 1) {
+    sprintf(ca_errmsg,"%s T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d",
+            msg,
+            b1->TradingDay,
+            b1->ActionDay,
+            b1->cB,
+            b1->cE,
+            b1->h,
+            b1->o,
+            b1->c,
+            b1->l,
+            b1->v,
+            b1->vsum) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  }
   return 0;
 }
 
