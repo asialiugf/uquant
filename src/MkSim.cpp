@@ -241,11 +241,19 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       memcpy(tick->InstrumentID,fubo->InstrumentID,strlen(fubo->InstrumentID)) ;
 
       if(fubo==nullptr || tick==nullptr) {
-         continue;
+        continue;
       }
+      uBEE::ErrLog(1000,"7777777777777771",1,0,0);
+      uBEE::ErrLog(1000,"enter----sendbar!!!----!!",1,0,0);
       SendBar(fubo, tick, 1);
+      uBEE::ErrLog(1000,"exit----sendbar!!!----!!",1,0,0);
+      uBEE::ErrLog(1000,"enter----savebar!!!----!!",1,0,0);
       SaveBar(fubo, tick, 1);
+      uBEE::ErrLog(1000,"exit----savebar!!!----!!",1,0,0);
+      uBEE::ErrLog(1000,"enter----DealBar!!!----!!",1,0,0);
       DealBar(fubo, tick, 1);
+      uBEE::ErrLog(1000,"exit----DealBar!!!----!!",1,0,0);
+      uBEE::ErrLog(1000,"7777777777777772",1,0,0);
       /*
       for(int i=0; i<50; ++i) {
         if(fubo->pBaBo[i] == nullptr) {

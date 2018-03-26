@@ -376,6 +376,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   tmpBar.l = DBL_MAX;
   tmpBar.v = 0;
   tmpBar.vsum = 0;   // 开始的第一个bar 的 v 值 可能会有问题！！
+  tmpBar.sent = 0;
   // ----------请参见 #define UPDATE_B1 的定义
 
   memcpy((char *)pbar0,&tmpBar,sizeof(stBar)) ;
@@ -532,7 +533,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   char * tik = tick->UpdateTime ;
 
-  int sent ;
+  //int sent ;
   int mark ;
 
   int fr = fubo->pBaBo[period]->iF ;
@@ -2478,7 +2479,6 @@ int SendBars()
 }
 int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-
   BaBo * babo = fubo->pBaBo[period] ;
   stBar *b0 = babo->b0 ;
   stBar *b1 = babo->b1 ;
@@ -2486,8 +2486,7 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
   stBar *p_bar1 =  &babo->bar1;
 
   char msg[] = "hhhh:";
-
-  if(b1->sent = 1) {
+  if(b1->sent==1) {
     sprintf(ca_errmsg,"%s T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d",
             msg,
             b1->TradingDay,
@@ -2501,6 +2500,7 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
             b1->v,
             b1->vsum) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    b1->sent =2 ;
   }
   return 0;
 }
@@ -2539,7 +2539,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   char * tik = tick->UpdateTime ;
 
-  int sent ;
+  //int sent ;
   int mark ;
 
   int fr = fubo->pBaBo[period]->iF ;

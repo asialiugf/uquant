@@ -292,7 +292,7 @@ struct stBar {
   double  l ;             // low
   int     v ;             // volume
   int     vsum ;          // keep volume sum
-  int     sent ;          // 有没有sent 或者写入
+  int     sent ;          // 有没有sent 或者写入  ==2 已写 ==1 已sent 但没有写 ==0 没发没写
 };
 
 struct stBarBo {
