@@ -77,7 +77,7 @@ TICK * FuSim::MkTickF()             // make tick from tick file
     see_memzero(ActionDay,9);
     see_memzero(UpdateTime,9);
     see_memzero(InstrumentID,31);
-    sscanf(TickLine.c_str(), "D:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+    sscanf(TickLine.c_str(), "T:%s %s %d S:%d A:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
            Ttemp, UpdateTime, &UpdateMillisec, &ss, Atemp,
            &HighestPrice, &LowestPrice, &LastPrice,
            &AskPrice1, &AskVolume1,
@@ -243,17 +243,12 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       if(fubo==nullptr || tick==nullptr) {
         continue;
       }
-      uBEE::ErrLog(1000,"7777777777777771",1,0,0);
-      uBEE::ErrLog(1000,"enter----sendbar!!!----!!",1,0,0);
+      HandleTick(fubo,tick);
+      /*
       SendBar(fubo, tick, 1);
-      uBEE::ErrLog(1000,"exit----sendbar!!!----!!",1,0,0);
-      uBEE::ErrLog(1000,"enter----savebar!!!----!!",1,0,0);
       SaveBar(fubo, tick, 1);
-      uBEE::ErrLog(1000,"exit----savebar!!!----!!",1,0,0);
-      uBEE::ErrLog(1000,"enter----DealBar!!!----!!",1,0,0);
       DealBar(fubo, tick, 1);
-      uBEE::ErrLog(1000,"exit----DealBar!!!----!!",1,0,0);
-      uBEE::ErrLog(1000,"7777777777777772",1,0,0);
+      */
       /*
       for(int i=0; i<50; ++i) {
         if(fubo->pBaBo[i] == nullptr) {

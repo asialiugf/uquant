@@ -1,4 +1,5 @@
 //#include "../ctp/ThostFtdcMdApi.h"
+#include "ErrLog.h"
 #include "FuList.h"
 #include "MdSpi.h"
 #include "Bars.h"
@@ -36,7 +37,7 @@ std::map<std::string,uBEE::FuBo>    M_CtpFuBo;         // 每个期货一个 FuBlock，
 std::shared_ptr<uBEE::DBPool> dbpool;
 //uBEE::TradingTime             *tt;
 uBEE::FuList                  *fl;
-uBEE::TimeBlock        *tmbo;
+//uBEE::TimeBlock        *tmbo;
 //------- ----------------- ----------------  ----------
 
 CMdSpi::CMdSpi()
@@ -87,23 +88,24 @@ void CMdSpi::Init()
       break ;
     }
     std::cout << "=============:" << ppInstrumentID[i] << std::endl;
+    sprintf(ca_errmsg,"99999==========: %s",ppInstrumentID[i]) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
   }
   // ---- for testing end  ---------------------------------------
 
   // ...... 初始化 交易时间对象 ...................................
-  //tt = new uBEE::TradingTime() ;
   //tmbo = new uBEE::TimeBlock();
 
   // ---- for testing begin ---------------------------------------
   std::cout << "999999999999999999999\n" ;
   for(int j=0; j<7; j++) {
     int i = 0;
-    while(i<SGM_NUM &&tmbo->TT[j].aSgms[i].iI !=-1) {
-      std::cout << "----:"<< tmbo->TT[j].aSgms[i].cB ;
-      std::cout << "----:"<< tmbo->TT[j].aSgms[i].cE ;
-      std::cout << "----:"<< tmbo->TT[j].aSgms[i].iB ;
-      std::cout << "----:"<< tmbo->TT[j].aSgms[i].iE ;
-      std::cout << "----:"<< tmbo->TT[j].aSgms[i].iI << std::endl;
+    while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].cE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iB ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iE ;
+      std::cout << "----:"<< tb->TT[j].aSgms[i].iI << std::endl;
       i++;
     }
     std::cout << std::endl;
@@ -113,7 +115,7 @@ void CMdSpi::Init()
 
 
   // ...... 初始化 期货 block FuBlockMap ... .......................
-  dbpool = std::make_shared<uBEE::DBPool>();
+  //dbpool = std::make_shared<uBEE::DBPool>();
 
   // ...... 每个 future 生成一个 future block ( new uBEE::FuBo )
   for(int i = 0; i< FUTURE_NUMBER; i++) {
@@ -133,11 +135,11 @@ void CMdSpi::Init()
     //std::cout << " after fb->Init  + map hahah ------------\n" ;
 
     int fr[5] = {19,14401,180,300,600};
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tmbo,&fr[0], 5); 
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb,&fr[0], 5);
     M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
   }
-  exit(0); // charmi
+  //exit(0); // charmi
 }
 
 void CMdSpi::set_SG(uWS::Group<uWS::SERVER> * sg)
@@ -247,6 +249,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
   strftime(currentTime, sizeof(currentTime), "%Y/%m/%d %X",localtime(&t));
 
 
+  /*
   map<std::string,uBEE::FuBlock>::iterator it;
   it=FuBlockMap.find(tick->InstrumentID);
   if(it==FuBlockMap.end())
@@ -259,13 +262,17 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
     see_handle_bars(&(it->second.Block), tick);
     see_handle_bars(&(it->second.Block), tick);
   }
+  */
 
   map<std::string,uBEE::FuBo>::iterator iter;
-  iter=M_CtpFuBo.find(tick->InstrumentID);  
+  iter=M_CtpFuBo.find(tick->InstrumentID);
   if(iter==M_CtpFuBo.end())
     std::cout<<"we do not find :"<< tick->InstrumentID <<std::endl;
   else {
-    DealBar(&(iter->second), tick,2);
+    HandleTick(&(iter->second), tick) ;
+    //SendBar(&(iter->second), tick,2);
+    //SaveBar(&(iter->second), tick,2);
+    //DealBar(&(iter->second), tick,2);
   }
 }
 

@@ -60,12 +60,14 @@ int main(int argc, char **argv)
 
   std::cout << "befor fork api !!\n" ;
   rtn = ForkApi();
-  std::cout << "after fork api !!\n" ;
   sleep(1);
+  std::cout << "after fork api !!\n" ;
+  /*
   for(int i=0; i<5; i++) {
     rtn = ForkBck();
     sleep(1);
   }
+  */
   sleep(1);
   rtn = ForkSim();
   sleep(1);
@@ -179,7 +181,7 @@ int ForkSim()
 
     //------ 开一个新的线程----------------
     std::thread t([&hub] {
-      uBEE::MkSim(hub.sg);
+      //uBEE::MkSim(hub.sg);
     });  /* thread t */
     t.detach();
     hub.Start();

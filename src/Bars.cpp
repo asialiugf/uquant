@@ -198,8 +198,6 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
         mark = 0;
         idx++ ;
-        std::cout <<idx<< std::endl;
-        std::cout << std::endl;
 
       } else if(iB + last >= iE) {
         seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
@@ -488,14 +486,10 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
   }
 }
 
+// ---------------------------------------------------------
 /*
   下面的period，是指在 fubo->aBarBo[]数组的下标
-  int f 以秒计的周期
 */
-int NewBar(uBEE::FuBo *fubo, TICK *tick,int period, int fr, int first)
-{
-}
-// ---------------------------------------------------------
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
@@ -2477,6 +2471,50 @@ int SendBars()
 {
   return 0;
 }
+
+
+int HandleTick(uBEE::FuBo *fubo, TICK *tick)
+{
+  int i = 0;
+
+  for(i=0; i<50; ++i) {
+    if(fubo->pBaBo[i] != nullptr) {
+      SendBar(fubo,tick,i) ;
+    }
+  }
+
+  for(i=0; i<50; ++i) {
+    if(fubo->pBaBo[i] != nullptr) {
+      SaveBar(fubo,tick,i) ;
+      DealBar(fubo,tick,i) ;
+    }
+  }
+
+  char f[512] ;
+  snprintf(f,512,"../data/tick/%s.%s.tick.bin",fubo->InstrumentID,tick->TradingDay);
+  SaveBin(f,(const char *)tick,sizeof(TICK)) ;
+
+  snprintf(f,512,"../data/tick/%s.%s.tick.txt",fubo->InstrumentID,tick->TradingDay);
+  sprintf(ca_errmsg,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+          tick->TradingDay,
+          tick->UpdateTime,
+          tick->UpdateMillisec*1000,
+          0,
+          tick->ActionDay,
+          tick->HighestPrice,
+          tick->LowestPrice,
+          tick->LastPrice,
+          tick->AskPrice1,
+          tick->AskVolume1,
+          tick->BidPrice1,
+          tick->BidVolume1,
+          tick->OpenInterest,
+          tick->Volume);
+  SaveLine(f,ca_errmsg) ;
+  return 0;
+}
+
+
 int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   BaBo * babo = fubo->pBaBo[period] ;
@@ -2485,22 +2523,18 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
   stBar *p_bar0 =  &babo->bar0;
   stBar *p_bar1 =  &babo->bar1;
 
-  char msg[] = "hhhh:";
+  char f[512] ;
+
   if(b1->sent==1) {
-    sprintf(ca_errmsg,"%s T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d",
-            msg,
-            b1->TradingDay,
-            b1->ActionDay,
-            b1->cB,
-            b1->cE,
-            b1->h,
-            b1->o,
-            b1->c,
-            b1->l,
-            b1->v,
-            b1->vsum) ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
     b1->sent =2 ;
+    snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
+    snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s H:%g O:%g C:%g L:%g V:%d vsam:%d",
+             fubo->InstrumentID, b1->TradingDay, b1->ActionDay,
+             b1->cB, b1->cE,
+             b1->h, b1->o, b1->c, b1->l,
+             b1->v, b1->vsum) ;
+    //uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    SaveLine(f,ca_errmsg) ;
   }
   return 0;
 }
@@ -2724,17 +2758,10 @@ int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
 
   if(T________) {
     sprintf(ca_errmsg,"%s T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d",
-            msg,
-            b1->TradingDay,
-            b1->ActionDay,
-            b1->cB,
-            b1->cE,
-            b1->h,
-            b1->o,
-            b1->c,
-            b1->l,
-            b1->v,
-            b1->vsum) ;
+            msg, b1->TradingDay, b1->ActionDay,
+            b1->cB, b1->cE,
+            b1->h, b1->o, b1->c, b1->l,
+            b1->v, b1->vsum) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
 }

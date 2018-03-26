@@ -632,7 +632,7 @@ std::string TicksCheck(const char * serials, cJSON *tick)
   memcpy(&ca_ActionDay[6],&ca_trading_day[8],2);
   
 
-  sprintf(ca_msg,"D:%s %s %s S:%s T:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g",
+  sprintf(ca_msg,"T:%s %s %s S:%s A:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g",
           ca_TradingDay,
           ca_UpdateTime,
           ca_UpdateMillisec,

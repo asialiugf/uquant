@@ -18,7 +18,7 @@ namespace uBEE
 
 using namespace std;
 
-char ca_errmsg[2048];
+char ca_errmsg[ERR_MSG_LEN];
 static char LOG_FILE_NAME[100]= {"./errlog"} ;
 static int MAX_BAK_LOG_SIZE = 200*1024*1024 ;
 

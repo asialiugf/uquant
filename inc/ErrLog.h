@@ -10,6 +10,8 @@ int ErrLog(int iErrCode,const char *message,char cDumpDev,const char *buf,long l
 int CheckDate(int year, int month, int day);
 std::string GetCallback();
 
+#define ERR_MSG_LEN         2048
+
 #define  RPT_TO_LOG	    	1          /* 00000001 */
 #define  RPT_TO_TTY	    	2          /* 00000010 */
 #define  RPT_TO_CON   		4          /* 00000100 */

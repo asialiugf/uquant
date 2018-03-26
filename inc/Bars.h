@@ -511,7 +511,6 @@ see_bar_t * see_create_bar(char * p_future_id, char c_period) ;
 //int split_string(char *s,char _cmd[SEE_SGM_NUM][20]) ;
 int see_time_to_int(char *f) ;
 int see_handle_bars(see_fut_block_t *p_block, TICK *tick) ;
-int DealBar(uBEE::FuBo *fubo, TICK *tick,int period);
 int see_send_bar(see_fut_block_t *p_block,char *pc_msg) ;
 int see_save_bar(see_fut_block_t * p_block, TICK *tick, int period) ;
 int see_save_bar_last(see_fut_block_t *p_block, int period, int i_another_day) ;
@@ -524,8 +523,12 @@ int is_mkt_open(see_fut_block_t *p_block, TICK *tick) ;
 int is_same_k_bar(see_fut_block_t *p_block, see_bar_t *p_bar1, TICK *tick, int period);
 int MakeTime(char *caT, int T) ;
 int SendBars();
-int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period);
+
+int HandleTick(uBEE::FuBo *fubo, TICK *tick);
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period);
+int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period);
+int DealBar(uBEE::FuBo *fubo, TICK *tick,int period);
+
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 

@@ -166,35 +166,6 @@ int UpdateLine(const char *FileName, const char *pcLine)
 }
 
 int
-SaveBin(const char * FileName, const char *buf, int len)
-{
-  int iRc = 0 ;
-  int fd ;
-  int retry;
-
-  retry=0;
-  while((fd=open(FileName,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
-    sleep(1);
-    if((retry ++) > 10) {
-      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
-      iRc = SEE_ERROR ;
-    }
-  }
-  retry=0;
-  while(lockf(fd,F_LOCK,0) == -1) {
-    sleep(1);
-    if((retry ++) > 10) {
-      printf("File.cpp: fatal error occured !!! error_no is %d\n",errno);
-      iRc = SEE_ERROR ;
-    }
-  }
-
-  write(fd,buf,len) ;
-  close(fd);
-  return iRc ;
-}
-
-int
 Save_tick(char *buf, int len)
 {
   int       iRc = 0 ;
