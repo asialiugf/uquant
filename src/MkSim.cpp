@@ -164,7 +164,8 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   SimSG = new_sg;
 
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180327.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
@@ -182,7 +183,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     char* f = (char*)iter->second.c_str();
 
     // 用户自定义 交易周期
-    int fr[5] = {19,14401,180,300,600};
+    int fr[5] = {19,14401,9900,300,600};
     uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,&fr[0], 5);
     M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(p, *fubo));
 
@@ -204,9 +205,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       }
       for(int j=0; j<fubo->pBaBo[i]->iSegNum; ++j) {
         stSegment *seg = fubo->pBaBo[i]->seg[j] ;
-        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d:%d, mk:%d  segBE:%s-%s barBE:%s--%s  sgiBE:%d--%d  bariBE:%d--%d   barBxEx:%d--%d",
+        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d:%d, mk:%d  sn:%d  segBE:%s-%s barBE:%s--%s  sgiBE:%d--%d  bariBE:%d--%d   barBxEx:%d--%d",
                 fubo->InstrumentID,
-                i,fubo->pBaBo[i]->iF,j,fubo->pBaBo[i]->iSegNum,seg->mark,
+                i,fubo->pBaBo[i]->iF,j,fubo->pBaBo[i]->iSegNum,seg->mark,seg->sn,
                 seg->cB,seg->cE,seg->barB,seg->barE,
                 seg->iB,seg->iE,
                 seg->bariB,seg->bariE,seg->barBx,seg->barEx);

@@ -200,6 +200,7 @@ static const std::map<std::string,int> M_FF = {
                        b1->v = 0 ; \
                        b1->sent = 0;
 
+/*
 #define NEW_B1_Z       memcpy(b1->TradingDay,tick->TradingDay,9) ; \
                        memcpy(b1->cB,tick->UpdateTime,9) ; \
                        memcpy(b1->ActionDay,tick->ActionDay,9) ; \
@@ -209,6 +210,7 @@ static const std::map<std::string,int> M_FF = {
                        b1->l = 999999999 ; \
                        b1->vsum = tick->Volume ; \
                        b1->v = 0 ;
+*/
 
 
 #define FIRST_TICK     if (  p_bar0->h < 0 ) { \
@@ -252,7 +254,7 @@ struct stSegment {
   int  iE ;
   int  iI ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
   int  mark ; // 0 表示 seg 包含 bar。 // 1.2.3. 表示 一个bar 包含多个 seg。
-  int  h24 ;  // 记录 跨0点的段。比如 有一个bar(barB:23:00:00 barE:00:01:00) 这样，这个bar的前后段均要设置 这个值为1
+  int  sn ;
   char barB[9];
   char barE[9];
   int  bariB;
@@ -324,11 +326,11 @@ struct stBarBo {
 
 
 struct BaBo {
-  stBar         bar0 ;
+  //stBar         bar0 ;
   stBar         bar1 ;
-  stBar         *pbar0 ;
+  //stBar         *pbar0 ;
   stBar         *pbar1 ;
-  stBar         *b0 ;
+  //stBar         *b0 ;
   stBar         *b1 ;
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
@@ -342,9 +344,9 @@ struct BaBo {
   int           iM;                 // iPeriodM = 1;
   int           iS;                 // iPeriodS = 37;  需要初始化！！
   char          cF[10] ;             // frequency ; "1S" "2S" ...
-  char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
-  int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
-  char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
+  //char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
+  //int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
+  //char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
   stSegment     *seg[100] ;        // segment array

@@ -41,7 +41,7 @@ int Tqjson(const char*message,int tt)
     return -1;
   }
 
-  /*
+  /*/
   buf = cJSON_Print(root);
   if(!buf) {
     ErrLog(1000,"---- buf = cJSON_Print(root) ---- error!",1,0,0);
