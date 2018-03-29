@@ -185,7 +185,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
         memcpy(seg[idx]->barB,cT , 9);
         seg[idx]->bariB = iT ;
         seg[idx]->barBx = idxT ;
-        for(int j =0; j<mark; j++) {    // 【A】
+        for(int j =0; j<mark; j++) {
           int k = idx-j ;
           memcpy(seg[k]->barE,seg[idx]->cE , 9);
           seg[k]->bariE = seg[idx]->iE ;
@@ -228,7 +228,10 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
             seg[k]->barEx = idx ;
 
             if(T________) {
-              sprintf(ca_errmsg,"5555--- idx:%d mark:%d segBE:%s--%s  barBE:%s--%s",idx,seg[k]->mark,seg[k]->cB,seg[k]->cE,seg[k]->barB,seg[k]->barE) ;
+              sprintf(ca_errmsg,"5555--- idx:%d mark:%d segBE:%s--%s  barBE:%s--%s",idx,
+                      seg[k]->mark,
+                      seg[k]->cB,  seg[k]->cE,
+                      seg[k]->barB,seg[k]->barE) ;
               uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
             }
           }
@@ -314,7 +317,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
       idxT = idx ;
       idx++ ;
     }
-  } // --- end for 
+  } // --- end for
 
   iSegNum = idx;
   if(T________) {
@@ -338,8 +341,9 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   seg[idx]->mark = -1;
   see_memzero(curB,9);
   see_memzero(curE,9);
-  // ---------------------------- 初始化  bar0 bar1 ----------------
 
+  // ---------------------------- 初始化  bar0 bar1 ----------------
+  //  seg->sn 表示当前段和下一段之间是否连续。
   for(int i=0; i<iSegNum; i++) {
     seg[i]->sn = 0 ;
     if(i < iSegNum-1) {
@@ -353,6 +357,23 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
       seg[i]->sn = 1 ;
     }
   }
+
+  // ----- 如果两个seg连续，则将前一个seg->iE 减1。 比如：24:00:00 00:00:00连续，则前一个seg结束改成 23:59:59
+  for(int i=0; i<iSegNum; i++) {
+    if(seg[i]->sn==0) {
+      seg[i]->iE -= 1;
+      MakeTime(seg[i]->cE,seg[i]->iE) ;
+    }
+  }
+
+  for(int i=0; i<iSegNum; i++) {
+    if(seg[i]->mark!=0) {
+      int e = seg[i]->barEx ;
+      memcpy(seg[i]->barE,seg[e]->cE,9);
+      seg[i]->bariE = seg[e]->iE ;
+    }
+  }
+
   // -----------------------------------------------------------------
   /*
   if(seg[0]->mark>0) {

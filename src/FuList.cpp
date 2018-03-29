@@ -72,11 +72,13 @@ int FuList::DateDeal(int y,int m,int d)
   int rtn = 0;
   int week = 0;
 
+  /*
   rtn = CheckDate(y,m,d);
   if(rtn !=0) {
     std::cout << rtn << " DateDeal() Date is invalid!\n" ;
     return rtn;
   }
+  */
 
   memset(Date,'\0',9);
   sprintf(Date,"%d%02d%02d",y,m,d); //member
