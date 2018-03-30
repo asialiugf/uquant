@@ -376,8 +376,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
   // -----------------------------------------------------------------
 
-  pbar1 = &bar1 ;
-  b1 = pbar1;
+  b1 = &bar1 ;
 
   stBar tmpBar ;
   see_memzero(tmpBar.TradingDay,9);
@@ -390,10 +389,11 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   tmpBar.l = DBL_MAX;
   tmpBar.v = 0;
   tmpBar.vsum = 0;   // 开始的第一个bar 的 v 值 可能会有问题！！
+  tmpBar.vold = 0;   // 开始的第一个bar 的 v 值 可能会有问题！！
   tmpBar.sent = 0;
   // ----------请参见 #define UPDATE_B1 的定义
 
-  memcpy((char *)pbar1,&tmpBar,sizeof(stBar)) ;
+  memcpy((char *)b1,&tmpBar,sizeof(stBar)) ;
 
   //------ 初始化bar block成员变量 curB curE
 
@@ -614,6 +614,7 @@ bbbb:
         i = curiX+1;
       } else {
         i = 0;
+        b1->vold = 0;
       }
 
       while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {

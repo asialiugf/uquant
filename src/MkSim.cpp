@@ -85,6 +85,7 @@ TICK * FuSim::MkTickF()             // make tick from tick file
            &OpenInterest, &Volume);
     see_memzero(Tick.InstrumentID,31);
 
+    /*
     memcpy(Tick.TradingDay,Ttemp,4) ;
     memcpy(Tick.TradingDay+4,Ttemp+5,2) ;
     memcpy(Tick.TradingDay+6,Ttemp+8,2) ;
@@ -92,13 +93,16 @@ TICK * FuSim::MkTickF()             // make tick from tick file
     memcpy(Tick.ActionDay,Atemp,4) ;
     memcpy(Tick.ActionDay+4,Atemp+5,2) ;
     memcpy(Tick.ActionDay+6,Atemp+8,2) ;
+    */
+    memcpy(Tick.TradingDay,Ttemp,8) ;
+    memcpy(Tick.ActionDay,Atemp,8) ;
 
     memcpy(Tick.UpdateTime,UpdateTime,9) ;
     Tick.UpdateMillisec = UpdateMillisec/1000;
     Tick.HighestPrice = HighestPrice;
     Tick.LowestPrice = LowestPrice;
     Tick.LastPrice = LastPrice;
-    Tick.AskPrice1 = AskVolume1;
+    Tick.AskPrice1 = AskPrice1;
     Tick.AskVolume1 = AskVolume1;
     Tick.BidPrice1 = BidPrice1;
     Tick.BidVolume1 = BidVolume1;
@@ -165,7 +169,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   SimSG = new_sg;
 
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180327.tick.txt"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
@@ -190,7 +194,6 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
     M_FuSim.insert(std::pair<std::string,uBEE::FuSim>(p, *fusim));
   }
-
 
   // ----------------  test ----------------------------------------------begin
   for(auto it = M_SimFuBo.begin(); it != M_SimFuBo.end(); ++it) {

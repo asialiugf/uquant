@@ -187,7 +187,8 @@ static const std::map<std::string,int> M_FF = {
 #define UPDATE_B1      b1->c = tick->LastPrice ; \
                        if ( b1->h < tick->LastPrice ) { b1->h = tick->LastPrice ; } \
                        if ( b1->l > tick->LastPrice ) { b1->l = tick->LastPrice ; } \
-                       b1->v = tick->Volume - b1->vsum ;
+                       b1->vsum = tick->Volume ; \
+                       b1->v = tick->Volume - b1->vold ;
 
 #define NEW_B1         memcpy(b1->TradingDay,tick->TradingDay,9) ; \
                        memcpy(b1->cB,tick->UpdateTime,9) ; \
@@ -196,21 +197,9 @@ static const std::map<std::string,int> M_FF = {
                        b1->c = tick->LastPrice ; \
                        b1->h = tick->LastPrice ; \
                        b1->l = tick->LastPrice ; \
-                       b1->vsum = tick->Volume ; \
-                       b1->v = 0 ; \
+                       b1->vold = b1->vsum; \
+                       b1->v = tick->Volume - b1->vold ; \
                        b1->sent = 0;
-
-/*
-#define NEW_B1_Z       memcpy(b1->TradingDay,tick->TradingDay,9) ; \
-                       memcpy(b1->cB,tick->UpdateTime,9) ; \
-                       memcpy(b1->ActionDay,tick->ActionDay,9) ; \
-                       b1->o = tick->LastPrice ; \
-                       b1->c = tick->LastPrice ; \
-                       b1->h = -99999999 ; \
-                       b1->l = 999999999 ; \
-                       b1->vsum = tick->Volume ; \
-                       b1->v = 0 ;
-*/
 
 
 #define FIRST_TICK     if (  p_bar0->h < 0 ) { \
@@ -294,6 +283,7 @@ struct stBar {
   double  l ;             // low
   int     v ;             // volume
   int     vsum ;          // keep volume sum
+  int     vold ;          // keep volume sum
   int     sent ;          // 有没有sent 或者写入  ==2 已写 ==1 已sent 但没有写 ==0 没发没写
 };
 
