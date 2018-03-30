@@ -326,11 +326,8 @@ struct stBarBo {
 
 
 struct BaBo {
-  //stBar         bar0 ;
   stBar         bar1 ;
-  //stBar         *pbar0 ;
   stBar         *pbar1 ;
-  //stBar         *b0 ;
   stBar         *b1 ;
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
@@ -344,9 +341,6 @@ struct BaBo {
   int           iM;                 // iPeriodM = 1;
   int           iS;                 // iPeriodS = 37;  需要初始化！！
   char          cF[10] ;             // frequency ; "1S" "2S" ...
-  //char          c_save ;                    /* 's' 表示 save  'n' 表示 不需要save */
-  //int           i_bar_type ;                // 1 2 3 5 10 15   这个值可以用来计算 新来的tick是不是在同一个K
-  //char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
   stSegment     *seg[100] ;        // segment array
