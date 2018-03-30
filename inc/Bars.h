@@ -165,9 +165,6 @@ static const std::map<std::string,int> M_FF = {
                        p_bar0->l = p_bar1->l ; \
                        p_bar0->v = p_bar1->v ;
 
-#define SWAP_BAR       bt = b0; \
-                       b0 = b1; \
-                       b1 = bt;
 
 #define NEW_BAR1       memcpy(p_bar1->TradingDay,tick->TradingDay,9) ; \
                        memcpy(p_bar1->ca_btime,tick->UpdateTime,9) ; \
@@ -284,7 +281,7 @@ struct stBar {
   double  l ;             // low
   int     v ;             // volume
   int     vsum ;          // keep volume sum
-  int     vold ;          // keep volume sum
+  int     vold ;          // 前一个K柱的结束时的量
   int     sent ;          // 有没有sent 或者写入  ==2 已写 ==1 已sent 但没有写 ==0 没发没写
 };
 
@@ -318,7 +315,6 @@ struct stBarBo {
 
 struct BaBo {
   stBar         bar1 ;
-  stBar         *pbar1 ;
   stBar         *b1 ;
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];

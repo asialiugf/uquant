@@ -10,6 +10,7 @@
 #include <float.h>
 #include <limits.h>
 
+
 namespace uBEE
 {
 
@@ -342,7 +343,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   see_memzero(curE,9);
 
   // ---------------------------- 初始化  bar0 bar1 ----------------
-  //  seg->sn 表示当前段和下一段之间是否连续。
+  //  seg->sn 表示当前段和下一段之间是否连续。连续为0，不连续为1
   for(int i=0; i<iSegNum; i++) {
     seg[i]->sn = 0 ;
     if(i < iSegNum-1) {
@@ -388,22 +389,20 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   tmpBar.l = DBL_MAX;
   tmpBar.v = 0;
   tmpBar.vsum = 0;   // 开始的第一个bar 的 v 值 可能会有问题！！
-  tmpBar.vold = 0;   // 开始的第一个bar 的 v 值 可能会有问题！！
+  tmpBar.vold = 0;   //
   tmpBar.sent = 0;
 
   memcpy((char *)b1,&tmpBar,sizeof(stBar)) ;
 
 
   if(T________) {
-    sprintf(ca_errmsg,"--------------------------------------out BaBo\n\n") ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    uBEE::ErrLog(1000,"BaBo out!",1,0,0) ;
   }
-}
+} //BaBo end !!
 
 /*
   Future Block !
 */
-
 FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
 {
   if(T________) {
@@ -492,8 +491,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
   }
 // 周期 初始化结束  ---------------------------------------------------
   if(T________) {
-    sprintf(ca_errmsg,"FuBo::FuBo():---------------------out FuBo\n\n\n") ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    uBEE::ErrLog(1000,"FuBo::FuBo(): out FuBo!\n",1,0,0) ;
   }
 }
 
@@ -519,7 +517,6 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
   char * barE = b1->cE ;
   int x = 0;
   int i = 0;
-  int fr = fubo->pBaBo[period]->iF ;
 
   BaBo * babo = fubo->pBaBo[period] ;
 
@@ -529,6 +526,11 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 #define SN babo->seg[curiX]->sn
 #define ticK tick->UpdateTime
 
+  char * tik = tick->UpdateTime ;
+
+//  int mark ;
+
+  int fr = fubo->pBaBo[period]->iF ;
 
   Display(fubo,tick,period,"eeee:enter:");
 
@@ -638,6 +640,26 @@ aaaa:
           goto rrr;
           return 0; //虽然没有用，但还是留着。
         } // (memcmp(ticK,SEGE,8)<0)
+
+        /*
+        if(memcmp(ticK,SEGE,8)==0) {  // ----------
+          curiE = babo->seg[curiX]->iE ;
+          memcpy(curE,SEGE,8);
+          if(SN==1) {
+            curiB = curiE-fr-1 ;
+          } else {
+            curiB = curiE-fr ;
+          }
+          uBEE::MakeTime(curB,curiB);
+
+          NEW_B1;
+          memcpy(barB,curB,9);
+          memcpy(barE,curE,9);
+
+          goto rrr;
+          return 0;
+        } //  (memcmp(ticK,SEGE,8)==0)
+        */
         return 0;
       }
 
@@ -670,6 +692,7 @@ rrr:
     curiX = babo->iSegNum;
     goto bbbb;
   } // MARK < 0
+  return 0;
 
   /*
     curB--curE
@@ -2308,7 +2331,8 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   sprintf(ca_errmsg,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
           tick->TradingDay,
           tick->UpdateTime,
-          tick->UpdateMillisec*1000, 0,
+          tick->UpdateMillisec*1000,
+          0,
           tick->ActionDay,
           tick->HighestPrice,
           tick->LowestPrice,
@@ -2348,13 +2372,8 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  stBar       *p_bar1;
   stBar       *b1;
-  stBar       *bt;
-
   b1 = fubo->pBaBo[period]->b1 ;
-
-  p_bar1 =  &fubo->pBaBo[period]->bar1;
 
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
@@ -2374,15 +2393,14 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 #define SN babo->seg[curiX]->sn
 #define ticK tick->UpdateTime
 
-  char * tik = tick->UpdateTime ;
-  int mark ;
-  int fr = fubo->pBaBo[period]->iF ;
+  //int fr = fubo->pBaBo[period]->iF ;
 
   if(period == 3) {
     Display(fubo,tick,period,"ssss enter :=:xxx");
   }
 
-  //---------------------------------------------
+  // 1:---------------------------------------------
+  //  只要 ticK==barE 就要判断是否结束 ms>=500
   if(memcmp(barE,ticK,8)==0) {
     if(tick->UpdateMillisec >= 500) {
       UPDATE_B1;
@@ -2392,12 +2410,12 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
         Display(fubo,tick,period,"ssss:=:xxx");
         DispBar(fubo,tick,period,"ssss:=:---");
       }
-      return 0;
     }
+    return 0;
   }
 
-  if(memcmp(ticK,curB,8)>=0 &&
-     memcmp(ticK,curE,8)<=0) { // 在当前的 curB curE 这个segment内
+  // 2:---------------------------------------------
+  if(memcmp(ticK,curB,8)>=0 && memcmp(ticK,curE,8)<=0) { // 在当前的 curB curE 这个segment内
     //UPDATE_B1;
     if(period == 3) {
       Display(fubo,tick,period,"ssss:9:uuu");
@@ -2405,6 +2423,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     return 0;
   }
 
+  // 3:-----------------------------------------------
   if(MARK == 0) {
     //if(memcmp(SEGE,ticK,8)<0 || memcmp(ticK,barE,8)<0) {
     if(b1->sent == 0) {
@@ -2420,6 +2439,9 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   }
 
   if(MARK > 0) {
+    // 【E】：segE<=barE< tick    外
+    // 【F】：tick <segE<=barE    外
+    // 【3】：segE >tick> barE    外
     if((memcmp(SEGE,barE,8)<=0 && (memcmp(barE,ticK,8)<0 || memcmp(ticK,SEGE,8)<0)) ||
        (memcmp(SEGE,ticK,8)>0 && memcmp(ticK,barE,8)>0)) {
       if(b1->sent == 0) {
