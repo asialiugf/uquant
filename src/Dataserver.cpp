@@ -147,7 +147,7 @@ int ForkCtp()
     sleep(2);
 
     std::thread t([&hub] {
-      //uBEE::MdCtp(hub.sg);
+      uBEE::MdCtp(hub.sg);
     });  /* thread t */
     t.detach();
     hub.Start();
@@ -181,7 +181,7 @@ int ForkSim()
 
     //------ 开一个新的线程----------------
     std::thread t([&hub] {
-      uBEE::MkSim(hub.sg);
+      //uBEE::MkSim(hub.sg);
     });  /* thread t */
     t.detach();
     hub.Start();

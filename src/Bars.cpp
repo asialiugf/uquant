@@ -600,17 +600,25 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
 bbbb:
       if(curiX < babo->iSegNum-1) {  //一天结束，从头开始。
-        i = curiX+1;
+        i = curiX+1;                 // 如果最后一个段没有任何数据过来，
       } else {
         i = 0;
         b1->vold = 0;
       }
 
+
       while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {
         Display(fubo,tick,period,"eeee:010---");
         i++;
         if(i >= babo->iSegNum) {
-          return 0;
+          if(memcmp(ticK,"20:59:00",8)==0) {
+             memcpy(ticK,"21:00:00",9);
+             i = 0;
+             b1->vold = 0;
+             break;
+          } else {
+            return 0;
+          }
         }
       }  // 找到 tick 在哪个段中
       curiX = i ;  // tick所在的段
