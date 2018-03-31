@@ -188,7 +188,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
     // 用户自定义 交易周期
     int fr[5] = {19,14401,9900,300,600};
-    uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,&fr[0], 5);
+    uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,SimSG, &fr[0], 5);
     M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(p, *fubo));
 
     uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
@@ -248,6 +248,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
       HandleTick(fubo,tick);
+      usleep(10);
       /*
       SendBar(fubo, tick, 1);
       SaveBar(fubo, tick, 1);

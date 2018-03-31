@@ -404,12 +404,13 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   Future Block !
 */
 
-FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
+FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg, const int aFr[],int len)
 {
   if(T________) {
-    sprintf(ca_errmsg,"\nFuBo::FuBo() :enter!!--------into FuBo:caFuture:%s len:%d",caFuture,len) ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    uBEE::ErrLog(1000," FuBo::FuBo():enter!",1,0,0) ;
   }
+
+  SG = sg;
 
   see_memzero(InstrumentID,31);
   memcpy(InstrumentID,caFuture,strlen(caFuture));
@@ -490,10 +491,9 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
       break;
     }
   }
-// 周期 初始化结束  ---------------------------------------------------
+
   if(T________) {
-    sprintf(ca_errmsg,"FuBo::FuBo():---------------------out FuBo\n\n\n") ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    uBEE::ErrLog(1000,"FuBo::FuBo():out!!\n\n",1,0,0) ;
   }
 }
 
@@ -2331,6 +2331,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
           tick->Volume);
   SaveLine(f,ca_errmsg) ;
 
+  fubo->SG->broadcast(ca_errmsg, strlen(ca_errmsg), uWS::OpCode::TEXT);
 
   for(i=0; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
@@ -2370,11 +2371,10 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   stBar       *b1;
   b1 = fubo->pBaBo[period]->b1 ;
-
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
-  int &curiB = fubo->pBaBo[period]->curiB ;
-  int &curiE = fubo->pBaBo[period]->curiE ;
+  //int &curiB = fubo->pBaBo[period]->curiB ;
+  //int &curiE = fubo->pBaBo[period]->curiE ;
   int &curiX = fubo->pBaBo[period]->curiX ;
 
   char * barB = b1->cB ;
@@ -2382,16 +2382,10 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
   BaBo * babo = fubo->pBaBo[period] ;
 
-
 #define SEGB fubo->pBaBo[period]->seg[curiX]->cB
 #define SEGE fubo->pBaBo[period]->seg[curiX]->cE
 #define MARK babo->seg[curiX]->mark
 #define ticK tick->UpdateTime
-
-
-  if(period == 3) {
-    Display(fubo,tick,period,"ssss enter :=:xxx");
-  }
 
   //---------------------------------------------
   if(memcmp(barE,ticK,8)==0) {
@@ -2399,20 +2393,12 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
       UPDATE_B1;
       SendBars();
       b1->sent = 1;
-      if(period == 3) {
-        Display(fubo,tick,period,"ssss:=:xxx");
-        DispBar(fubo,tick,period,"ssss:=:---");
-      }
       return 0;
     }
   }
 
   if(memcmp(ticK,curB,8)>=0 &&
      memcmp(ticK,curE,8)<=0) { // 在当前的 curB curE 这个segment内
-    //UPDATE_B1;
-    if(period == 3) {
-      Display(fubo,tick,period,"ssss:9:uuu");
-    }
     return 0;
   }
 
@@ -2421,10 +2407,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     if(b1->sent == 0) {
       SendBars();
       b1->sent = 1;
-      if(period == 3) {
-        Display(fubo,tick,period,"ssss:0:000");
-        DispBar(fubo,tick,period,"ssss:0:---");
-      }
     }
     // } //------- E F
     return 0;
@@ -2436,10 +2418,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
       if(b1->sent == 0) {
         SendBars();
         b1->sent = 1;
-        if(period == 3) {
-          Display(fubo,tick,period,"ssss:1:000");
-          DispBar(fubo,tick,period,"ssss:1:---");
-        }
       }
     }
     return 0;

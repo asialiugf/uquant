@@ -93,9 +93,6 @@ void CMdSpi::Init()
   }
   // ---- for testing end  ---------------------------------------
 
-  // ...... 初始化 交易时间对象 ...................................
-  //tmbo = new uBEE::TimeBlock();
-
   // ---- for testing begin ---------------------------------------
   std::cout << "999999999999999999999\n" ;
   for(int j=0; j<7; j++) {
@@ -114,7 +111,6 @@ void CMdSpi::Init()
   // ---- for testing end  ---------------------------------------
 
 
-  // ...... 初始化 期货 block FuBlockMap ... .......................
   //dbpool = std::make_shared<uBEE::DBPool>();
 
   // ...... 每个 future 生成一个 future block ( new uBEE::FuBo )
@@ -122,20 +118,12 @@ void CMdSpi::Init()
     if(fl->pc_futures[i] == nullptr) {
       break ;
     }
-    //uBEE::FuBlock fb;
-    //uBEE::FuBlock *fb = new uBEE::FuBlock();
     //fb->dbpool = dbpool;
-    //fb->Init(&fb->Block, fl->pc_futures[i], &tt->t_hours[0]);
-    //fb->Block.pTimeType = & tmbo->TT[fb->Block.pt_hour->i_hour_type];
-    //std::cout << " befor fb->Init  + map hahah3 ------------\n" ;
     //uBEE::createTickTable(dbpool,fl->pc_futures[i]);
-    //std::cout << " befor fb->Init  + map hahah4 ------------\n" ;
     // !!! map 做为成员变量有问题，所以改成了全局变量。
-    //FuBlockMap.insert(std::pair<std::string,uBEE::FuBlock>(fl->pc_futures[i], *fb));
-    //std::cout << " after fb->Init  + map hahah ------------\n" ;
 
     int fr[5] = {240,960};
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb,&fr[0], 2);
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb, sg, &fr[0], 2);
     M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
   }

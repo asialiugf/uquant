@@ -9,7 +9,7 @@
 
 namespace uBEE
 {
-Base::Base():cs(4,nullptr)       // constructor  new thread fot getting data APIs.
+Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   std::thread t(&Base::AssiHubInit,this);
   t.detach();
@@ -35,17 +35,24 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
 
-    message[length-1] = 0;
-    std::cout << message << std::endl;
+    //std::cout << std::string(message, length) << std::endl;
+    //message[length-1] = 0;
+    //std::cout << "kkkkkkkkk\n" << std::endl;
+    //std::cout << std::string(message, length) << std::endl;
     this->onTickHandler(message,length);
+    /*
+    char msg[200];
+    memcpy(msg,message,length);
+    this->onTickHandler(msg,length);
     switch(message[0]) {
     case  ON_TICK:
-      this->onTickHandler(message,length);
+      this->onTickHandler(msg,length);
       break;
     case  ON_BARS:
-      this->onBarsHandler(message,length);
+      this->onBarsHandler(msg,length);
       break;
     }
+    */
 
   });
 }
@@ -71,6 +78,10 @@ void Base::Start()
       this->cs[4] = ws;
       this->c_ctp = ws;
       break;
+    case 5:
+      this->cs[5] = ws;
+      this->c_sim = ws;
+      break;
     default:
       std::cout << "FAILURE: " << ws->getUserData() << " should not connect!" << std::endl;
       exit(-1);
@@ -82,23 +93,23 @@ void Base::Start()
   Base::onMessageInit();
 
   mainHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
-
     auto result = find(this->cs.begin(), this->cs.end(), ws);     //查找 ws
     if(result == this->cs.end()) {    //没找到
       std::cout << "Not found" << std::endl;
     } else {
-      std::cout << "Yes" << std::endl;  //找到了
+      std::cout << "YesYes!!" << std::endl;  //找到了
       (*result) = nullptr ;
-      ws->close();
+      //ws->close();
     }
-    std::cout << code << std::endl;
+    std::cout << "code:"<< code << std::endl;
     //this->mainHub.getDefaultGroup<uWS::SERVER>().close();
     //this->mainHub.getDefaultGroup<uWS::CLIENT>().close();
   });
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
   mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
-  mainHub.connect("ws://localhost:3003",(void *) 4);  //  data server HubCtp
+  mainHub.connect("ws://localhost:3003",(void *) 4);  //  data server HubCtp  //实盘
+  mainHub.connect("ws://localhost:3004",(void *) 5);  //  data server HubSim  //模拟
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   std::cout << "-------------- !!\n";
   mainHub.run();

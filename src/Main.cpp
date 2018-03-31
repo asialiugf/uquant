@@ -37,20 +37,21 @@ int main()
 
   b.onTick([&aa](char* message, size_t len) {
     message[len] = 0;
-    std::cout<<" I am in onTick !"<<std::endl;
+    //std::cout<<" I am in onTick !"<<std::endl;
     std::cout<<message<<std::endl;
-    std::cout << aa << std::endl;
-    aa = 5990;
-    std::cout << aa << std::endl;
+    //usleep(2000);
+    //std::cout << aa << std::endl;
+    //aa = 5990;
+    //std::cout << aa << std::endl;
   });
 
   b.onBars([&aa](char* message, size_t len) {
-    message[len] = 0;
-    std::cout<<" I am in onBars !"<<std::endl;
-    std::cout<<message<<std::endl;
-    std::cout << aa << std::endl;
-    aa = 5990;
-    std::cout << aa << std::endl;
+    //message[len] = 0;
+    //std::cout<<" I am in onBars !"<<std::endl;
+    //std::cout<<message<<std::endl;
+    //std::cout << aa << std::endl;
+    //aa = 5990;
+    //std::cout << aa << std::endl;
   });
 
   b.Start();
