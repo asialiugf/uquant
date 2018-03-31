@@ -505,7 +505,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, const int aFr[],int len)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   stBar       *b1;
-  stBar       *bt;
+//  stBar       *bt;
 
   b1 = fubo->pBaBo[period]->b1 ;
 
@@ -604,18 +604,20 @@ bbbb:
       } else {
         i = 0;
         b1->vold = 0;
+        b1->vsum = 0;                         // 对于 "20:50:0x" 其它的周期走到这里
       }
 
 
       while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {
-        Display(fubo,tick,period,"eeee:010---");
+        Display(fubo,tick,period,"eeee:ggg---");
         i++;
         if(i >= babo->iSegNum) {
-          if(memcmp(ticK,"20:59:00",8)==0) {
-             memcpy(ticK,"21:00:00",8);
-             i = 0;
-             b1->vold = 0;
-             break;
+          if(memcmp(ticK,"20:59:",6)==0) {
+            memcpy(ticK,"21:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
+            i = 0;
+            b1->vold = 0;
+            b1->vsum = 0;
+            break;
           } else {
             return 0;
           }
@@ -2300,13 +2302,14 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
     }
   }
 
-  for(i=0; i<50; ++i) {
-    if(fubo->pBaBo[i] != nullptr) {
-      SaveBar(fubo,tick,i) ;
-      DealBar(fubo,tick,i) ;
+  /*
+    for(i=0; i<50; ++i) {
+      if(fubo->pBaBo[i] != nullptr) {
+        SaveBar(fubo,tick,i) ;
+        DealBar(fubo,tick,i) ;
+      }
     }
-  }
-
+  */
   char f[512] ;
   snprintf(f,512,"../data/tick/%s.%s.tick.bin",fubo->InstrumentID,tick->TradingDay);
   SaveBin(f,(const char *)tick,sizeof(TICK)) ;
@@ -2327,6 +2330,16 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
           tick->OpenInterest,
           tick->Volume);
   SaveLine(f,ca_errmsg) ;
+
+
+  for(i=0; i<50; ++i) {
+    if(fubo->pBaBo[i] != nullptr) {
+      SaveBar(fubo,tick,i) ;
+      DealBar(fubo,tick,i) ;
+    }
+  }
+
+
   return 0;
 }
 
@@ -2355,13 +2368,8 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  stBar       *p_bar1;
   stBar       *b1;
-  stBar       *bt;
-
   b1 = fubo->pBaBo[period]->b1 ;
-
-  p_bar1 =  &fubo->pBaBo[period]->bar1;
 
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
@@ -2380,9 +2388,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 #define MARK babo->seg[curiX]->mark
 #define ticK tick->UpdateTime
 
-  char * tik = tick->UpdateTime ;
-  int mark ;
-  int fr = fubo->pBaBo[period]->iF ;
 
   if(period == 3) {
     Display(fubo,tick,period,"ssss enter :=:xxx");
