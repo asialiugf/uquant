@@ -10,7 +10,6 @@
 #include <float.h>
 #include <limits.h>
 
-
 namespace uBEE
 {
 
@@ -2379,7 +2378,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 #define SEGB fubo->pBaBo[period]->seg[curiX]->cB
 #define SEGE fubo->pBaBo[period]->seg[curiX]->cE
 #define MARK babo->seg[curiX]->mark
-//#define SN babo->seg[curiX]->sn
 #define ticK tick->UpdateTime
 
   char * tik = tick->UpdateTime ;
