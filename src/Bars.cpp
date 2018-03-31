@@ -2295,7 +2295,6 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
   int i = 0;
 
-
   for(i=0; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       SendBar(fubo,tick,i) ;
@@ -2380,7 +2379,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 #define SEGB fubo->pBaBo[period]->seg[curiX]->cB
 #define SEGE fubo->pBaBo[period]->seg[curiX]->cE
 #define MARK babo->seg[curiX]->mark
-#define SN babo->seg[curiX]->sn
+//#define SN babo->seg[curiX]->sn
 #define ticK tick->UpdateTime
 
   char * tik = tick->UpdateTime ;
