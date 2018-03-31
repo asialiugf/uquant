@@ -613,7 +613,7 @@ bbbb:
         i++;
         if(i >= babo->iSegNum) {
           if(memcmp(ticK,"20:59:00",8)==0) {
-             memcpy(ticK,"21:00:00",9);
+             memcpy(ticK,"21:00:00",8);
              i = 0;
              b1->vold = 0;
              break;
