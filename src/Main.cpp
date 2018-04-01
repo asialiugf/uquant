@@ -22,7 +22,7 @@ int main()
 
   gettimeofday(&start,NULL);
   for(int i=0; i<100; i++) {
-    b.getFutureTick("20170101", "20180101");
+   // b.getFutureTick("20170101", "20180101");
   }
   gettimeofday(&end,NULL);
   unsigned  long diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
@@ -36,10 +36,10 @@ int main()
   int aa = 1009;
 
   b.onTick([&aa](char* message, size_t len) {
+     
     message[len] = 0;
-    //std::cout<<" I am in onTick !"<<std::endl;
-    std::cout<<message<<std::endl;
-    //usleep(2000);
+    std::cout<<"len:"<<len << message<<std::endl;
+    usleep(1000000);
     //std::cout << aa << std::endl;
     //aa = 5990;
     //std::cout << aa << std::endl;
@@ -59,7 +59,7 @@ int main()
 
   while(1) {
     // b.cs[0]->send("------------------------from main -----------");
-    usleep(1);
+    usleep(1000000);
   }
   usleep(8000000);
 

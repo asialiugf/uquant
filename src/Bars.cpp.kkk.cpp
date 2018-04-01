@@ -2445,7 +2445,6 @@ int MarkBar(uBEE::FuBo *fubo, TICK *tick,int period)
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
 {
   BaBo * babo = fubo->pBaBo[period] ;
-
   stBar *b1 = babo->b1 ;
 
   char * curB = babo->curB ;
@@ -2476,7 +2475,10 @@ int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
 int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
 {
   BaBo * babo = fubo->pBaBo[period] ;
+  //stBar *b0 = babo->b0 ;
   stBar *b1 = babo->b1 ;
+  //stBar *p_bar0 =  &babo->bar0;
+  stBar *p_bar1 =  &babo->bar1;
 
   if(T________) {
     sprintf(ca_errmsg,"%s fr:%d  T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d",

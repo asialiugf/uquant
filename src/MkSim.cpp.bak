@@ -170,7 +170,6 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
   M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
-//  M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
@@ -227,6 +226,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   // -------------- 从 M_FuSim 这个map中取出 future 以及 fusim ，再 从 M_SimFuBo中 找出 这个future的 fobo--->
   // -------------- fusim 生成tick ,  fobo 用来生成 K柱 .
+  usleep(10000000);
   while(1) {
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
       //char * fu = it->first ;
@@ -249,7 +249,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
       HandleTick(fubo,tick);
-      usleep(10);
+      //usleep(10000000);
       /*
       SendBar(fubo, tick, 1);
       SaveBar(fubo, tick, 1);
