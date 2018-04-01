@@ -1,6 +1,7 @@
 #ifndef UBEE_BARS_H
 #define UBEE_BARS_H
 
+
 #include "../ctp/ThostFtdcMdApi.h"
 #include "Psqlpool.h"
 #include "PsqlFunc.h"
