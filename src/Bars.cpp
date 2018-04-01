@@ -13,6 +13,8 @@
 namespace uBEE
 {
 
+char msgSG[150*50] ;
+
 // ---------------------------------------------------------
 TimeBlock::TimeBlock()
 {
@@ -665,6 +667,7 @@ rrr:
         if(memcmp(ticK,barE,8)==0) {
           if(tick->UpdateMillisec >= 500) {
             Display(fubo,tick,period,"eeee:goo---0");
+            MarkBar(fubo,tick,period);
             SendBar(fubo,tick,period);
             SaveBar(fubo,tick,period);
           }
@@ -2286,11 +2289,6 @@ int MakeTime(char *caT, int T)
   return 0;
 }
 
-int SendBars()
-{
-  return 0;
-}
-
 
 int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
@@ -2298,7 +2296,16 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 
   for(i=0; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
-      SendBar(fubo,tick,i) ;
+      stBar *b1 = fubo->pBaBo[i]->b1 ;
+      MarkBar(fubo,tick,i) ;
+      if(b1->sent == 1) {
+        b1->sent = 2;
+        snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+                 fubo->InstrumentID, b1->TradingDay, b1->ActionDay,
+                 b1->cB, b1->cE,
+                 b1->o, b1->h, b1->l, b1->c,
+                 b1->v, b1->vsum) ;
+      }
     }
   }
 
@@ -2344,17 +2351,27 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   return 0;
 }
 
+int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
+{
+  BaBo * babo = fubo->pBaBo[period] ;
+  stBar *b1 = babo->b1 ;
+
+  if(b1->sent==1) {
+    b1->sent =2 ;
+  }
+  return 0;
+}
+
 
 int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   BaBo * babo = fubo->pBaBo[period] ;
   stBar *b1 = babo->b1 ;
-  stBar *p_bar1 =  &babo->bar1;
 
   char f[512] ;
 
-  if(b1->sent==1) {
-    b1->sent =2 ;
+  if(b1->sent==2) {
+    b1->sent =3 ;
     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
     snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
              fubo->InstrumentID, b1->TradingDay, b1->ActionDay,
@@ -2367,14 +2384,12 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
   return 0;
 }
 
-int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
+int MarkBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   stBar       *b1;
   b1 = fubo->pBaBo[period]->b1 ;
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
-  //int &curiB = fubo->pBaBo[period]->curiB ;
-  //int &curiE = fubo->pBaBo[period]->curiE ;
   int &curiX = fubo->pBaBo[period]->curiX ;
 
   char * barB = b1->cB ;
@@ -2391,7 +2406,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(memcmp(barE,ticK,8)==0) {
     if(tick->UpdateMillisec >= 500) {
       UPDATE_B1;
-      SendBars();
       b1->sent = 1;
       return 0;
     }
@@ -2405,7 +2419,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(MARK == 0) {
     //if(memcmp(SEGE,ticK,8)<0 || memcmp(ticK,barE,8)<0) {
     if(b1->sent == 0) {
-      SendBars();
       b1->sent = 1;
     }
     // } //------- E F
@@ -2416,7 +2429,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     if((memcmp(SEGE,barE,8)<=0 && (memcmp(barE,ticK,8)<0 || memcmp(ticK,SEGE,8)<0)) ||
        (memcmp(SEGE,ticK,8)>0 && memcmp(ticK,barE,8)>0)) {
       if(b1->sent == 0) {
-        SendBars();
         b1->sent = 1;
       }
     }
@@ -2433,11 +2445,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
 {
   BaBo * babo = fubo->pBaBo[period] ;
-
-  //stBar *b0 = babo->b0 ;
   stBar *b1 = babo->b1 ;
-  //stBar *p_bar0 =  &babo->bar0;
-  stBar *p_bar1 =  &babo->bar1;
 
   char * curB = babo->curB ;
   char * curE = babo->curE ;

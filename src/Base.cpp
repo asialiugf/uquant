@@ -35,11 +35,19 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
 
+    //char * buffer = new char(length);
+
     //std::cout << std::string(message, length) << std::endl;
     //message[length-1] = 0;
     //std::cout << "kkkkkkkkk\n" << std::endl;
     //std::cout << std::string(message, length) << std::endl;
     this->onTickHandler(message,length);
+
+    /* 
+     case : weekend ==> change kkk;
+     case : monthend ==> do something;
+    */
+
     /*
     char msg[200];
     memcpy(msg,message,length);
@@ -104,6 +112,13 @@ void Base::Start()
     std::cout << "code:"<< code << std::endl;
     //this->mainHub.getDefaultGroup<uWS::SERVER>().close();
     //this->mainHub.getDefaultGroup<uWS::CLIENT>().close();
+    switch((long) ws->getUserData()) {
+    case 1:
+      break;
+    case 5:
+      mainHub.connect("ws://localhost:3004",(void *) 5);  //  data server HubSim  //模拟
+      break;
+    }
   });
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
