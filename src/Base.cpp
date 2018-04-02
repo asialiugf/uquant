@@ -1,4 +1,5 @@
 #include "Base.h"
+#include "Bars.h"
 #include "ApiFun.h"
 #include <cjson/cJSON.h>
 #include <iostream>
@@ -9,6 +10,11 @@
 
 namespace uBEE
 {
+
+static barSG  KBuf1 ;
+static barSG  * KBuf = &KBuf1 ;
+static int  kLen = sizeof(Kline);
+
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   std::thread t(&Base::AssiHubInit,this);
@@ -33,15 +39,21 @@ void Base::onBars(std::function<void(char *, size_t)> handler)
 
 void Base::onMessageInit()
 {
-  mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
+  mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
+    memcpy((char *)KBuf,data,length);
+    /*
+    std::cout << KBuf->InstrumentID << " " << KBuf->ActionDay<<" "<< KBuf->iN  << std::endl ;
+    for(int i = 0; i< KBuf->iN ; ++i ) {
+      std::cout << KBuf->KK[i].cK << std::endl;
+    }
+    */
     //char * buffer = new char(length);
-
     //std::cout << std::string(message, length) << std::endl;
     //message[length-1] = 0;
     //std::cout << "kkkkkkkkk\n" << std::endl;
     //std::cout << std::string(message, length) << std::endl;
-    this->onTickHandler(message,length);
+    this->onTickHandler((char*)KBuf,length);
 
     /* 
      case : weekend ==> change kkk;

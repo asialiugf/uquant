@@ -15,7 +15,6 @@ namespace uBEE
 
 static barSG  KBuf1 ;
 static barSG  * KBuf = &KBuf1 ;
-int  kLen = sizeof(Kline);
 
 // ---------------------------------------------------------
 TimeBlock::TimeBlock()
@@ -2341,7 +2340,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   snprintf(f,512,"../data/tick/%s.%s.tick.txt",fubo->InstrumentID,tick->TradingDay);
   SaveLine(f,KBuf->KK[0].cK) ;
 
-  fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
+  //fubo->SG->broadcast(ca_errmsg, strlen(ca_errmsg), uWS::OpCode::TEXT);
 
   //下面两个for必须分开写，因为DealBar中会改写 KBuf
   for(k=1; k<KBuf->iN; ++k) {
@@ -2349,8 +2348,11 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
     b1 = fubo->pBaBo[iX]->b1 ;
     b1->sent =2 ;            // 如果已经send过，在下面的 DealBar中，可能会再次MarkBar() SendBar()
     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,
-             fubo->pBaBo[iX]->iH, fubo->pBaBo[iX]->iM,
-             fubo->pBaBo[iX]->iS, fubo->pBaBo[iX]->iF, KBuf->KK[k].iX);
+             fubo->pBaBo[iX]->iH,
+             fubo->pBaBo[iX]->iM,
+             fubo->pBaBo[iX]->iS,
+             fubo->pBaBo[iX]->iF,
+             KBuf->KK[k].iX);
     SaveLine(f,KBuf->KK[k].cK) ;
   }
 
@@ -2384,9 +2386,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
              b1->o, b1->h, b1->l, b1->c,
              b1->v, b1->vsum) ;
     KBuf->iN = 1 ;
-
-    fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
-
     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
     SaveLine(f,KBuf->KK[0].cK) ;
   }

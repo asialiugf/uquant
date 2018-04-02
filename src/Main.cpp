@@ -1,9 +1,11 @@
 #include "uBEE.h"
 //#include <Base.h>
+#include "Bars.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
 
+using namespace uBEE;
 int main()
 {
 
@@ -35,11 +37,13 @@ int main()
 
   int aa = 1009;
 
-  b.onTick([&aa](char* message, size_t len) {
-     
-    message[len] = 0;
-    std::cout<<"len:"<<len << message<<std::endl;
-    usleep(1000000);
+  b.onTick([&aa](char* data, size_t len) {
+    barSG * KBuf = (barSG *)data ; 
+    std::cout << KBuf->InstrumentID << " " << KBuf->ActionDay<<" "<< KBuf->iN  << std::endl ;
+    for(int i = 0; i< KBuf->iN ; ++i ) {
+      std::cout << KBuf->KK[i].cK << std::endl;
+    }
+    // usleep(1000000);
     //std::cout << aa << std::endl;
     //aa = 5990;
     //std::cout << aa << std::endl;

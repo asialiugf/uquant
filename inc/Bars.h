@@ -358,9 +358,10 @@ struct barSG {
   char    InstrumentID[31];
   char    TradingDay[9];
   char    ActionDay[9];
-  Kline   KK[50];
   int     iN ;   // 有多少个KK是需要传送的。
+  Kline   KK[50];
 };
+
 
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
