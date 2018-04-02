@@ -170,7 +170,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
   M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
-//  M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
@@ -179,7 +179,6 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
   for(auto iter = M_SimFuFile.begin(); iter != M_SimFuFile.end(); ++iter) {
-    cout << iter->first << " : " << iter->second << endl;
     if(T________) {
       sprintf(ca_errmsg,"MkSim(): Future:%s file:%s",iter->first.c_str(),iter->second.c_str()) ;
       uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;

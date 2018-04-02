@@ -13,7 +13,8 @@
 namespace uBEE
 {
 
-char msgSG[150*50] ;
+static barSG  KBuf1 ;
+static barSG  * KBuf = &KBuf1 ;
 
 // ---------------------------------------------------------
 TimeBlock::TimeBlock()
@@ -669,7 +670,6 @@ rrr:
             Display(fubo,tick,period,"eeee:goo---0");
             MarkBar(fubo,tick,period);
             SendBar(fubo,tick,period);
-            SaveBar(fubo,tick,period);
           }
         }
         return 0;
@@ -2293,97 +2293,130 @@ int MakeTime(char *caT, int T)
 int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
   int i = 0;
+  int k = 0;
+  stBar *b1;
+
+  snprintf(KBuf->InstrumentID,31,"%s",fubo->InstrumentID);
+  snprintf(KBuf->TradingDay,9,"%s",tick->TradingDay);
+  snprintf(KBuf->ActionDay,9,"%s",tick->ActionDay);
+
+  // tick!!!
+  k = 0;
+  KBuf->KK[0].iX = 100;
+  KBuf->KK[0].iF = 0;
+  snprintf(KBuf->KK[0].cK,200,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+           tick->TradingDay,   tick->UpdateTime,
+           tick->UpdateMillisec*1000, 0,            tick->ActionDay,
+           tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
+           tick->AskPrice1,    tick->AskVolume1,
+           tick->BidPrice1,    tick->BidVolume1,
+           tick->OpenInterest, tick->Volume);
+  k++ ;
 
   for(i=0; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
-      stBar *b1 = fubo->pBaBo[i]->b1 ;
+      b1 = fubo->pBaBo[i]->b1 ;
       MarkBar(fubo,tick,i) ;
       if(b1->sent == 1) {
         b1->sent = 2;
-        snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+
+        KBuf->KK[k].iX = i;
+        KBuf->KK[k].iF = fubo->pBaBo[i]->iF;
+        snprintf(KBuf->KK[k].cK,200,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
                  fubo->InstrumentID, b1->TradingDay, b1->ActionDay,
                  b1->cB, b1->cE,
                  b1->o, b1->h, b1->l, b1->c,
                  b1->v, b1->vsum) ;
+        k++ ;
       }
     }
-  }
+  } // for --
 
-  /*
-    for(i=0; i<50; ++i) {
-      if(fubo->pBaBo[i] != nullptr) {
-        SaveBar(fubo,tick,i) ;
-        DealBar(fubo,tick,i) ;
-      }
-    }
-  */
+  KBuf->iN = k ;
+
   char f[512] ;
   snprintf(f,512,"../data/tick/%s.%s.tick.bin",fubo->InstrumentID,tick->TradingDay);
   SaveBin(f,(const char *)tick,sizeof(TICK)) ;
-
   snprintf(f,512,"../data/tick/%s.%s.tick.txt",fubo->InstrumentID,tick->TradingDay);
-  sprintf(ca_errmsg,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
-          tick->TradingDay,
-          tick->UpdateTime,
-          tick->UpdateMillisec*1000, 0,
-          tick->ActionDay,
-          tick->HighestPrice,
-          tick->LowestPrice,
-          tick->LastPrice,
-          tick->AskPrice1,
-          tick->AskVolume1,
-          tick->BidPrice1,
-          tick->BidVolume1,
-          tick->OpenInterest,
-          tick->Volume);
-  SaveLine(f,ca_errmsg) ;
+  SaveLine(f,KBuf->KK[0].cK) ;
 
-  fubo->SG->broadcast(ca_errmsg, strlen(ca_errmsg), uWS::OpCode::TEXT);
+  //fubo->SG->broadcast(ca_errmsg, strlen(ca_errmsg), uWS::OpCode::TEXT);
+
+  //下面两个for必须分开写，因为DealBar中会改写 KBuf
+  for(k=1; k<KBuf->iN; ++k) {
+    int iX = KBuf->KK[k].iX ;
+    b1 = fubo->pBaBo[iX]->b1 ;
+    b1->sent =2 ;            // 如果已经send过，在下面的 DealBar中，可能会再次MarkBar() SendBar()
+    snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,
+             fubo->pBaBo[iX]->iH,
+             fubo->pBaBo[iX]->iM,
+             fubo->pBaBo[iX]->iS,
+             fubo->pBaBo[iX]->iF,
+             KBuf->KK[k].iX);
+    SaveLine(f,KBuf->KK[k].cK) ;
+  }
 
   for(i=0; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
-      SaveBar(fubo,tick,i) ;
       DealBar(fubo,tick,i) ;
     }
   }
 
-
   return 0;
 }
 
+// period 是指数组下标
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   BaBo * babo = fubo->pBaBo[period] ;
   stBar *b1 = babo->b1 ;
-
-  if(b1->sent==1) {
-    b1->sent =2 ;
-  }
-  return 0;
-}
-
-
-int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
-{
-  BaBo * babo = fubo->pBaBo[period] ;
-  stBar *b1 = babo->b1 ;
-
   char f[512] ;
 
-  if(b1->sent==2) {
-    b1->sent =3 ;
-    snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
-    snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+  //snprintf(KBuf->InstrumentID,31,"%s",fubo->InstrumentID);
+  //snprintf(KBuf->TradingDay,9,"%s",tick->TradingDay);
+  //snprintf(KBuf->ActionDay,9,"%s",tick->ActionDay);
+
+  if(b1->sent==1) {   // 这里有 sent=2的情况，表示前面已经send过了。
+    b1->sent =2 ;
+    KBuf->KK[0].iX = period;
+    KBuf->KK[0].iF = fubo->pBaBo[period]->iF;
+    snprintf(KBuf->KK[0].cK,200,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
              fubo->InstrumentID, b1->TradingDay, b1->ActionDay,
              b1->cB, b1->cE,
              b1->o, b1->h, b1->l, b1->c,
              b1->v, b1->vsum) ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-    SaveLine(f,ca_errmsg) ;
+    KBuf->iN = 1 ;
+    snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
+    SaveLine(f,KBuf->KK[0].cK) ;
   }
   return 0;
 }
 
+// period 是指数组下标
+int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
+{
+  /*
+   BaBo * babo = fubo->pBaBo[period] ;
+   stBar *b1 = babo->b1 ;
+
+   int k = 0;
+   char f[512] ;
+
+   if(b1->sent==2) {
+     b1->sent =3 ;
+     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
+     for(k =0; k< KBuf->iN; k++) {
+       if(KBuf->KK[k].iX == period) {
+         SaveLine(f,KBuf->KK[k].cK) ;
+         break;
+       }
+     }
+   }
+   return 0;
+   */
+}
+
+// period 是指数组下标
 int MarkBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   stBar       *b1;
