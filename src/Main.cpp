@@ -1,6 +1,4 @@
 #include "uBEE.h"
-//#include <Base.h>
-#include "Bars.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
@@ -14,13 +12,21 @@ int main()
 
   uBEE::Base b;
 
-  //std::thread t(b.MainHubInit);
-  //t.detach();
+  //static std::string   Future[] = {"ru1801","zn1801"};
+  //static int           Period[] = { 60,300,3600 } ;
+  std::map<std::string,std::vector<int>> M_futures ;
+  M_futures["ru1801"] = {0,60,300,3600};
+  M_futures["ru1805"] = {60,300,3600};
+  M_futures["ru1807"] = {60,300,3600};
+  M_futures["ru1809"] = {5,15,30,60,300,3600};
 
-  //b.MainHubInit();
-  //b.Init();
+  //-------------------- 变量定义 -----------------------------------
+  b.Mode = 4;
+  //b.Init(Future,Period) ;
 
-  //usleep(1000000);
+
+  //-------------------- 变量定义 -----------------------------------
+
 
   gettimeofday(&start,NULL);
   for(int i=0; i<100; i++) {
@@ -58,7 +64,7 @@ int main()
     //std::cout << aa << std::endl;
   });
 
-  b.Start();
+  b.Run();
   std::cout << " game over ! " << std::endl;
 
   while(1) {

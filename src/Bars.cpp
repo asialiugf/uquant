@@ -161,6 +161,16 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
     sprintf(ca_errmsg,"--------------------------------------in BaBo: pF: %s  iFr:%d ",pF,iFr) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
+
+  if(iFr == 0) {
+    iF = 0;
+    iH = 0;
+    iM = 0;
+    iS = 0;
+    memcpy(cF,pF,strlen(pF));
+    return;
+  }
+
   // 成员变量 ----------------
   iF = iFr ;
   iH = iFr/3600;
@@ -500,10 +510,10 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg, c
   }
 
   // 用户自定义周期 -----------------------------------------------------
-  // pBaBo[] 从 30--50为用户自定周期 ------
+  // pBaBo[] 从 31--50为用户自定周期 ------
   // 自定义周期以秒计，不能超过20个  ------
   // 没有判断是否和默认周期有重复的地方 ------
-  int m = 30;
+  int m = 31;
   for(i=0; i<len; i++) {
     if(aFr[i]==0) {
       continue ;
@@ -2326,7 +2336,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 
   // tick!!!
   k = 0;
-  KBuf->KK[0].iX = 100;
+  KBuf->KK[0].iX = 0;
   KBuf->KK[0].iF = 0;
   snprintf(KBuf->KK[0].cK,200,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
            tick->TradingDay,   tick->UpdateTime,
@@ -2337,7 +2347,8 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
            tick->OpenInterest, tick->Volume);
   k++ ;
 
-  for(i=0; i<50; ++i) {
+  // 其它周期！！
+  for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       b1 = fubo->pBaBo[i]->b1 ;
       MarkBar(fubo,tick,i) ;
@@ -2377,7 +2388,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
     SaveLine(f,KBuf->KK[k].cK) ;
   }
 
-  for(i=0; i<50; ++i) {
+  for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       DealBar(fubo,tick,i) ;
     }

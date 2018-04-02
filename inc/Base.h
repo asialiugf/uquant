@@ -16,15 +16,23 @@ namespace uBEE
 #define ON_BARS      '2'
 #define ON_ERROR     '3'
 
+struct Future {
+  char    InstrumentID[31];
+  int     iP[50];  //period 
+};
+
 
 struct Base {
+  int Mode;
+  
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
   uWS::WebSocket<uWS::CLIENT> *cw;  // (mainHub) client to web server
   uWS::WebSocket<uWS::CLIENT> *cd;  // (mainHub) client to data server
-  uWS::WebSocket<uWS::CLIENT> *c_ctp;  // (mainHub) client to data server HubCtp
-  uWS::WebSocket<uWS::CLIENT> *c_sim;  // (mainHub) client to data server HubSim
+  uWS::WebSocket<uWS::CLIENT> *c_bck;  // (mainHub) client to data server HubBck   back test
+  uWS::WebSocket<uWS::CLIENT> *c_ctp;  // (mainHub) client to data server HubCtp   ctp
+  uWS::WebSocket<uWS::CLIENT> *c_sim;  // (mainHub) client to data server HubSim   simulation
   uWS::WebSocket<uWS::CLIENT> *ct;  // (mainHub) client to trading server
   uWS::WebSocket<uWS::CLIENT> *ca;  // (assiHub) assitant client to data server for getTick,getBar ...
   std::vector<uWS::WebSocket<uWS::CLIENT>*>  cs;
@@ -40,7 +48,7 @@ struct Base {
 public:
   Base();
   void Init();
-  void Start();
+  void Run();
   void Stop();
   void Restart();
   void Pause();
@@ -53,7 +61,7 @@ public:
   // ------------------------------- API ---------------------------------
   void getFutureTick(char *start_date, char *end_date);
   void getFutureBars(const char *period, const char *start_date, const char *end_date);
-  void getStockBars (const char *period, const char *start_date, const char *end_date);
+  void getStockBars(const char *period, const char *start_date, const char *end_date);
 private:
   void AssiHubInit();
 };

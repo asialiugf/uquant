@@ -7,6 +7,7 @@
 #include "HubSim.h"
 #include "Daemon.h"
 #include "Title.h"
+#include "Bars.h"
 #include <Echo.h>
 #include <Base.h>
 #include <File.h>

@@ -17,6 +17,7 @@ static int  kLen = sizeof(Kline);
 
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
+  Mode = 4;
   std::thread t(&Base::AssiHubInit,this);
   t.detach();
   usleep(1000000); // should wait for thread ready
@@ -78,7 +79,7 @@ void Base::onMessageInit()
   });
 }
 
-void Base::Start()
+void Base::Run()
 {
   std::cout << "enter into Start !!\n";
   mainHub.onConnection([this](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
@@ -87,20 +88,20 @@ void Base::Start()
       this->cs[1] = ws;
       this->cw = ws;
       break;
-    case 2:
+    case 7:
       this->cs[2] = ws;
       this->cd = ws;
       break;
+    case 2:
+      this->cs[2] = ws;
+      this->c_bck = ws;
+      break;
     case 3:
       this->cs[3] = ws;
-      this->ct = ws;
+      this->c_ctp = ws;
       break;
     case 4:
       this->cs[4] = ws;
-      this->c_ctp = ws;
-      break;
-    case 5:
-      this->cs[5] = ws;
       this->c_sim = ws;
       break;
     default:
@@ -134,14 +135,30 @@ void Base::Start()
     }
   });
 
+
+  switch(Mode) {
+  case 1:
+    break;
+  case 2:
+    mainHub.connect("ws://localhost:3002",(void *) 2);  //  data server HubCtp  //实盘
+    break;
+  case 3:
+    mainHub.connect("ws://localhost:3003",(void *) 3);  //  data server HubCtp  //实盘
+    break;
+  case 4:
+    mainHub.connect("ws://localhost:3004",(void *) 4);  //  data server HubSim  //模拟
+    break;
+  default:
+    mainHub.connect("ws://localhost:3004",(void *) 4);  //  data server HubSim  //模拟
+    break;
+  }
+
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
   mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
-  mainHub.connect("ws://localhost:3003",(void *) 4);  //  data server HubCtp  //实盘
-  mainHub.connect("ws://localhost:3004",(void *) 5);  //  data server HubSim  //模拟
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
-  std::cout << "-------------- !!\n";
   mainHub.run();
   std::cout << "after run \n";
+  // 程序何时结束 ？？
 }
 
 void Base::AssiHubInit()
