@@ -147,7 +147,7 @@ int ForkCtp()
     sleep(2);
 
     std::thread t([&hub] {
-      //uBEE::MdCtp(hub.sg);
+      uBEE::MdCtp(hub.sg);
     });  /* thread t */
     t.detach();
     hub.Start();

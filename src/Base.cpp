@@ -41,6 +41,7 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
+    std::cout << "kkkkkkkkkk" << std::endl;
     memcpy((char *)KBuf,data,length);
     /*
     std::cout << KBuf->InstrumentID << " " << KBuf->ActionDay<<" "<< KBuf->iN  << std::endl ;
@@ -55,7 +56,7 @@ void Base::onMessageInit()
     //std::cout << std::string(message, length) << std::endl;
     this->onTickHandler((char*)KBuf,length);
 
-    /* 
+    /*
      case : weekend ==> change kkk;
      case : monthend ==> do something;
     */
@@ -157,6 +158,10 @@ void Base::AssiHubInit()
     }
   });
 
+  assiHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
+    assiHub.connect("ws://localhost:3001",(void *) 0); //传入 (void *) 0), onConnection会收到，再保存ws.
+  });
+
   assiHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
     char *tmp = new char[length+1];
     char tmp1[256];
@@ -170,6 +175,7 @@ void Base::AssiHubInit()
     //usleep(1000000);
 
   });
+  // 连接到 HubApi
   assiHub.connect("ws://localhost:3001",(void *) 0); //传入 (void *) 0), onConnection会收到，再保存ws.
   assiHub.run();
 }

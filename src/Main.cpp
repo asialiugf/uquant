@@ -24,7 +24,7 @@ int main()
 
   gettimeofday(&start,NULL);
   for(int i=0; i<100; i++) {
-   // b.getFutureTick("20170101", "20180101");
+    b.getFutureTick("20170101", "20180101");
   }
   gettimeofday(&end,NULL);
   unsigned  long diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;

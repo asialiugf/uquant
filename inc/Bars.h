@@ -234,7 +234,7 @@ static const std::map<int,std::string> M_TimeType = {
 
 // ----- End ----------- 交易时间定义 ----------------------------------------
 
-struct stSegment {
+struct Segment {
   char cB[9];
   char cE[9];
   int  iB ;
@@ -248,12 +248,14 @@ struct stSegment {
   int  bariE;
   int  barBx;  //记录 起始barB所在的 seg[]的 index .
   int  barEx;  //记录 结束barE所在的 seg[]的 index .
+public:
+  Segment() ;
 };
 
 struct stTimeType {
   int   	   iType;  /* 不同的交易时间类型 */
   int          iSegNum; /* 多少个segment */
-  stSegment    aSgms[SGM_NUM] ;
+  Segment    aSgms[SGM_NUM] ;
 };
 
 struct TimeBlock {
@@ -309,7 +311,7 @@ struct stBarBo {
   char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
-  stSegment     *seg[100] ;        // segment array
+  Segment     *seg[100] ;        // segment array
 } ;
 
 
@@ -330,7 +332,7 @@ struct BaBo {
   char          cF[10] ;             // frequency ; "1S" "2S" ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
-  stSegment     *seg[100] ;        // segment array
+  Segment     *seg[100] ;        // segment array
 public:
   BaBo(const char *pF, int fr, stTimeType  *pTimeType);
   int MakeTime(char *caTime, int T) ;

@@ -21,6 +21,7 @@ std::map<std::string,uBEE::FuSim>    M_FuSim;         // 每个期货一个 FuSi
 std::map<std::string,uBEE::FuBo>     M_SimFuBo;         // 每个期货一个 FuBlock，构成一个MAP
 std::vector<std::string>             V_Future(10);
 std::map<std::string,std::string>    M_SimFuFile;         // 每个期货一个 FuBlock，构成一个MAP
+//barSG  * KBuf;
 
 //---
 
@@ -30,7 +31,8 @@ FuSim::FuSim(char *Future, const char *pFile)
   see_memzero(File,1024);
   see_memzero(Table,512);
   see_memzero(InstrumentID,31);
-  memcpy(File,pFile,strlen(pFile));
+  snprintf(InstrumentID,31,"%s",Future) ;
+  snprintf(File,1024,"%s",pFile) ;
 
   iLineNum = CountLines(pFile) ;
   iCurLine = 1;
@@ -144,10 +146,11 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 {
 
   if(T________) {
-    sprintf(ca_errmsg,"MkSim(): enter!!") ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+    uBEE::ErrLog(1000,"MkSim(): enter!!",1,0,0) ;
   }
 
+  //KBuf = new barSG() ;
+  SimSG = new_sg;
 
   std::cout << "sssssssssssssssssssss\n" ;
   for(int j=0; j<7; j++) {
@@ -166,7 +169,6 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   //exit(0);
 
-  SimSG = new_sg;
 
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
   M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
@@ -197,9 +199,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   // ----------------  test ----------------------------------------------begin
   for(auto it = M_SimFuBo.begin(); it != M_SimFuBo.end(); ++it) {
-    sprintf(ca_errmsg,"rrrrrrrrr");
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+    uBEE::ErrLog(1000,"rrrrrrrrrr",1,0,0);
     uBEE::FuBo *fubo = &(it->second);
 
     for(int i=0; i<50; ++i) {
@@ -207,8 +207,8 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
       for(int j=0; j<fubo->pBaBo[i]->iSegNum; ++j) {
-        stSegment *seg = fubo->pBaBo[i]->seg[j] ;
-        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d:%d, mk:%d  sn:%d  segBE:%s-%s barBE:%s--%s  sgiBE:%d--%d  bariBE:%d--%d   barBxEx:%d--%d",
+        Segment *seg = fubo->pBaBo[i]->seg[j] ;
+        sprintf(ca_errmsg,"rrrrrrrrr:%s i:%d iF:%d id:%d:%d, mk:%d  sn:%d segBE:%s-%s barBE:%s--%s sgiBE:%d--%d  bariBE:%d--%d barBxEx:%d--%d",
                 fubo->InstrumentID,
                 i,fubo->pBaBo[i]->iF,j,fubo->pBaBo[i]->iSegNum,seg->mark,seg->sn,
                 seg->cB,seg->cE,seg->barB,seg->barE,
@@ -218,9 +218,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       }
     }
 
-    sprintf(ca_errmsg,"rrrrrrrrr");
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0);
+    uBEE::ErrLog(1000,"rrrrrrrrrr",1,0,0);
   }
   // ----------------  test ----------------------------------------------end
 

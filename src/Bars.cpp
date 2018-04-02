@@ -17,9 +17,28 @@ static barSG  KBuf1 ;
 static barSG  * KBuf = &KBuf1 ;
 int  kLen = sizeof(Kline);
 
+Segment::Segment()
+{
+  see_memzero(cB,9);
+  see_memzero(cE,9);
+  iB=-1 ;
+  iE=-1 ;
+  iI=-1 ;  //和前一个 segment之间的间隔。如果是第一个segment， iI = 0;
+  mark=-1 ; // 0 表示 seg 包含 bar。 // 1.2.3. 表示 一个bar 包含多个 seg。
+  sn=-1 ;
+  see_memzero(barB,9);
+  see_memzero(barE,9);
+  bariB=-1;
+  bariE=-1;
+  barBx=-1;  //记录 起始barB所在的 seg[]的 index .
+  barEx=-1;  //记录 结束barE所在的 seg[]的 index .
+}
+
+
 // ---------------------------------------------------------
 TimeBlock::TimeBlock()
 {
+  uBEE::ErrLog(1000," enter into TimeBlock()!",1,0,0);
   cJSON   *jRoot ;
   cJSON   *jTime ;
   cJSON   *jTemp ;
@@ -44,8 +63,7 @@ TimeBlock::TimeBlock()
     n = cJSON_GetArraySize(jTime);
 
     TT[it->first].iSegNum = n;
-    uBEE::ErrLog(1000," enter into Klines()!",1,0,0);
-    std::cout << TT[it->first].iSegNum << "pppppppppppppppppppppp" << std::endl;
+    //std::cout << TT[it->first].iSegNum << "pppppppppppppppppppppp" << std::endl;
     for(i=0; i<n; i++) {
       jTemp = cJSON_GetArrayItem(jTime,i);
 
@@ -116,12 +134,12 @@ int BaBo::MakeTime(char *caT, int T)
 /*
   // 初始化 bar block(BaBo) !!! ，每个 future block (FuBo) 有 50个 BaBo ;
   // 每个future的交易时间类型不一样 每个 FuBo 有一个不同的pTimeType
-  // 根据frequency + pTimeType， 初始化 BaBo的 （stSegment     *seg[100] ;）
+  // 根据frequency + pTimeType， 初始化 BaBo的 （Segment     *seg[100] ;）
   //
 struct stTimeType {
   int          iType;
   int          iSegNum;
-  stSegment    aSgms[SGM_NUM] ;
+  Segment    aSgms[SGM_NUM] ;
 };
 */
 BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
@@ -169,7 +187,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
     if(last>0) {
       if(iB + last <= iE) {
-        seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
+        //seg[idx] = (Segment *)malloc(sizeof(Segment)) ;
+        seg[idx] = new Segment() ;
 
         seg[idx]->iB = iB ;
         seg[idx]->iE = iB + last ;
@@ -204,7 +223,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
         idx++ ;
 
       } else if(iB + last > iE) {
-        seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
+        //seg[idx] = (Segment *)malloc(sizeof(Segment)) ;
+        seg[idx] = new Segment() ;
 
         seg[idx]->iB = iB ;
         seg[idx]->iE = iE ;
@@ -270,7 +290,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
     }
 
     if(num > 0) {
-      seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
+      //seg[idx] = (Segment *)malloc(sizeof(Segment)) ;
+      seg[idx] = new Segment() ;
       seg[idx]->iB = iB ;
       seg[idx]->iE = iE-mo ;
       mark =0;
@@ -289,7 +310,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
     }
 
     if(mo > 0) {
-      seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
+      //seg[idx] = (Segment *)malloc(sizeof(Segment)) ;
+      seg[idx] = new Segment() ;
       seg[idx]->iB = iE-mo ;
       seg[idx]->iE = iE ;
       mark = 1;
@@ -330,7 +352,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
   // ------- 最后多申请一个 seg. -- 用于最开始第一个Kbar处理。 ------
   curiX = iSegNum ;
-  seg[idx] = (stSegment *)malloc(sizeof(stSegment)) ;
+  //seg[idx] = (Segment *)malloc(sizeof(Segment)) ;
+  seg[idx] = new Segment() ;
   seg[idx]->sn = 0 ;
   see_memzero(seg[idx]->cB,9);
   see_memzero(seg[idx]->cE,9);
