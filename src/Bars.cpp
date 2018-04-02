@@ -488,8 +488,9 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg, c
    pBaBo[30-49]
    ------------------------
    0  1 2 3 4  5  6  7  8  9   10  11  12  13  14   15   16   17   18    19    20    21 22 23 24 25 26 27 28 29
-   1S 2 3 5 10 15 20 30 1F 2F  3F  5F  10  15  20   30   1H   2H   3H    4H    5H    6H 8H 10 12 1D 1W 1M 1J 1Y
-   1, 2,3,5,10,15,20,30,60,120,180,300,600,900,1200,1800,3600,7200,10800,14400,18000, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+   0S 1S 2 3 5 10 15 20 30 1F 2F  3F  5F  10  15  20   30   1H   2H   3H    4H    5H    6H 8H 10 12 1D 1W 1M 1J 1Y
+   0, 1, 2,3,5,10,15,20,30,60,120,180,300,600,900,1200,1800,3600,7200,10800,14400,18000, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+   0S是tick。
   */
   // 默认的周期 初始化---------------------------------------------------------
   // 每个 FuBo --> future block 有 50个不同的周期 每个周期一个 BaBo ( bar block )
@@ -2431,23 +2432,6 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   /*
-   BaBo * babo = fubo->pBaBo[period] ;
-   stBar *b1 = babo->b1 ;
-
-   int k = 0;
-   char f[512] ;
-
-   if(b1->sent==2) {
-     b1->sent =3 ;
-     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
-     for(k =0; k< KBuf->iN; k++) {
-       if(KBuf->KK[k].iX == period) {
-         SaveLine(f,KBuf->KK[k].cK) ;
-         break;
-       }
-     }
-   }
-   return 0;
    */
 }
 

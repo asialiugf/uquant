@@ -1,6 +1,7 @@
 #include "Base.h"
 #include "Bars.h"
 #include "ApiFun.h"
+#include "uBEE.h"
 #include <cjson/cJSON.h>
 #include <iostream>
 #include <thread>
@@ -15,6 +16,14 @@ static barSG  KBuf1 ;
 static barSG  * KBuf = &KBuf1 ;
 static int  kLen = sizeof(Kline);
 
+
+Future::Future()
+{
+  for(int i=0; i<50; i++) {
+    iP[i] = -1;
+  }
+}
+
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   Mode = 4;
@@ -22,6 +31,48 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
   t.detach();
   usleep(1000000); // should wait for thread ready
 }
+
+
+void Base::FuInit(const std::map<std::string,std::vector<int>> *M,const int aFr[],int len)
+{
+  int i =0;
+  for(auto it = (*M).begin(); it != (*M).end(); ++it) {
+    //uBEE::ErrLog(1000,it->first.c_str(),1,0,0);
+    //std::cout << it->first << std::endl;
+    uBEE::Future *fu = new uBEE::Future() ;
+    for(auto iter = it->second.cbegin(); iter != it->second.cend(); iter++) {
+      std::cout << *iter << std::endl;
+
+      i = 0;
+      std::map<std::string,int>::const_iterator itt;
+      for(auto itt = M_FF.begin(); itt != M_FF.end(); ++itt) {
+        if(*iter == itt->second) {
+          fu->iP[i] = *iter ;
+          std::cout << "i:" << i << "  ip:" << *iter << std::endl;
+          break;
+        }
+        i++;
+      }
+      if(i>=31) {
+        // 从用户自定义中找
+        int m = 31;
+        for(i=0; i<len; i++) {
+          if(*iter == aFr[i]) {
+            fu->iP[m] = *iter ;
+            std::cout << "i:" << m << "  ip:" << *iter << std::endl;
+            break;
+          }
+          m++;
+          if(m >=50) {
+            break;
+          }
+        }
+      } //---- 用户自定义周期
+    }
+    M_Fu.insert(std::pair<std::string,uBEE::Future>(it->first, *fu));
+  }  // ---- (*M).begin()
+}
+
 
 void Base::Init()
 {
@@ -42,8 +93,19 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
-    std::cout << "kkkkkkkkkk" << std::endl;
+    int i;
+    //std::cout << "kkkkkkkkkk" << std::endl;
+    // struct barSG  *KBuf
     memcpy((char *)KBuf,data,length);
+
+    //this->onTickHandler((char*)KBuf,length);
+    map<std::string,uBEE::Future>::iterator it;
+    it = this->M_Fu.find(KBuf->InstrumentID);
+    if(it != this->M_Fu.end()) {
+      //it->second
+      this->onTickHandler((char*)KBuf,length);
+    }
+
     /*
     std::cout << KBuf->InstrumentID << " " << KBuf->ActionDay<<" "<< KBuf->iN  << std::endl ;
     for(int i = 0; i< KBuf->iN ; ++i ) {
@@ -55,7 +117,7 @@ void Base::onMessageInit()
     //message[length-1] = 0;
     //std::cout << "kkkkkkkkk\n" << std::endl;
     //std::cout << std::string(message, length) << std::endl;
-    this->onTickHandler((char*)KBuf,length);
+    //this->onTickHandler((char*)KBuf,length);
 
     /*
      case : weekend ==> change kkk;

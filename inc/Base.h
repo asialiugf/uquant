@@ -18,13 +18,15 @@ namespace uBEE
 
 struct Future {
   char    InstrumentID[31];
-  int     iP[50];  //period 
+  int     iP[50];  //period
+public:
+  Future();
 };
 
 
 struct Base {
   int Mode;
-  
+  std::map<std::string,Future>    M_Fu;   
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
@@ -59,6 +61,8 @@ public:
   //void onBars(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   void onMessageInit();
   // ------------------------------- API ---------------------------------
+  void FuInit(const std::map<std::string,std::vector<int>> *M,const int aFr[],int len);
+  // ------------------------------- API ---------------------------------
   void getFutureTick(char *start_date, char *end_date);
   void getFutureBars(const char *period, const char *start_date, const char *end_date);
   void getStockBars(const char *period, const char *start_date, const char *end_date);
@@ -66,6 +70,6 @@ private:
   void AssiHubInit();
 };
 
-}
+} // namespace ---
 
 #endif // UBEE_BASE_H
