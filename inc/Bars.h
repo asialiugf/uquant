@@ -351,6 +351,8 @@ public:
   FuBo(char *fuID, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg, const int period[],int len);
 };
 
+
+// -------------------- for sending -----------------
 struct Kline {
   int iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
   int iF;              //
@@ -365,6 +367,44 @@ struct barSG {
   Kline   KK[50];
 };
 
+struct sTick{
+  int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int     iF;              // 周期  600 300 ...：:w
+  char          UpdateTime[9];          ///最后修改时间
+  double        OpenPrice;              ///今开盘
+  double        HighestPrice;           ///最高价
+  double        LowestPrice;            ///最低价
+  double        LastPrice;              ///最新价
+  double        OpenInterest;           ///持仓量
+  int           UpdateMillisec;         ///最后修改毫秒
+  double        BidPrice1;              ///申买价一
+  int           BidVolume1;             ///申买量一
+  double        AskPrice1;              ///申卖价一
+  int           AskVolume1;             ///申卖量一
+  int           Volume;                 ///数量
+};
+
+struct sKbar{
+  int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int     iF;              // 周期  600 300 ...：:w
+  char    cB[9];           // begin time BAR K柱 的开始时间
+  char    cE[9];           // end time
+  double  h ;              // high
+  double  o ;              // open
+  double  c ;              // close
+  double  l ;              // low
+  int     v ;              // volume
+  int     vsum ;           // keep volume sum
+};
+
+struct sData{
+  char    InstrumentID[31];
+  char    TradingDay[9];
+  char    ActionDay[9];
+  sTick   TT ;
+  int     iN ;
+  sKbar   KK[50];
+};
 
 // ----- End ----------- 时间结构定义 ----------------------------------------
 

@@ -17,6 +17,10 @@ static barSG  KBuf1 ;
 static barSG  * KBuf = &KBuf1 ;
 int  kLen = sizeof(Kline);
 
+static sData  TickBars;  // Data for send !!
+static sData  *nData = &TickBars ;   // Data for send !!
+
+
 Segment::Segment()
 {
   see_memzero(cB,9);
@@ -650,9 +654,9 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 bbbb:
       if(curiX < babo->iSegNum-1) {
         if(memcmp(ticK,"20:50:00",8) >=0) {
-          i = 0 ;                   // i always be 0 !!! no bug!
+          i = 0 ;                    // i always be 0 !!! no bug!
         } else {
-          i = curiX+1;                 // 如果最后一个段没有任何数据过来， bug!!! here
+          i = curiX+1;               // 如果最后一个段没有任何数据过来， bug!!! here
         }
       } else {                       //一天结束，从头开始
         i = 0;
@@ -2358,6 +2362,10 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   snprintf(KBuf->TradingDay,9,"%s",tick->TradingDay);
   snprintf(KBuf->ActionDay,9,"%s",tick->ActionDay);
 
+  snprintf(nData->InstrumentID,31,"%s",fubo->InstrumentID);
+  snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
+  snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
+
   // tick!!!
   k = 0;
   KBuf->KK[0].iX = 0;
@@ -2371,7 +2379,24 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
            tick->OpenInterest, tick->Volume);
   k++ ;
 
+  // tick!!! ---- nData
+  nData->TT.iX = 0;
+  nData->TT.iF = 0;
+  memcpy(nData->TT.UpdateTime,tick->UpdateTime,9) ;
+  nData->TT.OpenPrice       = tick->OpenPrice;
+  nData->TT.HighestPrice    = tick->HighestPrice;
+  nData->TT.LowestPrice     = tick->LowestPrice;
+  nData->TT.LastPrice       = tick->LastPrice;
+  nData->TT.OpenInterest    = tick->OpenInterest;
+  nData->TT.UpdateMillisec  = tick->UpdateMillisec;
+  nData->TT.BidPrice1       = tick->BidPrice1;
+  nData->TT.BidVolume1      = tick->BidVolume1;
+  nData->TT.AskPrice1       = tick->AskPrice1;
+  nData->TT.AskVolume1      = tick->AskVolume1;
+  nData->TT.Volume          = tick->Volume;
+
   // 其它周期！！
+  int x = 0;
   for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       b1 = fubo->pBaBo[i]->b1 ;
@@ -2386,21 +2411,37 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
                  b1->cB, b1->cE,
                  b1->o, b1->h, b1->l, b1->c,
                  b1->v, b1->vsum) ;
-        k++ ;
+        ++k ;
+
+        nData->KK[x].iX = i;
+        nData->KK[x].iF = fubo->pBaBo[i]->iF;
+        memcpy(nData->KK[x].cB,b1->cB,9);
+        memcpy(nData->KK[x].cE,b1->cE,9);
+        nData->KK[x].o = b1->o ;
+        nData->KK[x].h = b1->h ;
+        nData->KK[x].l = b1->l ;
+        nData->KK[x].c = b1->c ;
+        nData->KK[x].v = b1->v ;
+        nData->KK[x].vsum = b1->vsum ;
+        ++x ;
+
       }
     }
   } // for --
 
   KBuf->iN = k ;
+  nData->iN = x ;
 
+  fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
+
+  // saving tick!!!
   char f[512] ;
   snprintf(f,512,"../data/tick/%s.%s.tick.bin",fubo->InstrumentID,tick->TradingDay);
   SaveBin(f,(const char *)tick,sizeof(TICK)) ;
   snprintf(f,512,"../data/tick/%s.%s.tick.txt",fubo->InstrumentID,tick->TradingDay);
   SaveLine(f,KBuf->KK[0].cK) ;
 
-  fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
-
+  // saving Klines Kbars !!!
   //下面两个for必须分开写，因为DealBar中会改写 KBuf
   for(k=1; k<KBuf->iN; ++k) {
     int iX = KBuf->KK[k].iX ;
@@ -2412,6 +2453,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
     SaveLine(f,KBuf->KK[k].cK) ;
   }
 
+  // update or new  bar!!!
   for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       DealBar(fubo,tick,i) ;
@@ -2442,6 +2484,23 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
              b1->o, b1->h, b1->l, b1->c,
              b1->v, b1->vsum) ;
     KBuf->iN = 1 ;
+
+    // clear nData->TT
+    nData->TT.iX = -1;
+    nData->TT.iF = -1;
+
+    // set nData->KK[0]
+    nData->KK[0].iX = period;
+    nData->KK[0].iF = fubo->pBaBo[period]->iF;
+    memcpy(nData->KK[0].cB,b1->cB,9);
+    memcpy(nData->KK[0].cE,b1->cE,9);
+    nData->KK[0].o = b1->o ;
+    nData->KK[0].h = b1->h ;
+    nData->KK[0].l = b1->l ;
+    nData->KK[0].c = b1->c ;
+    nData->KK[0].v = b1->v ;
+    nData->KK[0].vsum = b1->vsum ;
+    nData->iN = 1;
 
     fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
 
