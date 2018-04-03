@@ -542,10 +542,7 @@ FuBo::FuBo(char *caFuture, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg, c
 //int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  stBar       *b1;
-//  stBar       *bt;
-
-  b1 = fubo->pBaBo[period]->b1 ;
+  stBar   *b1 = fubo->pBaBo[period]->b1 ;
 
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
@@ -564,54 +561,67 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 #define SEGB fubo->pBaBo[period]->seg[curiX]->cB
 #define SEGE fubo->pBaBo[period]->seg[curiX]->cE
 #define MARK babo->seg[curiX]->mark
-#define SN babo->seg[curiX]->sn
 #define ticK tick->UpdateTime
 
 
-  Display(fubo,tick,period,"eeee:enter:");
+  //Display(fubo,tick,period,"eeee:enter:");
 
   // 只要tick落在 curB---curE之间，即UPDATE。 -----------------------
-  if(memcmp(ticK,barE,8)==0) {  //在 Sendbar()已经update
-    if(tick->UpdateMillisec <= 500) {
+  // ticK == BarE，在这里就return了。
+  // 只有ticK 在bar外，才可能新开一个bar,所以先在这里返回，等新的ticK到来。
+  // 对于不跨段的情况 。。。bar在段内
+  // 跨段，一个bar跨多个段，有可能前一个ticK在前一段中，现在这个tick已经是 barE了。
+  // 这种情况，也在这里直接处理，并返回。
+  if(memcmp(ticK,barE,8)==0) {  // >=500 在 Markbar()已经update
+    if(tick->UpdateMillisec < 500) {
       UPDATE_B1;
-      Display(fubo,tick,period,"eeee:uuu---");
+      //Display(fubo,tick,period,"eeee:uuu---");
     }
     return 0;
   }
 
   if(memcmp(ticK,curB,8)>=0 && memcmp(ticK,curE,8)<=0) {
     UPDATE_B1;
-    Display(fubo,tick,period,"eeee:uuu---");
+    //Display(fubo,tick,period,"eeee:uuu---");
     return 0;
   }
+
+  // 程序走到这里来 this tick is out of curB--curE
+  // next curB--curE should be set !
   //--nnnnnn--------------------------------------------------------
+  // here bars in one seg:
   if(MARK == 0) {
+    // 【A】 barE < ticK <= segE
+    // situation 1: tick still in same segB--segE, but out of  barB--barE(same curB--curE)
     if(memcmp(barE,ticK,8)<0 && memcmp(ticK,SEGE,8)<=0) {
       goto aaaa;
     }
     // -----
     // 【C】：barE<=segE <tick   外   ==>  e
     // 【D】：tick <barE<=segE   外   ==>  e  24:00:00
+    // situation 2: tick is out of  segB--segE, out of  barB--barE
     if(memcmp(SEGE,ticK,8)<0 || memcmp(ticK,barE,8)<0) {
-      Display(fubo,tick,period,"eeee:1:E,F---");
+      //Display(fubo,tick,period,"eeee:1:E,F---");
       goto bbbb;
     } //------- E F
   }  // MARK ==0
 
   // --------------------------------------------------------------------
+  // here a bar has lots of segs:
   if(MARK > 0) {
-    // 【A】：segE <tick< barE    内  ==   n
-    // 【1】：tick > segE > barE           内  ==>  c                          图中seg2
-    // 【2】：       segE > barE> tick    内  ==>  c                          图中seg3 4 5
+    // 【A】：segE < tick < barE    内  ==>  n
+    // 【1】：tick > segE > barE    内  ==>  c    tick befor 00:00:00           图中seg2
+    // 【2】：segE > barE > tick    内  ==>  c    tick after 00:00:00           图中seg3 4 5
+    //  situation 1:  ticK is out of segB--segE(same curB--curE), but still in same barB--barE
     if((memcmp(SEGE,ticK,8)<0 && memcmp(ticK,barE,8)<0) ||
        (memcmp(ticK,SEGE,8)>0 && memcmp(SEGE,barE,8)>0) ||
        (memcmp(SEGE,barE,8)>0 && memcmp(barE,ticK,8)>0)) {
-      int i = curiX;
+      int i = curiX;    // do while ==> keep curiX not changing .because maybe this tick is invalid.
       do {
         i++;
       } while((memcmp(barE,babo->seg[i]->barE,8)==0) &&
               (memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0));
-      if(memcmp(barE,babo->seg[i]->barE,8)!=0) {
+      if(memcmp(barE,babo->seg[i]->barE,8)!=0) {   // invalid tick
         return 0;
       }
 
@@ -630,31 +640,42 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       return 0;
     }  // A 1 2 ------------
 
-    // 【E】：segE<=barE< tick    外  ==>  e             s    tick> barE
-    // 【F】：tick <segE<=barE    外  ==>  e             s    tick< barE
-    // 【3】：segE >tick> barE    外  ==>  e    s    tick> barE
+    // 【E】：segE<=barE< tick    外  ==>  e     00:00:00  -- barB segB -- segE barE -- tick  -- 00:00:00
+    // 【F】：tick <segE<=barE    外  ==>  e     barB segB -- segE barE -- 00:00:00  -- tick
+    // 【3】：segE >tick> barE    外  ==>  e     barB segB -- segE -- 00:00:00 -- barE -- tick
+    //  situation 2: tick is out of bar !!
     if((memcmp(SEGE,barE,8)<=0 && (memcmp(barE,ticK,8)<0 || memcmp(ticK,SEGE,8)<0)) ||
-       (memcmp(SEGE,ticK,8)>0 && memcmp(ticK,barE,8)>0)) {
+       (memcmp(SEGE,ticK,8)> 0 && memcmp(ticK,barE,8)>0)) {
 
 bbbb:
-      if(curiX < babo->iSegNum-1) {  //一天结束，从头开始。
-        i = curiX+1;                 // 如果最后一个段没有任何数据过来，
-      } else {
+      if(curiX < babo->iSegNum-1) {
+        if(memcmp(ticK,"20:50:00",8) >=0) {
+          i = 0 ;                   // i always be 0 !!! no bug!
+        } else {
+          i = curiX+1;                 // 如果最后一个段没有任何数据过来， bug!!! here
+        }
+      } else {                       //一天结束，从头开始
         i = 0;
-        b1->vold = 0;
-        b1->vsum = 0;                         // 对于 "20:50:0x" 其它的周期走到这里
+        //b1->vold = 0;
+        //b1->vsum = 0;                // 对于 "20:50:0x" 其它的周期走到这里
       }
 
+      // one tick should be DearBar() many times for differient period.
+      // 20:50:0x tick comming ==> first DearBar() will changed to 21:00:00
+      // next period , the programe will be going to  bbbb:(above)
+      // if i = curiX+1; problem coming, because this tick will not be found
+      // from curiX+1 to the end : babo->iSegNum-1 !!!!!!
+      // ===> same problem for the coming ticks after 21:00:00 !!!!!!
+      // so i must be 0 always !! that is correct!!
 
       while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {
-        Display(fubo,tick,period,"eeee:ggg---");
         i++;
         if(i >= babo->iSegNum) {
           if(memcmp(ticK,"20:59:",6)==0) {
             memcpy(ticK,"21:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
             i = 0;
-            b1->vold = 0;
-            b1->vsum = 0;
+            //b1->vold = 0;
+            //b1->vsum = 0;
             break;
           } else {
             return 0;
@@ -662,10 +683,13 @@ bbbb:
         }
       }  // 找到 tick 在哪个段中
       curiX = i ;  // tick所在的段
+      if(curiX == 0) {
+        b1->vold = 0;
+        b1->vsum = 0;
+      }
 
       if(MARK==0) {
-        curiE = babo->seg[curiX]->iB-1 ;
-
+        curiE = babo->seg[curiX]->iB-1 ;   //for do while below!!
 aaaa:
         if(memcmp(ticK,SEGE,8)<=0) {   // ---------
           do {
@@ -681,7 +705,7 @@ aaaa:
           NEW_B1;
           memcpy(barB,curB,9);
           memcpy(barE,curE,9);
-          Display(fubo,tick,period,"eeee:011---");
+          //Display(fubo,tick,period,"eeee:011---");
 
           goto rrr;
           return 0; //虽然没有用，但还是留着。
@@ -697,12 +721,11 @@ aaaa:
         memcpy(curE,babo->seg[curiX]->cE,9);
         memcpy(barB,babo->seg[curiX]->barB,9);
         memcpy(barE,babo->seg[curiX]->barE,9);
-
-        Display(fubo,tick,period,"eeee:012---");
+        //Display(fubo,tick,period,"eeee:012---");
 rrr:
         if(memcmp(ticK,barE,8)==0) {
           if(tick->UpdateMillisec >= 500) {
-            Display(fubo,tick,period,"eeee:goo---0");
+            //Display(fubo,tick,period,"eeee:goo---0");
             MarkBar(fubo,tick,period);
             SendBar(fubo,tick,period);
           }
@@ -2438,11 +2461,10 @@ int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 // period 是指数组下标
 int MarkBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  stBar       *b1;
-  b1 = fubo->pBaBo[period]->b1 ;
+  stBar   *b1 = fubo->pBaBo[period]->b1 ;
   char * curB = fubo->pBaBo[period]->curB ;
   char * curE = fubo->pBaBo[period]->curE ;
-  int &curiX = fubo->pBaBo[period]->curiX ;
+  int  &curiX = fubo->pBaBo[period]->curiX ;
 
   char * barB = b1->cB ;
   char * barE = b1->cE ;

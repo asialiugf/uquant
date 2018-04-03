@@ -245,21 +245,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       if(fubo==nullptr || tick==nullptr) {
         continue;
       }
+
       HandleTick(fubo,tick);
-      usleep(1000000);
-      /*
-      SendBar(fubo, tick, 1);
-      SaveBar(fubo, tick, 1);
-      DealBar(fubo, tick, 1);
-      */
-      /*
-      for(int i=0; i<50; ++i) {
-        if(fubo->pBaBo[i] == nullptr) {
-          continue;
-        }
-        DealBar(fubo, tick, i);
-      }
-      */
+      //usleep(10000);
     }
   }
 
