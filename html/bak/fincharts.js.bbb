@@ -1137,8 +1137,8 @@
     frameChange(3, 0);
 
 
-    this.update = function(opt) {
-    //function update1(opt) {
+    //this.update = function(opt) {
+    function update1(opt) {
       if (opt.type == 1) { //更新，但最后一个只是修改
         for (let i = 0; i < opt.Y.data.length; i++) {
           if (opt.Y.data[i].position == 'main') {
@@ -1645,7 +1645,7 @@
 	  opt_cc.push(105);
       option.type = 2;
 
-      //update1(option);
+      update1(option);
       //console.log( ary ) ;
 
     });

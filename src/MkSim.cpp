@@ -246,7 +246,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
       HandleTick(fubo,tick);
-      usleep(10);
+      usleep(1000000);
       /*
       SendBar(fubo, tick, 1);
       SaveBar(fubo, tick, 1);
