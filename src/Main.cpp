@@ -27,12 +27,12 @@ int main()
 
   std::map<std::string,std::vector<int>> M_futures ;
   M_futures["xu1801"] = {0,60,300,3600};
-  M_futures["xu1805"] = {60,300,3600};
+  M_futures["ru1805"] = {60,300,3600};
   M_futures["xu1807"] = {60,19,300,3600};
-  M_futures["ru1809"] = {5,15,30,60,300,3600,14401};
+  M_futures["zn1805"] = {5,15,30,60,300,3600,14401};
 
   //-------------------- 变量定义 -----------------------------------
-  b.Mode = 3;
+  b.Mode = 4;
   b.FuInit(&M_futures,&fr[0],5);
 
   //exit(0);

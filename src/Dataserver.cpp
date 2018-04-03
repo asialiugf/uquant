@@ -19,6 +19,7 @@ int ForkApi();
 int ForkBck();
 int ForkCtp();
 int ForkSim();
+int Menu();
 uBEE::HubBck hb;
 using namespace uBEE ;
 
@@ -27,6 +28,9 @@ int main(int argc, char **argv)
 
   int rtn;
   int pid;
+
+  int iFunc = Menu();
+
   uBEE::Daemon(1,0) ;
 
   // --- time block init !! ------------ from Global.h
@@ -62,20 +66,29 @@ int main(int argc, char **argv)
   rtn = ForkApi();
   sleep(1);
   std::cout << "after fork api !!\n" ;
-  /*
-  for(int i=0; i<5; i++) {
-    rtn = ForkBck();
+
+  if(iFunc == 2 || iFunc == 6 || iFunc == 7 || iFunc == 8) {
+    for(int i=0; i<5; i++) {
+      rtn = ForkBck();
+      sleep(1);
+    }
+  }
+  if(iFunc == 4 || iFunc == 5 || iFunc == 7 || iFunc == 8) {
+    rtn = ForkSim();
     sleep(1);
   }
-  */
-  sleep(1);
-  rtn = ForkSim();
-  sleep(1);
-  rtn = ForkCtp();
-  sleep(1);
+  if(iFunc == 3 || iFunc == 5 || iFunc == 6 || iFunc == 8) {
+    rtn = ForkCtp();
+    sleep(1);
+  }
+
+  if( iFunc<2 || iFunc>8 ) {
+    std::cout << "Input Error !! \n" ;
+    exit(-1);
+  }
 
   while(true) {
-    sleep(100);
+    sleep(1000);
   }
 
 }
@@ -181,7 +194,7 @@ int ForkSim()
 
     //------ 开一个新的线程----------------
     std::thread t([&hub] {
-      //uBEE::MkSim(hub.sg);
+      uBEE::MkSim(hub.sg);
     });  /* thread t */
     t.detach();
     hub.Start();
@@ -193,4 +206,21 @@ int ForkSim()
     break;
   }
   return 0;
+}
+
+int Menu()
+{
+  int tt;
+  std::cout << std::endl;
+  std::cout << "            \033[31m Input type description: \033[0m" << std::endl;
+  std::cout << "            \033[35m 2: \033[35mBck\033[0m only\033[0m" << std::endl;
+  std::cout << "            \033[31m 3: \033[31mCtp\033[0m only\033[0m" << std::endl;
+  std::cout << "            \033[32m 4: \033[32mSim\033[0m only\033[0m" << std::endl;
+  std::cout << "            \033[31m 5: \033[31mCtp\033[0m + \033[32mSim\033[0m" << std::endl;
+  std::cout << "            \033[31m 6: \033[31mCtp\033[0m + \033[35mBck\033[0m" << std::endl;
+  std::cout << "            \033[32m 7: \033[32mSim\033[0m + \033[35mBck\033[0m" << std::endl;
+  std::cout << "            \033[31m 8: \033[31mCtp\033[0m + \033[32mSim\033[0m + \033[35mBck\033[0m" << std::endl;
+  std::cout << "            \033[31m Please Input type: \033[0m";
+  std::cin >> tt ;
+  return tt;
 }
