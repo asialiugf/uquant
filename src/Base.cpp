@@ -17,7 +17,7 @@ static barSG  * KBuf = &KBuf1 ;
 static int  kLen = sizeof(Kline);
 
 //static sData  DT;  // Data for send !!
-//static sData  *nDT = new sData() ;   // Data for send !!
+//static sData  *data = new sData() ;   // Data for send !!
 //static const int dLen = 31+9+9 + sizeof(sTick) + sizeof(int) ;
 //static const int bLen = sizeof(sKbar) ;
 
@@ -32,10 +32,13 @@ Future::Future()
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   Mode         = 4;
-  nDT        = &DT;
-  InstrumentID = nDT->InstrumentID;
-  TradingDay   = nDT->TradingDay;
-  ActionDay    = nDT->ActionDay;
+  data        = &DT;
+  InstrumentID = data->InstrumentID;
+  TradingDay   = data->TradingDay;
+  ActionDay    = data->ActionDay;
+  for(int i=0; i<50; ++i) {
+    bars[i] = nullptr ;
+  }
 
   std::thread t(&Base::AssiHubInit,this);
   t.detach();
@@ -89,12 +92,12 @@ void Base::Init()
 
 }
 
-void Base::onTick(std::function<void(char *, size_t)> handler)
+void Base::onTick(std::function<void(sTick *)> handler)
 {
   Base::onTickHandler = handler;
 }
 
-void Base::onBars(std::function<void(char *, size_t)> handler)
+void Base::onBars(std::function<void(sKbar *[],int)> handler)
 {
   Base::onBarsHandler = handler;
 }
@@ -104,35 +107,31 @@ void Base::onMessageInit()
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
     int i;
-    //std::cout << "kkkkkkkkkk" << std::endl;
-    // struct barSG  *KBuf
-    //memcpy((char *)KBuf,data,length);
-    memcpy((char *)this->nDT,data,length);
+    memcpy((char *)this->data,data,length);
 
     map<std::string,uBEE::Future>::iterator it;
-    it = this->M_Fu.find(this->nDT->InstrumentID);
+    it = this->M_Fu.find(this->data->InstrumentID);
     if(it != this->M_Fu.end()) {
-      //std::cout << length <<" "<< this->nDT->InstrumentID << " ";
       //it->second
-      uBEE::ErrLog(1000,"haha",1,(char *)this->nDT,length);
-      if(this->nDT->TT.iX ==0) {
-        sTick * tick = &this->nDT->TT ;
-        snprintf(ca_errmsg,1000,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d\n",
-                 this->nDT->TradingDay,   tick->UpdateTime,
-                 tick->UpdateMillisec*1000, 0,            this->nDT->ActionDay,
-                 tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
-                 tick->AskPrice1,    tick->AskVolume1,
-                 tick->BidPrice1,    tick->BidVolume1,
-                 tick->OpenInterest, tick->Volume);
-        std::cout << ca_errmsg ;
-        //this->onTickHandler((char*)&this->nDT->TT,tLen);
+      //--------------- deal tick --------------------------
+      if(this->data->TT.iX ==0) {
+        this->onTickHandler((sTick *)&this->data->TT);
       }
-      if(this->nDT->iN !=0) {
-        for(i=0; i<this->nDT->iN; ++i) {
-          //  this->onBarsHandler((char*)&this->nDT->KK[i],bLen);
+      //--------------- deal bars --------------------------
+      if(this->data->iN !=0) {
+        int j = 0;
+        for(i=0; i<this->data->iN; ++i) {
+          std::cout<<"i:"<<i<<" "<<it->second.iP[ this->data->KK[i].iX ]<<" "<<"b:iX:"<<this->data->KK[i].iX<<"iF:"<< this->data->KK[i].iF << std::endl;
+          if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
+            this->bars[j] = (sKbar *)&this->data->KK[i] ;
+            ++j ;
+          }
+        }
+        if(j>0) {
+          this->onBarsHandler(this->bars,j);
         }
       }
-    }
+    } // -----  end if(it != this->M_Fu.end())
 
 
     /*

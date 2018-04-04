@@ -29,10 +29,11 @@ struct Base {
   std::map<std::string,Future>    M_Fu;
 
   sData  DT;  // Data for send !!
-  sData *nDT;   //
-  char *InstrumentID;
-  char *TradingDay;
-  char *ActionDay;
+  sData *data;   //
+  char  *InstrumentID;
+  char  *TradingDay;
+  char  *ActionDay;
+  sKbar *bars[50] ;
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
@@ -50,8 +51,10 @@ struct Base {
   std::condition_variable cv; 		// 全局条件变量.
   //bool ready = false; 			// 全局标志位.
 
-  std::function<void(char *, size_t)> onBarsHandler;
-  std::function<void(char *, size_t)> onTickHandler;
+  //std::function<void(char *, size_t)> onBarsHandler;
+  //std::function<void(char *, size_t)> onTickHandler;
+  std::function<void(sKbar *[],int)> onBarsHandler;
+  std::function<void(sTick *)> onTickHandler;
 
 public:
   Base();
@@ -61,8 +64,8 @@ public:
   void Restart();
   void Pause();
   void Continue();
-  void onTick(std::function<void(char *, size_t)> handler);
-  void onBars(std::function<void(char *, size_t)> handler);
+  void onTick(std::function<void(sTick *)> handler);
+  void onBars(std::function<void(sKbar *[],int)> handler);
   //void onTick(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   //void onBars(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   void onMessageInit();
