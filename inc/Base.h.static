@@ -28,11 +28,11 @@ struct Base {
   int Mode;
   std::map<std::string,Future>    M_Fu;
 
-  sData  DT;  // Data for send !!
-  sData *nDT;   //
-  char *InstrumentID;
-  char *TradingDay;
-  char *ActionDay;
+  //sData  DT;  // Data for send !!
+  //sData *nDT;   //
+  //char *InstrumentID;
+  //char *TradingDay;
+  //char *ActionDay;
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...

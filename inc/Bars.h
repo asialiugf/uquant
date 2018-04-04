@@ -406,6 +406,11 @@ struct sData{
   sKbar   KK[50];
 };
 
+static const int dLen = sizeof(sData) - 50 * sizeof(sKbar) ;
+static const int tLen = sizeof(sTick) ;
+static const int bLen = sizeof(sKbar) ;
+static const int oLen = dLen + bLen ;
+
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
 typedef struct {

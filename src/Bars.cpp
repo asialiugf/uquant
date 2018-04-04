@@ -17,8 +17,12 @@ static barSG  KBuf1 ;
 static barSG  * KBuf = &KBuf1 ;
 int  kLen = sizeof(Kline);
 
-static sData  TickBars;  // Data for send !!
-static sData  *nData = &TickBars ;   // Data for send !!
+//static sData  TickBars;  // Data for send !!
+static sData  *nData = new sData() ;   // Data for send !!
+
+
+//static const int dLen = 31+9+9 + sizeof(sTick) + sizeof(int) ;
+//static const int bLen = sizeof(sKbar) ;
 
 
 Segment::Segment()
@@ -2432,7 +2436,9 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   KBuf->iN = k ;
   nData->iN = x ;
 
-  fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
+  //fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
+  fubo->SG->broadcast((const char*)nData, dLen+bLen*nData->iN, uWS::OpCode::BINARY);
+
 
   // saving tick!!!
   char f[512] ;
@@ -2440,6 +2446,20 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   SaveBin(f,(const char *)tick,sizeof(TICK)) ;
   snprintf(f,512,"../data/tick/%s.%s.tick.txt",fubo->InstrumentID,tick->TradingDay);
   SaveLine(f,KBuf->KK[0].cK) ;
+  if(memcmp(fubo->InstrumentID,"ru1805",6) ==0) {
+    snprintf(f,512,"../exe/zzz.txt");
+    SaveLine(f,KBuf->KK[0].cK) ;
+    snprintf(ca_errmsg,1000,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+             tick->TradingDay,   tick->UpdateTime,
+             nData->TT.UpdateMillisec*1000, 0,            tick->ActionDay,
+             nData->TT.HighestPrice, nData->TT.LowestPrice,   nData->TT.LastPrice,
+             nData->TT.AskPrice1,    nData->TT.AskVolume1,
+             nData->TT.BidPrice1,    nData->TT.BidVolume1,
+             nData->TT.OpenInterest, nData->TT.Volume);
+    snprintf(f,512,"../exe/zzz1.txt");
+    SaveLine(f,ca_errmsg) ;
+
+  }
 
   // saving Klines Kbars !!!
   //下面两个for必须分开写，因为DealBar中会改写 KBuf
@@ -2502,7 +2522,8 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     nData->KK[0].vsum = b1->vsum ;
     nData->iN = 1;
 
-    fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
+    //fubo->SG->broadcast((const char*)KBuf, 57+ kLen * KBuf->iN, uWS::OpCode::BINARY);
+    fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
 
     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
     SaveLine(f,KBuf->KK[0].cK) ;

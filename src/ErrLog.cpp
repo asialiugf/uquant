@@ -25,8 +25,8 @@ static int MAX_BAK_LOG_SIZE = 200*1024*1024 ;
 // int chglog(char cChgCode,char *pcChgStr);
 int ErrLog(int iErrCode,char const*message,char device,char const*buf,long length);
 void disp_errmsg(int iFileId,char const*message,char const*buf,long length);
-void DumpHex(int ifile,char const*buf, int len) ;
-void DumpLine(int ifile,int addr, char const*buf, int len) ;
+void DumpHex(int ifile,char const*buf, long len) ;
+void DumpLine(int ifile,int addr, char const*buf, long len) ;
 
 
 int ErrLog(int iErrCode, char const*message, char device, char const*buf, long length)
@@ -143,11 +143,11 @@ disp_errmsg(int iFileId,char const*message,char const*buf,long length)
   iRc = write(iFileId,"\n",1);
 }
 
-void DumpLine(int ifile,int addr, char const*buf, int len)
+void DumpLine(int ifile,int addr, char const*buf, long len)
 {
   int i, pos;
   size_t iRc =0 ;
-  char line[80+1];
+  char line[100];
 
   // Address field
   pos = sprintf(line, "%08X ", addr);
@@ -159,7 +159,7 @@ void DumpLine(int ifile,int addr, char const*buf, int len)
     }
 
     if(i < len) {
-      pos += sprintf(&line[pos], "%02x ", buf[i]);
+      pos += sprintf(&line[pos],"%02x ", (unsigned char)buf[i]);
     } else {
       pos += sprintf(&line[pos], "   ");
     }
@@ -175,7 +175,7 @@ void DumpLine(int ifile,int addr, char const*buf, int len)
 
 }
 
-void DumpHex(int ifile, char const* buf, int len)
+void DumpHex(int ifile, char const* buf, long len)
 {
   int i;
   for(i = 0; i < (len/16); ++i) {
