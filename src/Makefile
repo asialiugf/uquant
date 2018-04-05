@@ -1,8 +1,21 @@
+CPP_SHARED := -std=c++11 -O3 -shared -fPIC -I ../inc -I /usr/include -I /usr/local/include -I /usr/include/postgresql \
+Base.cpp Bars.cpp File.cpp Json.cpp Title.cpp FuList.cpp ErrLog.cpp Daemon.cpp HubApi.cpp HubCtp.cpp HubSim.cpp HubBck.cpp MdCtp.cpp MdSpi.cpp MkSim.cpp Global.cpp \
+Psqlpool.cpp PsqlFunc.cpp
+
+default: exes
+
+lib:
+	make `(uname -s)`
+Linux:
+	$(CXX) $(CFLAGS) $(CPP_SHARED) -s -o ../../u/lib/libuBEE.so
+
 CC = g++
-CPPFLAGS =  -std=c++11  -O2
-CFLAGS =  -std=c++11 -O2 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-result
-LIBPATH = -L/home/riddle/uws
+CPPFLAGS =  -std=c++11 -O3
+CFLAGS =  -std=c++11 -O3 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-result
+LIBPATH = -L/home/riddle/uws -L ./ -L ../../u/lib
 LINK =  $(CC)
+
+ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq
 
 CTPLIBS:= ../ctp/thostmduserapi.so \
         ../ctp/thosttraderapi.so
@@ -18,165 +31,38 @@ INCS = -I ../inc \
        -I /usr/local/include \
 	   -I /usr/include/postgresql
 
-DEPS = ../inc/Base.h \
-	    ../inc/Bars.h \
-	    ../inc/Echo.h \
-	    ../inc/Title.h \
-	    ../inc/FuList.h \
-	    ../inc/ErrLog.h \
-	    ../inc/Daemon.h \
-	    ../inc/HubCtp.h \
-	    ../inc/HubApi.h \
-	    ../inc/HubSim.h \
-	    ../inc/HubBck.h \
-	    ../inc/MdCtp.h \
-	    ../inc/MdSpi.h \
-	    ../inc/MkSim.h \
-        ../inc/Psqlpool.h \
-        ../inc/PsqlFunc.h \
-        ../inc/Roll.h \
-        ../inc/File.h \
-        ../inc/Json.h \
-        ../inc/strategy.h \
-        ../inc/uBEE.h
 
-build:  binary
-
-binary: objs exes
-
-exes: $(EXE)main.x \
-	$(EXE)dserver.x \
+exes: $(EXE)dserver.x \
 	$(EXE)tqdata.x \
 	$(EXE)fugen.x \
 	$(EXE)wserver.x
 
-objs: $(OBJ)Base.o \
-	$(OBJ)Bars.o \
-	$(OBJ)File.o \
-	$(OBJ)Json.o \
-	$(OBJ)Title.o \
-	$(OBJ)FuGen.o \
-	$(OBJ)FuList.o \
-	$(OBJ)ErrLog.o \
-	$(OBJ)Daemon.o \
-	$(OBJ)HubApi.o \
-	$(OBJ)HubCtp.o \
-	$(OBJ)HubSim.o \
-	$(OBJ)HubBck.o \
-	$(OBJ)MdCtp.o \
-	$(OBJ)MdSpi.o \
-	$(OBJ)MkSim.o \
-	$(OBJ)Global.o \
-	$(OBJ)Webserver.o \
-	$(OBJ)Dataserver.o \
-	$(OBJ)Tqdata.o \
-	$(OBJ)Psqlpool.o \
-	$(OBJ)PsqlFunc.o \
-	$(OBJ)Main.o 
-
-OBJS:= \
-	$(OBJ)Base.o \
-	$(OBJ)File.o \
-	$(OBJ)Json.o \
-	$(OBJ)Title.o \
-	$(OBJ)FuList.o \
-    $(OBJ)ErrLog.o \
-    $(OBJ)Daemon.o \
-    $(OBJ)HubApi.o \
-	$(OBJ)HubCtp.o \
-	$(OBJ)HubSim.o \
-	$(OBJ)HubBck.o \
-	$(OBJ)Webserver.o \
-	$(OBJ)Dataserver.o \
-	$(OBJ)Tqdata.o \
-    $(OBJ)Psqlpool.o \
-    $(OBJ)PsqlFunc.o \
-	$(OBJ)Main.o 
-
-MAINOBJS:= \
-	$(OBJ)Base.o \
-	$(OBJ)File.o \
-    $(OBJ)ErrLog.o \
-	$(OBJ)FuList.o \
-	$(OBJ)Main.o 
-
 DATASERVER:= \
-	$(OBJ)Base.o \
-	$(OBJ)Bars.o \
-	$(OBJ)File.o \
-	$(OBJ)Json.o \
-    $(OBJ)Title.o \
-	$(OBJ)FuList.o \
-    $(OBJ)ErrLog.o \
-    $(OBJ)Daemon.o \
-    $(OBJ)HubApi.o \
-	$(OBJ)HubCtp.o \
-	$(OBJ)HubSim.o \
-	$(OBJ)HubBck.o \
-	$(OBJ)Psqlpool.o \
-    $(OBJ)PsqlFunc.o \
-	$(OBJ)MdCtp.o \
-	$(OBJ)MdSpi.o \
-	$(OBJ)MkSim.o \
-	$(OBJ)Global.o \
 	$(OBJ)Dataserver.o 
 
 TQDATA:= \
-	$(OBJ)Base.o \
-	$(OBJ)File.o \
-	$(OBJ)Json.o \
-	$(OBJ)FuList.o \
-    $(OBJ)ErrLog.o \
-    $(OBJ)Psqlpool.o \
-    $(OBJ)PsqlFunc.o \
 	$(OBJ)Tqdata.o 
 
 FUGEN:= \
-    $(OBJ)Base.o \
-    $(OBJ)File.o \
-    $(OBJ)Json.o \
-	$(OBJ)FuList.o \
-    $(OBJ)ErrLog.o \
     $(OBJ)FuGen.o
 
 WEBSERVER:= \
-	$(OBJ)Base.o \
-	$(OBJ)File.o \
-    $(OBJ)ErrLog.o \
 	$(OBJ)Webserver.o 
 
-$(EXE)main.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
+$(EXE)dserver.x: $(DATASERVER)
+	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) 
 
-$(EXE)dserver.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(CTPLIBS) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson -lpq
+$(EXE)tqdata.x: $(TQDATA)
+	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lMdApi -lTdApi
 
-$(EXE)tqdata.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson -lpq
+$(EXE)fugen.x: $(FUGEN)
+	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq $(CTPLIBS) 
 
-$(EXE)fugen.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
-
-$(EXE)wserver.x: $(MAINOBJS)
-	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luWS -lssl -lz -lpthread -lcjson
-
-$(OBJ)Main.o: $(SRC)Main.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp -lcjson
+$(EXE)wserver.x: $(WEBSERVER)
+	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq $(CTPLIBS)
 
 $(OBJ)FuGen.o: $(SRC)FuGen.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuGen.o  $(SRC)FuGen.cpp
-
-$(OBJ)HubApi.o: $(SRC)HubApi.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubApi.o  $(SRC)HubApi.cpp
-
-$(OBJ)HubCtp.o: $(SRC)HubCtp.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubCtp.o  $(SRC)HubCtp.cpp
-
-$(OBJ)HubSim.o: $(SRC)HubSim.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubSim.o  $(SRC)HubSim.cpp
-
-$(OBJ)HubBck.o: $(SRC)HubBck.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)HubBck.o  $(SRC)HubBck.cpp
 
 $(OBJ)Dataserver.o: $(SRC)Dataserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Dataserver.o  $(SRC)Dataserver.cpp
@@ -186,46 +72,4 @@ $(OBJ)Tqdata.o: $(SRC)Tqdata.cpp
 
 $(OBJ)Webserver.o: $(SRC)Webserver.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Webserver.o  $(SRC)Webserver.cpp
-
-$(OBJ)Base.o: $(SRC)Base.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Base.o  $(SRC)Base.cpp
-
-$(OBJ)Bars.o: $(SRC)Bars.cpp $(INC)Bars.h
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Bars.o  $(SRC)Bars.cpp
-
-$(OBJ)File.o: $(SRC)File.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)File.o  $(SRC)File.cpp
-
-$(OBJ)Json.o: $(SRC)Json.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Json.o  $(SRC)Json.cpp
-
-$(OBJ)Title.o: $(SRC)Title.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Title.o  $(SRC)Title.cpp
-
-$(OBJ)ErrLog.o: $(SRC)ErrLog.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)ErrLog.o  $(SRC)ErrLog.cpp
-
-$(OBJ)FuList.o: $(SRC)FuList.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuList.o  $(SRC)FuList.cpp
-
-$(OBJ)Daemon.o: $(SRC)Daemon.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Daemon.o  $(SRC)Daemon.cpp
-
-$(OBJ)Psqlpool.o: $(SRC)Psqlpool.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Psqlpool.o  $(SRC)Psqlpool.cpp
-
-$(OBJ)PsqlFunc.o: $(SRC)PsqlFunc.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)PsqlFunc.o  $(SRC)PsqlFunc.cpp
-
-$(OBJ)MdCtp.o: $(SRC)MdCtp.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MdCtp.o  $(SRC)MdCtp.cpp
-
-$(OBJ)MdSpi.o: $(SRC)MdSpi.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MdSpi.o  $(SRC)MdSpi.cpp
-
-$(OBJ)MkSim.o: $(SRC)MkSim.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)MkSim.o  $(SRC)MkSim.cpp
-
-$(OBJ)Global.o: $(SRC)Global.cpp
-	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)Global.o  $(SRC)Global.cpp
 

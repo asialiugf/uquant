@@ -3,6 +3,7 @@
 #include <thread>
 #include <unistd.h>
 #include <iostream>
+#include <vector>
 
 using namespace uBEE;
 int main()
@@ -12,6 +13,7 @@ int main()
   struct  timeval end;
 
 
+  //------------------ 定义合约 及操作周期 --------------------------
   //31  32   33   34   35
   const int fr[5] = {19,14401,9900,350,6600};
 
@@ -30,54 +32,23 @@ int main()
   MY_OHLC s5S ;
   MY_OHLC s1F ;
   MY_OHLC s5F ;
-
+  //int x;
   //-------------------- 变量定义 -----------------------------------
   MY_KDJ s5S_1 ;
   MY_KDJ s5S_2 ;
   MY_KDJ s5S_3 ;
   MY_KDJ s5S_4 ;
-/*
-  //--- KDJ 1 ---
-  std::vector<double>    R1(100000,SEE_NULL) ;
-  std::vector<double>    K1(100000,SEE_NULL) ;
-  std::vector<double>    D1(100000,SEE_NULL) ;
-  std::vector<double>    J1(100000,SEE_NULL) ;
-  double                 prH1 = SEE_NULL ;
-  double                 prL1 = SEE_NULL ;
-  int                    prF1 = SEE_NULL ;
+  //-------------------- 变量定义 -----------------------------------
+  std::cout << s5S_1.preH << "ha" << endl;
+  for(int i=0; i<100; ++i) {
+    std::cout << s5S_1.E[i] << "ha" << endl;
+  }
 
-  //--- KDJ 2 ---
-  std::vector<double>    R1(100000,SEE_NULL) ;
-  std::vector<double>    K1(100000,SEE_NULL) ;
-  std::vector<double>    D1(100000,SEE_NULL) ;
-  std::vector<double>    J1(100000,SEE_NULL) ;
-  double                 prH1 = SEE_NULL ;
-  double                 prL1 = SEE_NULL ;
-  int                    prF1 = SEE_NULL ;
-
-  //--- KDJ 3 ---
-  std::vector<double>    R1(100000,SEE_NULL) ;
-  std::vector<double>    K1(100000,SEE_NULL) ;
-  std::vector<double>    D1(100000,SEE_NULL) ;
-  std::vector<double>    J1(100000,SEE_NULL) ;
-  double                 prH1 = SEE_NULL ;
-  double                 prL1 = SEE_NULL ;
-  int                    prF1 = SEE_NULL ;
-
-  //--- KDJ 4 ---
-  std::vector<double>    R1(100000,SEE_NULL) ;
-  std::vector<double>    K1(100000,SEE_NULL) ;
-  std::vector<double>    D1(100000,SEE_NULL) ;
-  std::vector<double>    J1(100000,SEE_NULL) ;
-  double                 prH1 = SEE_NULL ;
-  double                 prL1 = SEE_NULL ;
-  int                    prF1 = SEE_NULL ;
-*/
-
+  //exit(0);
   //-------------------- 变量定义 -----------------------------------
 
-  exit(0);
 
+  //-------------------- initialize -----------------------------------
   gettimeofday(&start,NULL);
   for(int i=0; i<100; i++) {
     BB->getFutureTick("20170101", "20180101");
@@ -93,7 +64,7 @@ int main()
 
   int aa = 1009;
 
-  //-------------------- 变量定义 -----------------------------------
+  //-------------------- onTick -----------------------------------
   BB->onTick([&aa,&BB](sTick *tick) {
     //sTick * tick = (sTick *)data ;
     if(tick->iX == 0) {
@@ -117,7 +88,9 @@ int main()
     //std::cout << aa << std::endl;
   });
 
-  BB->onBars([&aa,&BB](sKbar * bar[], int len) {
+  //-------------------- onBars -----------------------------------
+  int x = 0;
+  BB->onBars([&](sKbar * bar[], int len) {
     //sKbar * bar = (sKbar *)data ;
     //printf("%s %s %s\n",b->InstrumentID,b->TradingDay,b->ActionDay);
     for(int i=0; i<len; ++i) {
@@ -129,25 +102,28 @@ int main()
                  bar[i]->v, bar[i]->vsum) ;
         std::cout << ca_errmsg ;
       }
+      if(bar[i]->iF == 60) {
+        s5S.O[x] = bar[i]->o ;
+        s5S.H[x] = bar[i]->h ;
+        s5S.L[x] = bar[i]->l ;
+        s5S.C[x] = bar[i]->c ;
+        s5S.V[x] = bar[i]->v ;
+        SEE_KDJ(x, x, &s5S.H[0], &s5S.L[0], &s5S.C[0], &s5S_1.preH, &s5S_1.preL, &s5S_1.preF, 9, 3, 3,
+                &s5S_1.R[0], &s5S_1.K[0], &s5S_1.D[0], &s5S_1.J[0]) ;
+        SEE_EMA(x, x, &s5S_1.D[0], 5, &s5S_1.E[0]) ;
+        //std::cout <<"i"<< x <<" K:" << s5S_1.K[x] <<" D:"<< s5S_1.D[x] <<" J:"<< s5S_1.J[x] <<" E:"<<  s5S_1.E[x] << std::endl;
+        std::cout <<"kkkkkkkkkk "<< bar[i]->cB<<"-"<<bar[i]->cE<<" "<<s5S_1.K[x]<<" "<< s5S_1.D[x]<<" "<<s5S_1.J[x]<<" "<<s5S_1.E[x]<<std::endl;
+        std::cout <<"ohlcccccccccccccc: "<< bar[i]->cB<<"-"<<bar[i]->cE<<" "<< s5S.O[x]<<" "<<s5S.H[x] <<" "<< s5S.L[x] <<" "<< s5S.C[x] << std::endl;
+        ++x;
+      }
     }
-    //usleep(1000000);
-
-    //message[len] = 0;
-    //std::cout<<" I am in onBars !"<<std::endl;
-    //std::cout<<message<<std::endl;
-    //std::cout << aa << std::endl;
-    //aa = 5990;
-    //std::cout << aa << std::endl;
   });
 
+  //-------------------- Run!! -----------------------------------
   BB->Run();
   std::cout << " game over ! " << std::endl;
 
   while(1) {
-    // b.cs[0]->send("------------------------from main -----------");
     usleep(1000000);
   }
-  usleep(8000000);
-
-
 }

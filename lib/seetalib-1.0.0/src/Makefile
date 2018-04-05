@@ -1,8 +1,8 @@
 #MAKEFILE************  
 
 CC = g++
-CPPFLAGS =  -std=c++11  -O2
-CCFLAGS =  -std=c++11 -O2 -fPIC 
+CPPFLAGS =  -std=c++11  -O3
+CCFLAGS =  -std=c++11 -O3 -fPIC 
    
 #CC=cc
 #CCFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -g -pthread
@@ -15,10 +15,10 @@ all: libsee_talib.a \
 	libsee_talib.so
    
 libsee_talib.a: see_talib.o
-	ar r libsee_talib.a see_talib.o  
+	ar r ../lib/libsee_talib.a ../lib/see_talib.o  
 
 libsee_talib.so: see_talib.c
-	$(CC) -o libsee_talib.so -shared -fPIC see_talib.c
+	$(CXX) $(CCFLAGE) -o ../lib/libsee_talib.so -shared -fPIC -I ../include see_talib.c
 
 see_talib.o: see_talib.c
-	$(CC) -c $(CCFLAGS) -o see_talib.o see_talib.c
+	$(CXX) -c $(CCFLAGS) -o ../lib/see_talib.o -I ../include see_talib.c
