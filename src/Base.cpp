@@ -106,7 +106,6 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
-    int i;
     memcpy((char *)this->data,data,length);
 
     map<std::string,uBEE::Future>::iterator it;
@@ -120,8 +119,9 @@ void Base::onMessageInit()
       //--------------- deal bars --------------------------
       if(this->data->iN !=0) {
         int j = 0;
-        for(i=0; i<this->data->iN; ++i) {
-          std::cout<<"i:"<<i<<" "<<it->second.iP[ this->data->KK[i].iX ]<<" "<<"b:iX:"<<this->data->KK[i].iX<<"iF:"<< this->data->KK[i].iF << std::endl;
+        for(int i=0; i<this->data->iN; ++i) {
+          std::cout<<"i:"<<i<<" "<<it->second.iP[ this->data->KK[i].iX ]<<" "<<"b:iX:";
+          std::cout<<this->data->KK[i].iX<<"iF:"<< this->data->KK[i].iF << std::endl;
           if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
             this->bars[j] = (sKbar *)&this->data->KK[i] ;
             ++j ;
@@ -130,42 +130,13 @@ void Base::onMessageInit()
         if(j>0) {
           this->onBarsHandler(this->bars,j);
         }
-      }
+      } //---------------- end deal bars
     } // -----  end if(it != this->M_Fu.end())
-
-
-    /*
-    std::cout << KBuf->InstrumentID << " " << KBuf->ActionDay<<" "<< KBuf->iN  << std::endl ;
-    for(int i = 0; i< KBuf->iN ; ++i ) {
-      std::cout << KBuf->KK[i].cK << std::endl;
-    }
-    */
-    //char * buffer = new char(length);
-    //std::cout << std::string(message, length) << std::endl;
-    //message[length-1] = 0;
-    //std::cout << "kkkkkkkkk\n" << std::endl;
-    //std::cout << std::string(message, length) << std::endl;
-    //this->onTickHandler((char*)KBuf,length);
 
     /*
      case : weekend ==> change kkk;
      case : monthend ==> do something;
     */
-
-    /*
-    char msg[200];
-    memcpy(msg,message,length);
-    this->onTickHandler(msg,length);
-    switch(message[0]) {
-    case  ON_TICK:
-      this->onTickHandler(msg,length);
-      break;
-    case  ON_BARS:
-      this->onBarsHandler(msg,length);
-      break;
-    }
-    */
-
   });
 }
 

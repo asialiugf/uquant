@@ -20,7 +20,7 @@ using namespace std;
 //------- from MdCtp.cpp ----------------begin ----------
 extern CThostFtdcMdApi* pUserApi;
 extern uWS::Group<uWS::SERVER> * sg;
-//extern uBEE::TimeBlock         *tmbo;
+//extern uBEE::TmBo         *tmbo;
 //------- from MdCtp.cpp ---------------- end ----------
 
 TThostFtdcBrokerIDType  BROKER_ID = "9999";         // 经纪公司代码
@@ -31,13 +31,12 @@ char *ppInstrumentID[FUTURE_NUMBER];                             // 期货ID
 int iInstrumentID;                                      // 订阅的期货数量
 int iRequestID;
 
-std::map<std::string,uBEE::FuBlock> FuBlockMap;     // 每个期货一个 FuBlock，构成一个MAP
-std::map<std::string,uBEE::FuBo>    M_CtpFuBo;         // 每个期货一个 FuBlock，构成一个MAP
+std::map<std::string,uBEE::FuBo>    M_CtpFuBo;         // 每个期货一个 FuBo，future block 构成一个MAP
 
 std::shared_ptr<uBEE::DBPool> dbpool;
 //uBEE::TradingTime             *tt;
 uBEE::FuList                  *fl;
-//uBEE::TimeBlock        *tmbo;
+//uBEE::TmBo        *tmbo;
 //------- ----------------- ----------------  ----------
 
 CMdSpi::CMdSpi()
@@ -164,23 +163,6 @@ void CMdSpi::OnFrontConnected()
 {
   cerr << "--->>> " << "OnFrontConnected" << endl;
   // 用户登录请求
-  // --- testing ----------------------------------
-  std::cout << "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu:" << x << std::endl;
-  /*
-  map<std::string,uBEE::FuBlock>::iterator it;
-  it = FuBlockMap.begin();
-  while(it != FuBlockMap.end()) {
-    std::cout << "......:" << it->first << ":"<< it->second.Block.i_hour_type << std::endl;
-    //it->first;
-    //it->second;
-    it ++;
-  }
-  //exit(-1);
-  */
-
-
-  // --- testing ----------------------------------
-
   ReqUserLogin();
 }
 

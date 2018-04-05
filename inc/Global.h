@@ -5,7 +5,7 @@
 
 namespace uBEE
 {
-extern uBEE::TimeBlock         *tb;
+extern uBEE::TmBo         *tb;
 int InitAll();
 
 } // namespace

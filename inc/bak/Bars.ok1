@@ -90,6 +90,7 @@ static const int ff[30] = {1, 2,3,5,10,15,20,30,60,120,180,300,600,900,1200,1800
 
 // -- 前面加上 100 101 ... 是为了排序需要.
 static const std::map<std::string,int> M_FF = {
+  {"100_0S",  0      },   // tick!!!
   {"100_1S",  1      },
   {"101_2S",  2      },
   {"102_3S",  3      },
@@ -234,7 +235,7 @@ static const std::map<int,std::string> M_TimeType = {
 
 // ----- End ----------- 交易时间定义 ----------------------------------------
 
-struct stSegment {
+struct Segment {
   char cB[9];
   char cE[9];
   int  iB ;
@@ -248,12 +249,14 @@ struct stSegment {
   int  bariE;
   int  barBx;  //记录 起始barB所在的 seg[]的 index .
   int  barEx;  //记录 结束barE所在的 seg[]的 index .
+public:
+  Segment() ;
 };
 
 struct stTimeType {
   int   	   iType;  /* 不同的交易时间类型 */
   int          iSegNum; /* 多少个segment */
-  stSegment    aSgms[SGM_NUM] ;
+  Segment    aSgms[SGM_NUM] ;
 };
 
 struct TimeBlock {
@@ -309,7 +312,7 @@ struct stBarBo {
   char          c_bar_type ;                // S F H D W M J Y  BAR_SECOND BAR_MINUTE ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
-  stSegment     *seg[100] ;        // segment array
+  Segment     *seg[100] ;        // segment array
 } ;
 
 
@@ -330,7 +333,7 @@ struct BaBo {
   char          cF[10] ;             // frequency ; "1S" "2S" ...
   char          ca_table[128];                 /* database table name */
   int           iSegNum ;          // segment 数量
-  stSegment     *seg[100] ;        // segment array
+  Segment     *seg[100] ;        // segment array
 public:
   BaBo(const char *pF, int fr, stTimeType  *pTimeType);
   int MakeTime(char *caTime, int T) ;
@@ -347,6 +350,66 @@ struct FuBo {
 public:
   FuBo(char *fuID, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg, const int period[],int len);
 };
+
+
+// -------------------- for sending -----------------
+struct Kline {
+  int iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int iF;              //
+  char cK[200];
+};
+
+struct barSG {
+  char    InstrumentID[31];
+  char    TradingDay[9];
+  char    ActionDay[9];
+  int     iN ;   // 有多少个KK是需要传送的。
+  Kline   KK[50];
+};
+
+struct sTick{
+  int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int     iF;              // 周期  600 300 ...：:w
+  char          UpdateTime[9];          ///最后修改时间
+  double        OpenPrice;              ///今开盘
+  double        HighestPrice;           ///最高价
+  double        LowestPrice;            ///最低价
+  double        LastPrice;              ///最新价
+  double        OpenInterest;           ///持仓量
+  int           UpdateMillisec;         ///最后修改毫秒
+  double        BidPrice1;              ///申买价一
+  int           BidVolume1;             ///申买量一
+  double        AskPrice1;              ///申卖价一
+  int           AskVolume1;             ///申卖量一
+  int           Volume;                 ///数量
+};
+
+struct sKbar{
+  int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int     iF;              // 周期  600 300 ...：:w
+  char    cB[9];           // begin time BAR K柱 的开始时间
+  char    cE[9];           // end time
+  double  h ;              // high
+  double  o ;              // open
+  double  c ;              // close
+  double  l ;              // low
+  int     v ;              // volume
+  int     vsum ;           // keep volume sum
+};
+
+struct sData{
+  char    InstrumentID[31];
+  char    TradingDay[9];
+  char    ActionDay[9];
+  sTick   TT ;
+  int     iN ;
+  sKbar   KK[50];
+};
+
+static const int dLen = sizeof(sData) - 50 * sizeof(sKbar) ;
+static const int tLen = sizeof(sTick) ;
+static const int bLen = sizeof(sKbar) ;
+static const int oLen = dLen + bLen ;
 
 // ----- End ----------- 时间结构定义 ----------------------------------------
 

@@ -5,12 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <errlog.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <see_talib.h>
 
-//char errmsg[1024] ;
-//char tmpmsg[1024] ;
+namespace uBEE
+{
 
 #define PREFLAG if( H[i]==L[i] ) { \
                     if( C[i]>=H[i-1] && C[i]>L[i-1] ) { *preF=1;  }else{ \
@@ -20,6 +21,7 @@
 
 #define R_VALUE     if ( Hest-Lest != 0 ) { R[i] = (C[i]-Lest)/(Hest-Lest)*100 ; }else{ \
                     if (*preF==1){R[i]=100;}else if(*preF==-1){R[i]=0;}else if(*preF==0){R[i]=R[i-1];}}
+
 
 
 int SEE_EMA(int           start,
@@ -504,3 +506,5 @@ int SEE_KDJ(int           start,
 
   return 0 ;
 }
+
+} // namespace

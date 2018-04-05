@@ -3,9 +3,9 @@
 
 namespace uBEE
 {
-uBEE::TimeBlock       *tb;
+uBEE::TmBo       *tb;
 int InitAll()
 {
-  tb = new uBEE::TimeBlock();
+  tb = new uBEE::TmBo();
 }
 } //end namespace

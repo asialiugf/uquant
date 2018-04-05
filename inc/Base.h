@@ -17,6 +17,23 @@ namespace uBEE
 #define ON_BARS      '2'
 #define ON_ERROR     '3'
 
+// Future storage for  future and periods! 
+// the memory image:
+//  "ru1805"
+//  iP[0] = -1;
+//  ip[1] = -1;
+//  ip[2] = -1;
+//  ip[3] = -1;
+//  ip[4] = 5;     // index 4 === period is 5 seconds.
+//  ...
+//  ip[x] = 60;    // index x === period is 60 seconds.
+//  ...
+//  ip[49] = -1;
+// mainhub.onMessage will set bars[0] bars[1] 
+// bars[0] ==> ip[4] = 5;
+// bars[1] ==> ip[x] = 60; 
+// ip[n] noused will be set to  -1 ;
+// refer to FuInit() ! | index 0 for tick. index 1----30 basic periods.  index 31-49 for custom define .
 struct Future {
   char    InstrumentID[31];
   int     iP[50];  //period
@@ -26,14 +43,14 @@ public:
 
 struct Base {
   int Mode;
-  std::map<std::string,Future>    M_Fu;
+  std::map<std::string,Future>    M_Fu;    // map <"ru1805",struct Future>
 
-  sData  DT;  // Data for send !!
-  sData *data;   //
-  char  *InstrumentID;
-  char  *TradingDay;
-  char  *ActionDay;
-  sKbar *bars[50] ;
+  sData  DT;                        // recieving DaTa for  Bars.cpp( SG.broadcast() ) !!
+  sData *data;                      // recieving data from mainhub.onMessage 
+  char  *InstrumentID;              // point to data->InstrumentID
+  char  *TradingDay;                // point to data->TradingDay
+  char  *ActionDay;                 // point to data->ActionDay
+  sKbar *bars[50] ;                 // mainhub.onMessage will set bars[0] bars[1] ... and send it to onBars() !!
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
