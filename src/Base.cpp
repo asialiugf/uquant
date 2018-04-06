@@ -12,9 +12,9 @@
 namespace uBEE
 {
 
-static barSG  KBuf1 ;
-static barSG  * KBuf = &KBuf1 ;
-static int  kLen = sizeof(Kline);
+//static barSG  KBuf1 ;
+//static barSG  * KBuf = &KBuf1 ;
+//static int  kLen = sizeof(Kline);
 
 //static sData  DT;  // Data for send !!
 //static sData  *data = new sData() ;   // Data for send !!
@@ -32,7 +32,8 @@ Future::Future()
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   Mode         = 4;
-  data        = &DT;
+  data         = &DT;
+  tick         = &TK;
   InstrumentID = data->InstrumentID;
   TradingDay   = data->TradingDay;
   ActionDay    = data->ActionDay;
@@ -46,19 +47,15 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
 }
 
 
-void Base::FuInit(const std::map<std::string,std::vector<int>> *M,const int aFr[],int len)
+void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
 {
   int i =0;
-  for(auto it = (*M).begin(); it != (*M).end(); ++it) {
-    //uBEE::ErrLog(1000,it->first.c_str(),1,0,0);
-    //std::cout << it->first << std::endl;
+  for(auto it = (*M).begin(); it != (*M).end(); ++it) {    // for strategy ... future
     uBEE::Future *fu = new uBEE::Future() ;
     for(auto iter = it->second.cbegin(); iter != it->second.cend(); iter++) {
-      std::cout << *iter << std::endl;
-
       i = 0;
       std::map<std::string,int>::const_iterator itt;
-      for(auto itt = M_FF.begin(); itt != M_FF.end(); ++itt) {
+      for(auto itt = M_FF.begin(); itt != M_FF.end(); ++itt) {    // all periods defined in M_FF <bars.h>
         if(*iter == itt->second) {
           fu->iP[i] = *iter ;
           std::cout << "i:" << i << "  ip:" << *iter << std::endl;
@@ -66,21 +63,6 @@ void Base::FuInit(const std::map<std::string,std::vector<int>> *M,const int aFr[
         }
         i++;
       }
-      if(i>=31) {
-        // 从用户自定义中找
-        int m = 31;
-        for(i=0; i<len; i++) {
-          if(*iter == aFr[i]) {
-            fu->iP[m] = *iter ;
-            std::cout << "i:" << m << "  ip:" << *iter << std::endl;
-            break;
-          }
-          m++;
-          if(m >=50) {
-            break;
-          }
-        }
-      } //---- 用户自定义周期
     }
     M_Fu.insert(std::pair<std::string,uBEE::Future>(it->first, *fu));
   }  // ---- (*M).begin()
@@ -106,16 +88,43 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
-    memcpy((char *)this->data,data,length);
-
     map<std::string,uBEE::Future>::iterator it;
+
+    if(*((int*)data) ==0) {
+      memcpy((char *)this->tick,data,length);
+      std::cout << this->tick->InstrumentID << this->tick->UpdateTime << std::endl ;
+
+      it = this->M_Fu.find(this->tick->InstrumentID);
+      if(it != this->M_Fu.end()) {
+
+        snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+                 this->tick->TradingDay,   this->tick->UpdateTime,
+                 this->tick->UpdateMillisec*1000, 0,            this->tick->ActionDay,
+                 this->tick->HighestPrice, this->tick->LowestPrice,   this->tick->LastPrice,
+                 this->tick->AskPrice1,    this->tick->AskVolume1,
+                 this->tick->BidPrice1,    this->tick->BidVolume1,
+                 this->tick->OpenInterest, this->tick->Volume);
+        std::cout << ca_errmsg <<std::endl;
+
+        this->onTickHandler(this->tick);
+      }
+    }
+
+    /*
+    if(*((int*)data) ==0) {
+      memcpy((char *)this->tick,data,length);
+      it = this->M_Fu.find(this->tick->InstrumentID);
+      if(it != this->M_Fu.end()) {
+        this->onTickHandler(this->tick);
+      }
+    } else {
+      memcpy((char *)this->data,data,length);
+    }
+
     it = this->M_Fu.find(this->data->InstrumentID);
     if(it != this->M_Fu.end()) {
       //it->second
       //--------------- deal tick --------------------------
-      if(this->data->TT.iX ==0) {
-        this->onTickHandler((sTick *)&this->data->TT);
-      }
       //--------------- deal bars --------------------------
       if(this->data->iN !=0) {
         int j = 0;
@@ -132,6 +141,7 @@ void Base::onMessageInit()
         }
       } //---------------- end deal bars
     } // -----  end if(it != this->M_Fu.end())
+    */
 
     /*
      case : weekend ==> change kkk;

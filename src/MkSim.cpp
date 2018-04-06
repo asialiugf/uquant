@@ -189,9 +189,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     char* p = (char*)iter->first.c_str();
     char* f = (char*)iter->second.c_str();
 
-    // 用户自定义 交易周期
-    int fr[5] = {19,14401,9900,300,600};
-    uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,SimSG, &fr[0], 5);
+    uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,SimSG);
     M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(p, *fubo));
 
     uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
@@ -225,6 +223,8 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   // -------------- 从 M_FuSim 这个map中取出 future 以及 fusim ，再 从 M_SimFuBo中 找出 这个future的 fobo--->
   // -------------- fusim 生成tick ,  fobo 用来生成 K柱 .
+
+  usleep(10000000);
   while(1) {
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
       //char * fu = it->first ;
@@ -247,7 +247,11 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
 
+      if(fubo->pBaBo[0] != nullptr) {
+        SendTick(fubo,tick);
+      }
       HandleTick(fubo,tick);
+      SaveTick(fubo,tick);
       //usleep(100000);
     }
   }

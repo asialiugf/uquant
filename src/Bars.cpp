@@ -14,7 +14,7 @@ namespace uBEE
 {
 
 static sData  *nData = new sData() ;   // Data for send !!
-
+static sTick  *nTick = new sTick() ;   // Data for send !!
 
 Segment::Segment()
 {
@@ -133,12 +133,7 @@ int BaBo::MakeTime(char *caT, int T)
   // 初始化 bar block(BaBo) !!! ，每个 future block (FuBo) 有 50个 BaBo ;
   // 每个future的交易时间类型不一样 每个 FuBo 有一个不同的pTimeType
   // 根据frequency + pTimeType， 初始化 BaBo的 （Segment     *seg[100] ;）
-  //
-struct stTimeType {
-  int          iType;
-  int          iSegNum;
-  Segment    aSgms[SGM_NUM] ;
-};
+  // new BaBo("5F",300,pt);
 */
 BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 {
@@ -160,12 +155,34 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   }
 
+  // ------------  tick ---------------------
   if(iFr == 0) {
     iF = 0;
     iH = 0;
     iM = 0;
     iS = 0;
     memcpy(cF,pF,strlen(pF));
+
+    for(int i=0; i<100; i++) {
+      seg[i] = nullptr;
+    }
+
+    for(int i=0; i<pTimeType->iSegNum; i++) {
+      iB = pTimeType->aSgms[i].iB ;
+      iE = pTimeType->aSgms[i].iE ;
+      seg[i] = new Segment() ;
+      memcpy(seg[i]->cB,pTimeType->aSgms[i].cB,9);
+      memcpy(seg[i]->cE,pTimeType->aSgms[i].cE,9);
+      seg[i]->iB = iB ;
+      seg[i]->iE = iE ;
+      seg[i]->mark = 0;
+    }
+
+    iSegNum = pTimeType->iSegNum ;
+    curiX = 0;
+    see_memzero(curB,9);    // 当第一次调用DealBar()时，判断tick一定不在这个区间，于是走到 （MARK<0）这个流程中去.
+    see_memzero(curE,9);
+
     return;
   }
 
@@ -439,7 +456,7 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   Future Block !
 */
 
-FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg, const int aFr[],int len)
+FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg)
 {
   if(T________) {
     uBEE::ErrLog(1000," FuBo::FuBo():enter!",1,0,0) ;
@@ -447,9 +464,13 @@ FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg, const 
 
   SG = sg;
 
+  iTickValid = -1;
+  iChange = 0;
+
   see_memzero(InstrumentID,31);
+  see_memzero(UpdateTime,9);
+
   memcpy(InstrumentID,caFuture,strlen(caFuture));
-  iCurIdx = -1;
 
   // charmi-- 从 ag1803 取合约 "ag"
   char fn[3] ;
@@ -499,34 +520,18 @@ FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg, const 
 
   i = 0;
   for(auto it = M_FF.begin(); it != M_FF.end(); ++it) {
-    if(it->second !=0) {
-      sprintf(ca_errmsg,"FuBo::FuBo(): %s %d",it->first.c_str(),it->second) ;
+    if(it->second >=0) {                              // 在M_FF中定义.
+      sprintf(ca_errmsg,"FuBo::FuBo(): idx:%d  %s: %d",i, it->first.c_str(), it->second) ;
       uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
 
       pBaBo[i] = new BaBo(it->first.c_str()+4,it->second, pTimeType); // +4:去掉前面100_ 101_
     }
     i++;
-  }
-
-  // 用户自定义周期 -----------------------------------------------------
-  // pBaBo[] 从 31--50为用户自定周期 ------
-  // 自定义周期以秒计，不能超过20个  ------
-  // 没有判断是否和默认周期有重复的地方 ------
-  int m = 31;
-  for(i=0; i<len; i++) {
-    if(aFr[i]==0) {
-      continue ;
-    }
-    sprintf(ca_errmsg,"FuBo::FuBo(): custom frequency: i:%d  frequency:%d",i,aFr[i]) ;
-    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-
-    pBaBo[m] = new BaBo("mm",aFr[i], pTimeType);
-    m++;
-
-    if(m >=50) {
+    if(i>=50) {
       break;
     }
   }
+
 
   if(T________) {
     uBEE::ErrLog(1000,"FuBo::FuBo():out!!\n\n",1,0,0) ;
@@ -575,12 +580,14 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       UPDATE_B1;
       //Display(fubo,tick,period,"eeee:uuu---");
     }
+    fubo->iTickValid = 1;
     return 0;
   }
 
   if(memcmp(ticK,curB,8)>=0 && memcmp(ticK,curE,8)<=0) {
     UPDATE_B1;
     //Display(fubo,tick,period,"eeee:uuu---");
+    fubo->iTickValid = 1;
     return 0;
   }
 
@@ -620,6 +627,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
       } while((memcmp(barE,babo->seg[i]->barE,8)==0) &&
               (memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0));
       if(memcmp(barE,babo->seg[i]->barE,8)!=0) {   // invalid tick
+        fubo->iTickValid = -1;
         return 0;
       }
 
@@ -635,6 +643,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
         goto rrr;
       }
       */
+
+      fubo->iTickValid = 1;
       return 0;
     }  // A 1 2 ------------
 
@@ -670,12 +680,15 @@ bbbb:
         i++;
         if(i >= babo->iSegNum) {
           if(memcmp(ticK,"20:59:",6)==0) {
+            memcpy(fubo->UpdateTime,ticK,9);      // save tick->UpdateTime "20:59:??" ...
+            fubo->iChange = 1;
             memcpy(ticK,"21:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
             i = 0;
             //b1->vold = 0;
             //b1->vsum = 0;
             break;
           } else {
+            fubo->iTickValid = -1;
             return 0;
           }
         }
@@ -706,8 +719,9 @@ aaaa:
           //Display(fubo,tick,period,"eeee:011---");
 
           goto rrr;
-          return 0; //虽然没有用，但还是留着。
+          //return 0; //虽然没有用，但还是留着。
         } // (memcmp(ticK,SEGE,8)<0)
+        fubo->iTickValid = 1;
         return 0;
       }
 
@@ -728,10 +742,13 @@ rrr:
             SendBar(fubo,tick,period);
           }
         }
+        fubo->iTickValid = 1;
         return 0;
       }
+      fubo->iTickValid = 1;
       return 0;
     } // ----------------------------
+    fubo->iTickValid = -1;
     return 0;
   } // MARK > 0
   // --------------------------------------------------------------------
@@ -765,6 +782,90 @@ int MakeTime(char *caT, int T)
 }
 
 
+int SendTick(uBEE::FuBo *fubo, TICK *tick)
+{
+  char  *curB = fubo->pBaBo[0]->curB ;
+  char  *curE = fubo->pBaBo[0]->curE ;
+  int  &curiX = fubo->pBaBo[0]->curiX ;
+  BaBo  *babo = fubo->pBaBo[0] ;
+#define ticK tick->UpdateTime
+  int i = 0;
+  if(memcmp(ticK,curB,8)>=0 && memcmp(ticK,curE,8)<=0) {
+    goto valid;
+  } else {
+    if(curiX < babo->iSegNum-1) {
+      if(memcmp(ticK,"20:50:00",8) >=0) {
+        i = 0 ;                    // i always be 0 !!! no bug!
+      } else {
+        i = curiX+1;               // 如果最后一个段没有任何数据过来， bug!!! here
+      }
+    } else {                       //一天结束，从头开始
+      i = 0;
+    }
+    while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {
+      i++;
+      if(i >= babo->iSegNum) {
+        if(memcmp(ticK,"20:59:",6)==0) {
+          i = 0;
+          goto valid;
+        } else {
+          fubo->iTickValid = -1;
+          return 0;
+        }
+      }
+    }  // 找到 tick 在哪个段中
+    curiX = i ;
+    memcpy(curB,babo->seg[i]->cB,9);
+    memcpy(curE,babo->seg[i]->cE,9);
+
+valid:
+    nTick->iType = 0;
+    snprintf(nTick->InstrumentID,31,"%s",fubo->InstrumentID);
+    snprintf(nTick->TradingDay,9,"%s",tick->TradingDay);
+    snprintf(nTick->ActionDay,9,"%s",tick->ActionDay);
+    memcpy(nTick->UpdateTime,tick->UpdateTime,9) ;
+    nTick->OpenPrice       = tick->OpenPrice;
+    nTick->HighestPrice    = tick->HighestPrice;
+    nTick->LowestPrice     = tick->LowestPrice;
+    nTick->LastPrice       = tick->LastPrice;
+    nTick->OpenInterest    = tick->OpenInterest;
+    nTick->UpdateMillisec  = tick->UpdateMillisec;
+    nTick->BidPrice1       = tick->BidPrice1;
+    nTick->BidVolume1      = tick->BidVolume1;
+    nTick->AskPrice1       = tick->AskPrice1;
+    nTick->AskVolume1      = tick->AskVolume1;
+    nTick->Volume          = tick->Volume;
+    fubo->SG->broadcast((const char*)nTick, tLen, uWS::OpCode::BINARY);
+
+    fubo->iTickValid = 1;
+  }
+  return 0;
+}
+
+
+int SaveTick(uBEE::FuBo *fubo, TICK *tick)
+{
+  char f[512] ;
+
+  if(fubo->iChange ==1) {
+    memcpy(tick->UpdateTime,fubo->UpdateTime,9);      // save tick->UpdateTime "20:59:??" ...
+    fubo->iChange = 0 ;
+  }
+
+  snprintf(f,512,"../data/tick/%s.%s.tick.bin",tick->InstrumentID,tick->TradingDay);
+  SaveBin(f,(const char *)tick,sizeof(TICK)) ;
+
+  snprintf(f,512,"../data/tick/%s.%s.tick.txt",tick->InstrumentID,tick->TradingDay);
+  snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+           tick->TradingDay,      tick->UpdateTime,
+           tick->UpdateMillisec*1000, 0,            tick->ActionDay,
+           tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
+           tick->AskPrice1,    tick->AskVolume1,
+           tick->BidPrice1,    tick->BidVolume1,
+           tick->OpenInterest, tick->Volume);
+  SaveLine(f,ca_errmsg) ;
+}
+
 int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
   int i = 0;
@@ -776,23 +877,9 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
   snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
 
-  // --------- idx=0, period=0  ==> tick!!! ---- nData
-  nData->TT.iX = 0;
-  nData->TT.iF = 0;
-  memcpy(nData->TT.UpdateTime,tick->UpdateTime,9) ;
-  nData->TT.OpenPrice       = tick->OpenPrice;
-  nData->TT.HighestPrice    = tick->HighestPrice;
-  nData->TT.LowestPrice     = tick->LowestPrice;
-  nData->TT.LastPrice       = tick->LastPrice;
-  nData->TT.OpenInterest    = tick->OpenInterest;
-  nData->TT.UpdateMillisec  = tick->UpdateMillisec;
-  nData->TT.BidPrice1       = tick->BidPrice1;
-  nData->TT.BidVolume1      = tick->BidVolume1;
-  nData->TT.AskPrice1       = tick->AskPrice1;
-  nData->TT.AskVolume1      = tick->AskVolume1;
-  nData->TT.Volume          = tick->Volume;
+  nData->iType = 1;
 
-  // ---------- other period   idx from 1 to 49 ---------------
+// ----------  period   idx from 1 to 49 ---------------
   x=0;
   for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
@@ -812,36 +899,17 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
         nData->KK[x].v = b1->v ;
         nData->KK[x].vsum = b1->vsum ;
         ++x ;
-
       }
     }
   } // for --
   nData->iN = x ;
-
-  fubo->SG->broadcast((const char*)nData, dLen+bLen*nData->iN, uWS::OpCode::BINARY);
-
-  //----------  saving tick!!!
-  char f[512] ;
-  snprintf(f,512,"../data/tick/%s.%s.tick.bin",fubo->InstrumentID,tick->TradingDay);
-  SaveBin(f,(const char *)tick,sizeof(TICK)) ;
-
-  snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
-           nData->TradingDay,      nData->TT.UpdateTime,
-           nData->TT.UpdateMillisec*1000, 0,                nData->ActionDay,
-           nData->TT.HighestPrice, nData->TT.LowestPrice,   nData->TT.LastPrice,
-           nData->TT.AskPrice1,    nData->TT.AskVolume1,
-           nData->TT.BidPrice1,    nData->TT.BidVolume1,
-           nData->TT.OpenInterest, nData->TT.Volume);
-  snprintf(f,512,"../data/tick/%s.%s.tick.txt",nData->InstrumentID,nData->TradingDay);
-  SaveLine(f,ca_errmsg) ;
-
-  if(memcmp(fubo->InstrumentID,"ru1805",6) ==0) {
-    snprintf(f,512,"../exe/zzz1.txt");
-    SaveLine(f,ca_errmsg) ;
+  if(x>0) {
+    fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
   }
 
-  //  ---------  saving Klines Kbars !!!
-  //下面两个for必须分开写，因为DealBar中会改写 KBuf
+//  ---------  saving Klines Kbars !!!
+//下面两个for必须分开写，因为DealBar中会改写 KBuf
+  char f[512];
   for(k=0; k<nData->iN; ++k) {
     x = nData->KK[k].iX ;
     fubo->pBaBo[x]->b1->sent = 2 ;   // 如果已经send过，在下面的 DealBar中，可能会再次MarkBar() SendBar()
@@ -859,11 +927,40 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
     SaveLine(f,ca_errmsg) ;
   }
 
-  //-------------  update or new  bar!!!
+//-------------  update or new  bar!!!
   for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       DealBar(fubo,tick,i) ;
     }
+  }
+
+  // ---------- send other updating bars : bar not end !!  ---------------
+  if(fubo->iTickValid ==1) {
+
+    nData->iType = 2;
+
+    x=0;
+    for(i=1; i<50; ++i) {
+      if(fubo->pBaBo[i] != nullptr) {
+        if(b1->sent == 0) {
+
+          nData->KK[x].iX = i;
+          nData->KK[x].iF = fubo->pBaBo[i]->iF;
+          memcpy(nData->KK[x].cB,b1->cB,9);
+          memcpy(nData->KK[x].cE,b1->cE,9);
+          nData->KK[x].o = b1->o ;
+          nData->KK[x].h = b1->h ;
+          nData->KK[x].l = b1->l ;
+          nData->KK[x].c = b1->c ;
+          nData->KK[x].v = b1->v ;
+          nData->KK[x].vsum = b1->vsum ;
+
+          ++x ;
+        }
+      }
+    } // for --
+    nData->iN = x ;
+    fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
   }
 
   return 0;
@@ -883,9 +980,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(b1->sent==1) {   // 这里有 sent=2的情况，表示前面已经send过了。
     b1->sent =2 ;
 
-    // clear nData->TT
-    nData->TT.iX = -1;
-    nData->TT.iF = -1;
+    nData->iType = 1 ;
 
     nData->KK[0].iX = period;
     nData->KK[0].iF = fubo->pBaBo[period]->iF;

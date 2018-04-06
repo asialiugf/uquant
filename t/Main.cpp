@@ -15,7 +15,7 @@ int main()
 
   //------------------ 定义合约 及操作周期 --------------------------
   //31  32   33   34   35
-  const int fr[5] = {19,14401,9900,350,6600};
+  //const int fr[5] = {19,14401,9900,350,6600};
 
   std::map< std::string, std::vector<int> > fuMap ;
   fuMap["xu1801"] = {0,60,300,3600};
@@ -27,7 +27,7 @@ int main()
   //-------------------- 变量定义 -----------------------------------
   uBEE::Base *BB = new uBEE::Base();
   BB->Mode = 4;
-  BB->FuInit(&fuMap,&fr[0],5);
+  BB->FuInit(&fuMap);
 
   MY_OHLC s5S ;
   MY_OHLC s1F ;
@@ -67,16 +67,17 @@ int main()
   //-------------------- onTick -----------------------------------
   BB->onTick([&aa,&BB](sTick *tick) {
     //sTick * tick = (sTick *)data ;
-    if(tick->iX == 0) {
-      snprintf(ca_errmsg,1000,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d\n",
-               BB->TradingDay,   tick->UpdateTime,
-               tick->UpdateMillisec*1000, 0,            BB->ActionDay,
-               tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
-               tick->AskPrice1,    tick->AskVolume1,
-               tick->BidPrice1,    tick->BidVolume1,
-               tick->OpenInterest, tick->Volume);
-      std::cout << ca_errmsg ;
-    }
+    char f[512];
+    snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+             tick->TradingDay,   tick->UpdateTime,
+             tick->UpdateMillisec*1000, 0,            tick->ActionDay,
+             tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
+             tick->AskPrice1,    tick->AskVolume1,
+             tick->BidPrice1,    tick->BidVolume1,
+             tick->OpenInterest, tick->Volume);
+    std::cout << ca_errmsg <<std::endl;
+    snprintf(f,512,"../exe/data/tick/%s.%s.tick.txtr",tick->InstrumentID,tick->TradingDay);
+    SaveLine(f,ca_errmsg) ;
     /*
      for(int i = 0; i< KBuf->iN ; ++i) {
        std::cout << KBuf->KK[i].cK << std::endl;
@@ -93,14 +94,19 @@ int main()
   BB->onBars([&](sKbar * bar[], int len) {
     //sKbar * bar = (sKbar *)data ;
     //printf("%s %s %s\n",b->InstrumentID,b->TradingDay,b->ActionDay);
+    char f[512];
     for(int i=0; i<len; ++i) {
       if(bar[i]->iF != 0) {
-        snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d\n",
+        snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
                  BB->InstrumentID, BB->TradingDay, BB->ActionDay,
                  bar[i]->cB, bar[i]->cE,
                  bar[i]->o, bar[i]->h, bar[i]->l, bar[i]->c,
                  bar[i]->v, bar[i]->vsum) ;
-        std::cout << ca_errmsg ;
+        //std::cout << ca_errmsg << std::endl;
+        snprintf(f,512,"../exe/data/%s_%d_%di",BB->InstrumentID, bar[i]->iF, bar[i]->iX);
+        SaveLine(f,ca_errmsg) ;
+
+
       }
       if(bar[i]->iF == 60) {
         s5S.O[x] = bar[i]->o ;

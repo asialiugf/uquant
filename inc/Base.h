@@ -47,6 +47,8 @@ struct Base {
 
   sData  DT;                        // recieving DaTa for  Bars.cpp( SG.broadcast() ) !!
   sData *data;                      // recieving data from mainhub.onMessage 
+  sTick  TK;                        // recieving DaTa for  Bars.cpp( SG.broadcast() ) !!
+  sTick *tick;                      // recieving data from mainhub.onMessage 
   char  *InstrumentID;              // point to data->InstrumentID
   char  *TradingDay;                // point to data->TradingDay
   char  *ActionDay;                 // point to data->ActionDay
@@ -87,7 +89,7 @@ public:
   //void onBars(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
   void onMessageInit();
   // ------------------------------- API ---------------------------------
-  void FuInit(const std::map<std::string,std::vector<int>> *M,const int aFr[],int len);
+  void FuInit(const std::map<std::string,std::vector<int>> *M);
   // ------------------------------- API ---------------------------------
   void getFutureTick(char *start_date, char *end_date);
   void getFutureBars(const char *period, const char *start_date, const char *end_date);

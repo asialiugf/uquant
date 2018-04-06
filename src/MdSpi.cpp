@@ -121,8 +121,7 @@ void CMdSpi::Init()
     //uBEE::createTickTable(dbpool,fl->pc_futures[i]);
     // !!! map 做为成员变量有问题，所以改成了全局变量。
 
-    int fr[5] = {240,960};
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb, sg, &fr[0], 2);
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb, sg);
     M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
 
   }
@@ -239,10 +238,11 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
   if(iter==M_CtpFuBo.end())
     std::cout<<"we do not find :"<< tick->InstrumentID <<std::endl;
   else {
-    HandleTick(&(iter->second), tick) ;
-    //SendBar(&(iter->second), tick,2);
-    //SaveBar(&(iter->second), tick,2);
-    //DealBar(&(iter->second), tick,2);
+    if((&(iter->second))->pBaBo[0] != nullptr) {
+      SendTick(&(iter->second),tick);
+    }
+    HandleTick(&(iter->second),tick);
+    SaveTick(&(iter->second),tick);
   }
 }
 
