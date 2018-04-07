@@ -149,10 +149,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     uBEE::ErrLog(1000,"MkSim(): enter!!",1,0,0) ;
   }
 
-  //KBuf = new barSG() ;
   SimSG = new_sg;
 
-  std::cout << "sssssssssssssssssssss\n" ;
+  // --------- tb in Global.h ------------------------------------
   for(int j=0; j<7; j++) {
     int i = 0;
     while(i<SGM_NUM &&tb->TT[j].aSgms[i].iI !=-1) {
@@ -165,11 +164,10 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     }
     std::cout << std::endl;
   }
-  std::cout << "sssssssssssssssssssss\n" ;
-
-  //exit(0);
 
 
+
+  std::cout << " M_SimFuFile insert file " << std::endl;
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
   M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
   M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
@@ -182,16 +180,19 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
   for(auto iter = M_SimFuFile.begin(); iter != M_SimFuFile.end(); ++iter) {
-    if(T________) {
-      sprintf(ca_errmsg,"MkSim(): Future:%s file:%s",iter->first.c_str(),iter->second.c_str()) ;
-      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
-    }
+
     char* p = (char*)iter->first.c_str();
     char* f = (char*)iter->second.c_str();
 
+    sprintf(ca_errmsg,"MkSim(): Future:%s file:%s",p,f) ;
+    uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+
+    std::cout << "MkSim(): new FuBo Future Block :"<< p << std::endl;
     uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,SimSG);
     M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(p, *fubo));
 
+    std::cout << "MkSim(): new FuSim Future Simulation :"<< p << std::endl;
+    // --------- will call fusim->MkTick() -------------
     uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
     M_FuSim.insert(std::pair<std::string,uBEE::FuSim>(p, *fusim));
   }
@@ -229,7 +230,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
       //char * fu = it->first ;
       uBEE::FuSim *fusim = &(it->second) ;
-      // 从 M_SimFuBo 这个map中找到相应的 fubo， 然后将其传给 DearBars() ;
+      // 从 M_SimFuBo 这个map中找到相应的 fubo， 然后将其传给 DealBars() ;
       std::map<std::string,uBEE::FuBo>::iterator iter;
       iter = M_SimFuBo.find(it->first);
       if(iter == M_SimFuBo.end()) {
