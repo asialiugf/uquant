@@ -90,6 +90,52 @@ void Base::onMessageInit()
 
     map<std::string,uBEE::Future>::iterator it;
 
+    switch(*((int*)data)) {
+    case T_TICK:
+      memcpy((char *)this->tick,data,length);
+      it = this->M_Fu.find(this->tick->InstrumentID);
+      if(it != this->M_Fu.end()) {
+        /*
+        snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+                 this->tick->TradingDay,   this->tick->UpdateTime,
+                 this->tick->UpdateMillisec*1000, 0,            this->tick->ActionDay,
+                 this->tick->HighestPrice, this->tick->LowestPrice,   this->tick->LastPrice,
+                 this->tick->AskPrice1,    this->tick->AskVolume1,
+                 this->tick->BidPrice1,    this->tick->BidVolume1,
+                 this->tick->OpenInterest, this->tick->Volume);
+        std::cout << ca_errmsg <<std::endl;
+        */
+        this->onTickHandler(this->tick);
+      }
+      break;
+    case T_BARS:
+      memcpy((char *)this->data,data,length);
+      it = this->M_Fu.find(this->data->InstrumentID);
+      if(it != this->M_Fu.end()) {
+        //it->second
+        //--------------- deal bars --------------------------
+        int j = 0;
+        for(int i=0; i<this->data->iN; ++i) {
+          if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
+            this->bars[j] = (sKbar *)&this->data->KK[i] ;
+            ++j ;
+          }
+        }
+        if(j>0) {
+          this->onBarsHandler(this->bars,j);
+        }
+      } // -----  end if(it != this->M_Fu.end())
+      break;
+    case T_UPDATE:
+      // todo !!
+      // send to websocket web browser !
+      break;
+    default:
+      break;
+    }
+
+
+    /*
     if(*((int*)data) ==0) {
       memcpy((char *)this->tick,data,length);
       std::cout << this->tick->InstrumentID << this->tick->UpdateTime << std::endl ;
@@ -109,6 +155,7 @@ void Base::onMessageInit()
         this->onTickHandler(this->tick);
       }
     }
+    */
 
     /*
     if(*((int*)data) ==0) {

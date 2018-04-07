@@ -819,7 +819,7 @@ int SendTick(uBEE::FuBo *fubo, TICK *tick)
     memcpy(curE,babo->seg[i]->cE,9);
 
 valid:
-    nTick->iType = 0;
+    nTick->iType = T_TICK;
     snprintf(nTick->InstrumentID,31,"%s",fubo->InstrumentID);
     snprintf(nTick->TradingDay,9,"%s",tick->TradingDay);
     snprintf(nTick->ActionDay,9,"%s",tick->ActionDay);
@@ -877,7 +877,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
   snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
 
-  nData->iType = 1;
+  nData->iType = T_BARS;
 
 // ----------  period   idx from 1 to 49 ---------------
   x=0;
@@ -924,7 +924,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
              nData->KK[k].cB,nData->KK[k].cE,
              nData->KK[k].o, nData->KK[k].h, nData->KK[k].l, nData->KK[k].c,
              nData->KK[k].v, nData->KK[k].vsum) ;
-    SaveLine(f,ca_errmsg) ;
+    //SaveLine(f,ca_errmsg) ;
   }
 
 //-------------  update or new  bar!!!
@@ -937,7 +937,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   // ---------- send other updating bars : bar not end !!  ---------------
   if(fubo->iTickValid ==1) {
 
-    nData->iType = 2;
+    nData->iType = T_UPDATE;
 
     x=0;
     for(i=1; i<50; ++i) {
@@ -980,7 +980,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
   if(b1->sent==1) {   // 这里有 sent=2的情况，表示前面已经send过了。
     b1->sent =2 ;
 
-    nData->iType = 1 ;
+    nData->iType = T_BARS ;
 
     nData->KK[0].iX = period;
     nData->KK[0].iF = fubo->pBaBo[period]->iF;
@@ -1004,7 +1004,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
              nData->KK[0].cB,nData->KK[0].cE,
              nData->KK[0].o, nData->KK[0].h, nData->KK[0].l, nData->KK[0].c,
              nData->KK[0].v, nData->KK[0].vsum) ;
-    SaveLine(f,ca_errmsg) ;
+    //SaveLine(f,ca_errmsg) ;
   }
   return 0;
 }

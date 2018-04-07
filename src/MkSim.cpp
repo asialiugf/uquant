@@ -252,7 +252,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         SendTick(fubo,tick);
       }
       HandleTick(fubo,tick);
-      SaveTick(fubo,tick);
+      //SaveTick(fubo,tick);
       //usleep(100000);
     }
   }

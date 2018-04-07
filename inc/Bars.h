@@ -365,6 +365,11 @@ static const int tLen = sizeof(sTick) ;                        // tick length
 static const int bLen = sizeof(sKbar) ;                        // bar length
 static const int oLen = hLen + bLen ;
 
+#define T_TICK    0
+#define T_BARS    1
+#define T_UPDATE  2
+
+
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
 
