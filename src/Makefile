@@ -7,7 +7,7 @@ default: exes
 lib:
 	make `(uname -s)`
 Linux:
-	$(CXX) $(CFLAGS) $(CPP_SHARED) -s -o ../../u/lib/libuBEE.so
+	$(CXX) $(CPP_SHARED) -s -o ../../u/lib/libuBEE.so
 
 CC = g++
 CPPFLAGS =  -std=c++11 -O3
@@ -53,13 +53,13 @@ $(EXE)dserver.x: $(DATASERVER)
 	$(CC) $(CPPFLAGS) -o $(EXE)dserver.x $(DATASERVER) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) 
 
 $(EXE)tqdata.x: $(TQDATA)
-	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lMdApi -lTdApi
+	$(CC) $(CPPFLAGS) -o $(EXE)tqdata.x $(TQDATA) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) 
 
 $(EXE)fugen.x: $(FUGEN)
-	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq $(CTPLIBS) 
+	$(CC) $(CPPFLAGS) -o $(EXE)fugen.x $(FUGEN) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) 
 
 $(EXE)wserver.x: $(WEBSERVER)
-	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq $(CTPLIBS)
+	$(CC) $(CPPFLAGS) -o $(EXE)wserver.x $(WEBSERVER) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) 
 
 $(OBJ)FuGen.o: $(SRC)FuGen.cpp
 	$(CC) -c $(CPPFLAGS) $(INCS) -o $(OBJ)FuGen.o  $(SRC)FuGen.cpp
