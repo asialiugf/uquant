@@ -114,6 +114,7 @@ TICK * FuSim::MkTickF()             // make tick from tick file
     iCurLine++ ;
   }
   if(iCurLine>iLineNum) {
+    exit(0);
     iCurLine = 1;
   }
   return &Tick ;
@@ -169,8 +170,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
   std::cout << " M_SimFuFile insert file " << std::endl;
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180404.tick.txt"));
   // M_SimFuFile.insert(std::pair<std::string,std::string>("ag1808","../Sim/tick/ag1808.20180327.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));

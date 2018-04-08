@@ -141,6 +141,8 @@ int FuList::Init(int y,int m, int d)
   FuList::ListInit(TYPE_CZCE);
   FuList::ListInit(TYPE_DCE);
   FuList::pListInit();      // 指针数组
+  std::cout << " FuList created !!\n" ;
+  return 0;
 }
 
 void  FuList::CffeListInit()
