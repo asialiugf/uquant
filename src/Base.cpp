@@ -1,7 +1,7 @@
+#include "uBEE.h"
 #include "Base.h"
 #include "Bars.h"
 #include "ApiFun.h"
-#include "uBEE.h"
 #include <cjson/cJSON.h>
 #include <iostream>
 #include <thread>
@@ -12,22 +12,6 @@
 namespace uBEE
 {
 
-//static barSG  KBuf1 ;
-//static barSG  * KBuf = &KBuf1 ;
-//static int  kLen = sizeof(Kline);
-
-//static sData  DT;  // Data for send !!
-//static sData  *data = new sData() ;   // Data for send !!
-//static const int dLen = 31+9+9 + sizeof(sTick) + sizeof(int) ;
-//static const int bLen = sizeof(sKbar) ;
-
-
-Future::Future()
-{
-  for(int i=0; i<50; i++) {
-    iP[i] = -1;
-  }
-}
 
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
@@ -51,7 +35,7 @@ void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
 {
   int i =0;
   for(auto it = (*M).begin(); it != (*M).end(); ++it) {    // for strategy ... future
-    uBEE::Future *fu = new uBEE::Future() ;
+    uBEE::Future *fu = new uBEE::Future(it->first) ;
     for(auto iter = it->second.cbegin(); iter != it->second.cend(); iter++) {
       i = 0;
       std::map<std::string,int>::const_iterator itt;
@@ -95,16 +79,7 @@ void Base::onMessageInit()
       memcpy((char *)this->tick,data,length);
       it = this->M_Fu.find(this->tick->InstrumentID);
       if(it != this->M_Fu.end()) {
-        /*
-        snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
-                 this->tick->TradingDay,   this->tick->UpdateTime,
-                 this->tick->UpdateMillisec*1000, 0,            this->tick->ActionDay,
-                 this->tick->HighestPrice, this->tick->LowestPrice,   this->tick->LastPrice,
-                 this->tick->AskPrice1,    this->tick->AskVolume1,
-                 this->tick->BidPrice1,    this->tick->BidVolume1,
-                 this->tick->OpenInterest, this->tick->Volume);
-        std::cout << ca_errmsg <<std::endl;
-        */
+        this->fu = &it->second ;
         this->onTickHandler(this->tick);
       }
       break;
@@ -122,6 +97,7 @@ void Base::onMessageInit()
           }
         }
         if(j>0) {
+          this->fu = &it->second ;
           this->onBarsHandler(this->bars,j);
         }
       } // -----  end if(it != this->M_Fu.end())

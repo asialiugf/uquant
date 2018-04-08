@@ -54,7 +54,7 @@ int D_KDJ::Update(int x, D_OHLC *bar, int N, int M1, int M2, int N2)
           &preH, &preL, &preF,
           N, M1, M2,
           &R[0], &K[0], &D[0], &J[0]) ;
-  SEE_EMA(x, x, &D[0], N2, &E[0]) ;
+  SEE_EMA(x, x, &K[0], N2, &E[0]) ;
   return 0;
 }
 

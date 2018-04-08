@@ -34,17 +34,26 @@ namespace uBEE
 // bars[1] ==> ip[x] = 60; 
 // ip[n] noused will be set to  -1 ;
 // refer to FuInit() ! | index 0 for tick. index 1----30 basic periods.  index 31-49 for custom define .
+/*
 struct Future {
   char    InstrumentID[31];
-  int     iP[50];  //period
+  char    ID2[3] ;
+  int     iP[50] ;  //period
+  double  mDif ;   // 变动差 比如 橡胶变化是5元
+  double  mLot ;   // 每手收益 比如 一手橡胶 是50元
+  double  mOP ;    // money for open position 开仓手续费
+  double  mCP ;    // money for close position 平仓手续费
 public:
   Future();
 };
+*/
 
 struct Base {
   int Mode;
   std::map<std::string,Future>    M_Fu;    // map <"ru1805",struct Future>
 
+  // -------- 下面的变量只记录当前收到的 future的信息 --------------------
+  // 如果是多合约策略，要在其它的地方保存更完整的每个合约的基础信息 ------ 
   sData  DT;                        // recieving DaTa for  Bars.cpp( SG.broadcast() ) !!
   sData *data;                      // recieving data from mainhub.onMessage 
   sTick  TK;                        // recieving DaTa for  Bars.cpp( SG.broadcast() ) !!
@@ -52,7 +61,8 @@ struct Base {
   char  *InstrumentID;              // point to data->InstrumentID
   char  *TradingDay;                // point to data->TradingDay
   char  *ActionDay;                 // point to data->ActionDay
-  sKbar *bars[50] ;                 // mainhub.onMessage will set bars[0] bars[1] ... and send it to onBars() !!
+  sKbar *bars[50] ;                 // current bars! mainhub.onMessage will set bars[0] bars[1] ... and send it to onBars() !!
+  Future * fu ;                     // current future block for strategy !! more fu, refer to M_Fu ......
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...

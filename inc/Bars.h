@@ -34,9 +34,9 @@ namespace uBEE
 #define  FUTRUE_ID_LEN     31
 #define  SEE_SGM_NUM       50
 #define  SEE_HOUR_TYPE_NUM 10
-#define  TRADE_TIME         "../etc/tbl/see_trade_time"
-#define  FUTURE_DAYS        "../etc/tbl/see_future_days"
-#define  FUTURE_TIME        "../etc/tbl/see_future_time"
+//#define  TRADE_TIME         "../etc/tbl/see_trade_time"
+//#define  FUTURE_DAYS        "../etc/tbl/see_future_days"
+//#define  FUTURE_TIME        "../etc/tbl/see_future_time"
 
 #define TICK 				struct CThostFtdcDepthMarketDataField
 
@@ -96,6 +96,9 @@ namespace uBEE
   // const int fr[5] = {19,14401,9900,350,6600};
 
 // -- 前面加上 100 101 ... 是为了排序需要.
+// M_FF是为 HubCtp HubSim根据tick生成kbar用的，如果不需要，可以将后面的值改为-1即可。
+// 如果想要定义自己的级别，可以在后面的131_cu 添加，值以秒计.
+// 日 周 月 季 年 todo!!
 static const std::map<std::string,int> M_FF = {
   {"100_T",   0      },  // 0 tick!!!
   {"101_1S",  1      },  // 1

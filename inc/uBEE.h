@@ -1,6 +1,7 @@
 #ifndef UBEE_UBEE_H
 #define UBEE_UBEE_H
 
+#include "TdRate.h"
 #include "HubApi.h"
 #include "HubBck.h"
 #include "HubCtp.h"
