@@ -76,7 +76,7 @@ static const std::map<std::string,std::string> M_FuRate = {
 };
 
 
-// Future storage for  future and periods! 
+// Future storage for  future and periods!
 // the memory image:
 //  "ru1805"
 //  iP[0] = -1;
@@ -88,9 +88,9 @@ static const std::map<std::string,std::string> M_FuRate = {
 //  ip[x] = 60;    // index x === period is 60 seconds.
 //  ...
 //  ip[49] = -1;
-// mainhub.onMessage will set bars[0] bars[1] 
+// mainhub.onMessage will set bars[0] bars[1]
 // bars[0] ==> ip[4] = 5;
-// bars[1] ==> ip[x] = 60; 
+// bars[1] ==> ip[x] = 60;
 // ip[n] noused will be set to  -1 ;
 // refer to FuInit() ! | index 0 for tick. index 1----30 basic periods.  index 31-49 for custom define .
 struct Future {
@@ -110,12 +110,16 @@ struct Future {
   int 	  NL ;
   int     NS ;
   double  mPL ;      // 盈亏 profit and loss
+  double  cPL ;      // 盈亏 current profit and loss
 public:
   Future(std::string);
-  int BuyShort(int n,double c);
+  int BuyShort(int n,double c);  //手数，收盘价
   int BuyLong(int n,double c);
   int SellShort(int n,double c);
   int SellLong(int n,double c);
+  int StopLost(int n, double c);
+  int StopProfit(int n, double c);
+  int CurrPL(double c);
 };
 
 

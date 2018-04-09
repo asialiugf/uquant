@@ -31,19 +31,19 @@ int main()
   BB->FuInit(&fuMap);
 
   D_OHLC S5 ;
-  D_OHLC F1 ;
+  D_OHLC *F1 = new D_OHLC() ;
   D_OHLC F5 ;
   //int x;
   //-------------------- 变量定义 -----------------------------------
-  D_KDJ S5_1 ;
-  D_KDJ S5_2 ;
-  D_KDJ S5_3 ;
-  D_KDJ S5_4 ;
+  D_KDJ *S5_1 = new D_KDJ(&S5);
+  D_KDJ *S5_2 = new D_KDJ(&S5);
+  D_KDJ *S5_3 = new D_KDJ(&S5);
+  D_KDJ *S5_4 = new D_KDJ(&S5);
 
-  D_KDJ F1_1 ;
-  D_KDJ F1_2 ;
-  D_KDJ F1_3 ;
-  D_KDJ F1_4 ;
+  D_KDJ *F1_1 = new D_KDJ(F1);
+  D_KDJ *F1_2 = new D_KDJ(F1);
+  D_KDJ *F1_3 = new D_KDJ(F1);
+  D_KDJ *F1_4 = new D_KDJ(F1);
   //-------------------- 变量定义 -----------------------------------
   //exit(0);
 
@@ -168,37 +168,47 @@ int main()
 
       // --------------------- F1 begin ---------------------------------
       if(bar[i]->iF == 60) {
-        F1.Insert(F1x, bar[i]);                 // add OHLC
-        F1_1.Update(F1x, &F1, 36, 12, 12, 4);     // calculate kdj
-        F1_2.Update(F1x, &F1, 9*16, 3*16, 3*16, 16);     // calculate kdj
-        F1_3.Update(F1x, &F1, 9*64, 3*64, 3*64, 64);     // calculate kdj
-        F1_4.Update(F1x, &F1, 9*64*4, 3*64*4, 3*64*4, 64*4);     // calculate kdj
+        F1->Insert(bar[i]);                 // add OHLC
+        F1_1->Update(36, 12, 12, 4);     // calculate kdj
+        F1_2->Update(9*16, 3*16, 3*16, 16);     // calculate kdj
+        F1_3->Update(9*64, 3*64, 3*64, 64);     // calculate kdj
+        F1_4->Update(9*64*4, 3*64*4, 3*64*4, 64*4);     // calculate kdj
 
-        std::cout <<"kkkkkk: "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1_1.K[F1x]<<" "<<F1_2.K[F1x]<<" "<<F1_3.K[F1x]<<" "<<F1_4.K[F1x] <<std::endl;
-        std::cout <<"cccccc: "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1.O[F1x]<<" "<<F1.H[F1x] <<" "<<F1.L[F1x]<<" "<<F1.C[F1x] <<std::endl;
+        std::cout <<"kkkkkk: "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1_1->K[F1->x]<<" "<<F1_2->K[F1->x]<<" ";
+        std::cout <<F1_3->K[F1->x]<<" "<<F1_4->K[F1->x] <<std::endl;
+        std::cout <<"cccccc: "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1->O[F1->x]<<" "<<F1->H[F1->x] <<" "<<F1->L[F1->x]<<" "<<F1->C[F1->x] <<std::endl;
+        //std::cout << "F1->x:" << F1->x << " F1_1->ohlc->x:" << F1_1->ohlc->x << std::endl;
 
-        if(F1x > 700) {
-          if(F1_1.K[F1x]>F1_1.K[F1x-1] &&
-             F1_2.K[F1x]>F1_2.K[F1x-1] &&
-             F1_3.K[F1x]>F1_3.K[F1x-1]) {
+        if(F1->x > 700) {
+          /*
+          if(F1_1->K[F1->x]>F1_1->K[F1->x-1] &&
+             F1_2->K[F1->x]>F1_2->K[F1->x-1] &&
+             F1_3->K[F1->x]>F1_3->K[F1->x-1]) {
+          */
+          //std::cout << "F1_1->Kx:" << F1_1->Kx <<" F1_2->Kx:"<<F1_2->Kx<<" F1_3->Kx:"<<F1_3->Kx << std::endl;
+          BB->fu->StopLost(1,bar[i]->c);
+          BB->fu->StopProfit(1,bar[i]->c);
+          BB->fu->CurrPL(bar[i]->c) ;
+          std::cout << "current pl:" << BB->fu->cPL << std::endl;
+
+          if(F1_1->Kx>0 && F1_2->Kx>0 && F1_3->Kx>0) {
             if(BB->fu->NL==0) {
               BB->fu->SellShort(1,bar[i]->c);
               BB->fu->BuyLong(1,bar[i]->c);
-              std::cout <<"llllll:"<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
+              std::cout <<"llllll:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
             }
-          } else if(F1_1.K[F1x]<F1_1.K[F1x-1] &&
-                    F1_2.K[F1x]<F1_2.K[F1x-1] &&
-                    F1_3.K[F1x]<F1_3.K[F1x-1]) {
+            /*
+            } else if(F1_1->K[F1->x]<F1_1->K[F1->x-1] &&
+                      F1_2->K[F1->x]<F1_2->K[F1->x-1] &&
+                      F1_3->K[F1->x]<F1_3->K[F1->x-1]) {
+            */
+          } else if(F1_1->Kx<0 && F1_2->Kx<0 && F1_3->Kx<0) {
             if(BB->fu->NS==0) {
               BB->fu->SellLong(1,bar[i]->c);
               BB->fu->BuyShort(1,bar[i]->c);
-              std::cout <<"ssssss:"<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
+              std::cout <<"ssssss:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
             }
           }
-        }
-        ++F1x ;
-        if(F1x > 99999) {
-          x = 0;
         }
 
       } // ----- end --- F1 -----------

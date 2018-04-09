@@ -34,6 +34,7 @@ Future::Future(std::string f)
     iP[i] = -1;
   }
   mPL = 0;
+  cPL = 0;
   NL = 0;
   NS = 0;
 } // ---------
@@ -78,5 +79,55 @@ int Future::SellLong(int n, double c)
   mPL += (c-mMPF-LP)/mMPF*mLot*n ;
   return 0;
 }
+
+int Future::StopLost(int n, double c)
+{
+  if(NS >= n) {
+    if((SP-c-mMPF)/mMPF <= -4) {
+      NS = 0;
+      mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+      return 0;
+    }
+  }
+
+  if(NL >= n) {
+    if((c-mMPF-LP)/mMPF <= -4) {
+      NL = 0;
+      mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+      return 0;
+    }
+  }
+}
+
+int Future::StopProfit(int n, double c)
+{
+  if(NS >= n) {
+    if((SP-c-mMPF)/mMPF >= 4) {
+      NS = 0;
+      mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+      return 0;
+    }
+  }
+
+  if(NL >= n) {
+    if((c-mMPF-LP)/mMPF >= 4) {
+      NL = 0;
+      mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+      return 0;
+    }
+  }
+}
+
+int Future::CurrPL(double c)
+{
+  if(NS > 0) {
+    cPL = mPL + (SP-c-mMPF)/mMPF*mLot*NS ;
+    return 0;
+  }
+  if(NL >0) {
+    cPL = mPL + (c-mMPF-LP)/mMPF*mLot*NL ;
+    return 0;
+  }
+} // --------
 
 } //end namespace
