@@ -61,12 +61,68 @@ int D_KDJ::Update(int N, int M1, int M2, int N2)
   SEE_EMA(ohlc->x, ohlc->x, &K[0], N2, &E[0]) ;
 
 
-  if(ohlc->x>1) {
+  if(ohlc->x>2) {
     Kx = K[ohlc->x] - K[ohlc->x-1] ;
     Dx = D[ohlc->x] - D[ohlc->x-1] ;
     Jx = J[ohlc->x] - J[ohlc->x-1] ;
     Ex = E[ohlc->x] - E[ohlc->x-1] ;
-  }
+    if(Kx > 0) {
+      if((K[ohlc->x-1]-K[ohlc->x-2])>0) {
+        Kc = 2;  // ---  表示一直是向上
+      } else {
+        Kc = 1;  // ---  表示从向上变成向上
+      }
+    } else {
+      if((K[ohlc->x-1]-K[ohlc->x-2])<0) {
+        Kc = -2; // ---  表示一直向下
+      } else {
+        Kc = -1; // ---  表示从向上变为向下
+      }
+    }
+
+    if(Dx > 0) {
+      if((D[ohlc->x-1]-D[ohlc->x-2])>0) {
+        Dc = 2;  // ---  表示一直是向上
+      } else {
+        Dc = 1;  // ---  表示从向上变成向上
+      }
+    } else {
+      if((D[ohlc->x-1]-D[ohlc->x-2])<0) {
+        Dc = -2; // ---  表示一直向下
+      } else {
+        Dc = -1; // ---  表示从向上变为向下
+      }
+    }
+
+    if(Jx > 0) {
+      if((J[ohlc->x-1]-J[ohlc->x-2])>0) {
+        Jc = 2;  // ---  表示一直是向上
+      } else {
+        Jc = 1;  // ---  表示从向上变成向上
+      }
+    } else {
+      if((J[ohlc->x-1]-J[ohlc->x-2])<0) {
+        Jc = -2; // ---  表示一直向下
+      } else {
+        Jc = -1; // ---  表示从向上变为向下
+      }
+    }
+
+    if(Ex > 0) {
+      if((E[ohlc->x-1]-E[ohlc->x-2])>0) {
+        Ec = 2;  // ---  表示一直是向上
+      } else {
+        Ec = 1;  // ---  表示从向上变成向上
+      }
+    } else {
+      if((E[ohlc->x-1]-E[ohlc->x-2])<0) {
+        Ec = -2; // ---  表示一直向下
+      } else {
+        Ec = -1; // ---  表示从向上变为向下
+      }
+    }
+  } //---
+
 
   if(K[ohlc->x]<20) {
     Kp = 0 ;
@@ -109,6 +165,21 @@ int D_KDJ::Update(int N, int M1, int M2, int N2)
   }
 
   return 0;
+}
+
+//--------- G_KDJ --------------------------------
+G_KDJ::G_KDJ(D_KDJ *g1, D_KDJ *g2, D_KDJ *g3, D_KDJ *g4)
+{
+  G1=g1;
+  G2=g2;
+  G3=g3;
+  G4=g4;
+  ohlc = G1->ohlc ;
+}
+
+int G_KDJ::G_KDJ::Update()
+{
+
 }
 
 } // namespace

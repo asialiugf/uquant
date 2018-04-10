@@ -180,12 +180,6 @@ int main()
         //std::cout << "F1->x:" << F1->x << " F1_1->ohlc->x:" << F1_1->ohlc->x << std::endl;
 
         if(F1->x > 700) {
-          /*
-          if(F1_1->K[F1->x]>F1_1->K[F1->x-1] &&
-             F1_2->K[F1->x]>F1_2->K[F1->x-1] &&
-             F1_3->K[F1->x]>F1_3->K[F1->x-1]) {
-          */
-          //std::cout << "F1_1->Kx:" << F1_1->Kx <<" F1_2->Kx:"<<F1_2->Kx<<" F1_3->Kx:"<<F1_3->Kx << std::endl;
           BB->fu->StopLost(1,bar[i]->c);
           BB->fu->StopProfit(1,bar[i]->c);
           BB->fu->CurrPL(bar[i]->c) ;
@@ -197,11 +191,6 @@ int main()
               BB->fu->BuyLong(1,bar[i]->c);
               std::cout <<"llllll:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
             }
-            /*
-            } else if(F1_1->K[F1->x]<F1_1->K[F1->x-1] &&
-                      F1_2->K[F1->x]<F1_2->K[F1->x-1] &&
-                      F1_3->K[F1->x]<F1_3->K[F1->x-1]) {
-            */
           } else if(F1_1->Kx<0 && F1_2->Kx<0 && F1_3->Kx<0) {
             if(BB->fu->NS==0) {
               BB->fu->SellLong(1,bar[i]->c);
