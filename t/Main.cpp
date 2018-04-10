@@ -44,6 +44,8 @@ int main()
   D_KDJ *F1_2 = new D_KDJ(F1);
   D_KDJ *F1_3 = new D_KDJ(F1);
   D_KDJ *F1_4 = new D_KDJ(F1);
+
+  G_KDJ *G = new G_KDJ(F1_1,F1_2,F1_3,F1_4);
   //-------------------- 变量定义 -----------------------------------
   //exit(0);
 
@@ -173,10 +175,20 @@ int main()
         F1_2->Update(9*16, 3*16, 3*16, 16);     // calculate kdj
         F1_3->Update(9*64, 3*64, 3*64, 64);     // calculate kdj
         F1_4->Update(9*64*4, 3*64*4, 3*64*4, 64*4);     // calculate kdj
+        G->Update();
+        //---------for test ---------------------
+        std::cout <<"ggggggggg:"<<BB->ActionDay<<" "<<" 2Kc:"<<G->KDJ2->Kc<<" ku1:"<<G->ku1<<" kd1:"<<G->kd1 <<" "<<G->Ku1[G->ku1]<<" "<<G->Kd1[G->kd1]<<std::endl;
+        std::cout <<"ggggggggg:"<<BB->ActionDay<<" "<<" 3Kc:"<<G->KDJ3->Kc<<" ku2:"<<G->ku2<<" kd2:"<<G->kd2 <<" "<<G->Ku2[G->ku2]<<" "<<G->Kd2[G->kd2]<<std::endl;
+        std::cout <<"ggggggggg:"<<BB->ActionDay<<" "<<" 4Kc:"<<G->KDJ4->Kc<<" ku3:"<<G->ku3<<" kd3:"<<G->kd3 <<" "<<G->Ku2[G->ku3]<<" "<<G->Kd3[G->kd3]<<std::endl;
+        std::cout <<"ggggggggg:"<<BB->ActionDay<<" "<<" 2Ec:"<<G->KDJ2->Ec<<" eu1:"<<G->eu1<<" ed1:"<<G->ed1 <<" "<<G->Eu1[G->eu1]<<" "<<G->Ed1[G->ed1]<<std::endl;
+        std::cout <<"ggggggggg:"<<BB->ActionDay<<" "<<" 3Ec:"<<G->KDJ3->Ec<<" eu2:"<<G->eu2<<" ed2:"<<G->ed2 <<" "<<G->Eu2[G->eu2]<<" "<<G->Ed2[G->ed2]<<std::endl;
+        std::cout <<"ggggggggg:"<<BB->ActionDay<<" "<<" 4Ec:"<<G->KDJ4->Ec<<" eu3:"<<G->eu3<<" ed3:"<<G->ed3 <<" "<<G->Eu3[G->eu3]<<" "<<G->Ed3[G->ed3]<<std::endl;
+        //---------for test ---------------------
 
-        std::cout <<"kkkkkk: "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1_1->K[F1->x]<<" "<<F1_2->K[F1->x]<<" ";
+        std::cout <<"kkkkkk: "<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1_1->K[F1->x]<<" "<<F1_2->K[F1->x]<<" ";
         std::cout <<F1_3->K[F1->x]<<" "<<F1_4->K[F1->x] <<std::endl;
-        std::cout <<"cccccc: "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1->O[F1->x]<<" "<<F1->H[F1->x] <<" "<<F1->L[F1->x]<<" "<<F1->C[F1->x] <<std::endl;
+        std::cout <<"cccccc: "<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1->O[F1->x]<<" "<<F1->H[F1->x] <<" ";
+        std::cout <<F1->L[F1->x]<<" "<<F1->C[F1->x] <<std::endl;
         //std::cout << "F1->x:" << F1->x << " F1_1->ohlc->x:" << F1_1->ohlc->x << std::endl;
 
         if(F1->x > 700) {
@@ -189,13 +201,15 @@ int main()
             if(BB->fu->NL==0) {
               BB->fu->SellShort(1,bar[i]->c);
               BB->fu->BuyLong(1,bar[i]->c);
-              std::cout <<"llllll:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
+              std::cout <<"llllll:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE;
+              std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
             }
           } else if(F1_1->Kx<0 && F1_2->Kx<0 && F1_3->Kx<0) {
             if(BB->fu->NS==0) {
               BB->fu->SellLong(1,bar[i]->c);
               BB->fu->BuyShort(1,bar[i]->c);
-              std::cout <<"ssssss:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
+              std::cout <<"ssssss:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE;
+              std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
             }
           }
         }

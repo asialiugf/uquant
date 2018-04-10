@@ -168,18 +168,160 @@ int D_KDJ::Update(int N, int M1, int M2, int N2)
 }
 
 //--------- G_KDJ --------------------------------
-G_KDJ::G_KDJ(D_KDJ *g1, D_KDJ *g2, D_KDJ *g3, D_KDJ *g4)
+G_KDJ::G_KDJ(D_KDJ *kdj1, D_KDJ *kdj2, D_KDJ *kdj3, D_KDJ *kdj4):
+  Eu1(100,SEE_NULL),
+  Eu2(100,SEE_NULL),
+  Eu3(100,SEE_NULL),
+  Eu4(100,SEE_NULL),
+  Ed1(100,SEE_NULL),
+  Ed2(100,SEE_NULL),
+  Ed3(100,SEE_NULL),
+  Ed4(100,SEE_NULL),
+  Ku1(100,SEE_NULL),
+  Ku2(100,SEE_NULL),
+  Ku3(100,SEE_NULL),
+  Ku4(100,SEE_NULL),
+  Kd1(100,SEE_NULL),
+  Kd2(100,SEE_NULL),
+  Kd3(100,SEE_NULL),
+  Kd4(100,SEE_NULL)
 {
-  G1=g1;
-  G2=g2;
-  G3=g3;
-  G4=g4;
-  ohlc = G1->ohlc ;
+  KDJ1=kdj1;
+  KDJ2=kdj2;
+  KDJ3=kdj3;
+  KDJ4=kdj4;
+  ohlc = KDJ1->ohlc ;
+  eu1 = 0;   // E cross up 当第二级别处于金叉状态时，第一个级别的金叉次数
+  eu2 = 0;
+  eu3 = 0;
+  eu4 = 0;
+
+  ed1 = 0;  // E  cross down 当第二级别处于金叉状态时，第一个级别的死叉次数
+  ed2 = 0;
+  ed3 = 0;
+  ed4 = 0;
+
+  ku1 = 0;   // K 当第二级别处于金叉状态时，第一个级别的金叉次数
+  ku2 = 0;
+  ku3 = 0;
+  ku4 = 0;
+
+  kd1 = 0;  // K 当第二级别处于金叉状态时，第一个级别的死叉次数
+  kd2 = 0;
+  kd3 = 0;
+  kd4 = 0;
 }
 
 int G_KDJ::G_KDJ::Update()
 {
+  //---------------- K -----------------------
+  if(KDJ2->Kc ==1 || KDJ2->Kc ==-1) {
+    Ku1[0] = Ku1[ku1];  //保留2级别最后一个拐点
+    Kd1[0] = Kd1[kd1];  //保留2级别最后一个拐点
+    ku1=0;
+    kd1=0;
+  }
+  if(KDJ3->Kc ==1 || KDJ3->Kc ==-1) {
+    Ku2[0] = Ku2[ku2];
+    Kd2[0] = Kd2[kd2];
+    ku2=0;
+    kd2=0;
+  }
+  if(KDJ4->Kc ==1 || KDJ4->Kc ==-1) {
+    Ku3[0] = Ku3[ku3];
+    Kd3[0] = Kd3[kd3];
+    ku3=0;
+    kd3=0;
+  }
 
-}
+  if(KDJ2->Kc ==2 || KDJ2->Kc ==-2) {
+    if(KDJ1->Kc ==1) {
+      ku1+=1;
+      Ku1[ku1] = ohlc->C[ohlc->x] ;
+    }
+    if(KDJ1->Kc ==-1) {
+      kd1+=1;
+      Kd1[kd1] = ohlc->C[ohlc->x] ;
+    }
+  }
+
+  if(KDJ3->Kc ==2 || KDJ3->Kc ==-2) {
+    if(KDJ2->Kc ==1) {
+      ku2+=1;
+      Ku2[ku2] = ohlc->C[ohlc->x] ;
+    }
+    if(KDJ2->Kc ==-1) {
+      kd2+=1;
+      Kd2[kd2] = ohlc->C[ohlc->x] ;
+    }
+  }
+
+  if(KDJ4->Kc ==2 || KDJ4->Kc ==-2) {
+    if(KDJ3->Kc ==1) {
+      ku3+=1;
+      Ku3[ku3] = ohlc->C[ohlc->x] ;
+    }
+    if(KDJ3->Kc ==-1) {
+      kd3+=1;
+      Kd3[kd3] = ohlc->C[ohlc->x] ;
+    }
+  }
+
+  // KDJ2->Ec 表示 当 KDJ的E值 开始从下向上时，Ec为1，当E值一直向上时，Ec为2，
+  // 当E值由上转下时，为-1，当一直为下时，Ec为-2 ...
+  //---------------- E -----------------------
+  if(KDJ2->Ec ==1 || KDJ2->Ec ==-1) {
+    Eu1[0] = Eu1[eu1];  //保留2级别最后一个拐点
+    Ed1[0] = Ed1[ed1];  //保留2级别最后一个拐点
+    eu1=0;
+    ed1=0;
+  }
+  if(KDJ3->Ec ==1 || KDJ3->Ec ==-1) {
+    Eu2[0] = Eu2[eu2];
+    Ed2[0] = Ed2[ed2];
+    eu2=0;
+    ed2=0;
+  }
+  if(KDJ4->Ec ==1 || KDJ4->Ec ==-1) {
+    Eu3[0] = Eu3[eu3];
+    Ed3[0] = Ed3[ed3];
+    eu3=0;
+    ed3=0;
+  }
+
+  if(KDJ2->Ec ==2 || KDJ2->Ec ==-2) {
+    if(KDJ1->Ec ==1) {
+      eu1+=1;
+      Eu1[eu1] = ohlc->C[ohlc->x] ;
+    }
+    if(KDJ1->Ec ==-1) {
+      ed1+=1;
+      Ed1[ed1] = ohlc->C[ohlc->x] ;
+    }
+  }
+
+  if(KDJ3->Ec ==2 || KDJ3->Ec ==-2) {
+    if(KDJ2->Ec ==1) {
+      eu2+=1;
+      Eu2[eu2] = ohlc->C[ohlc->x] ;
+    }
+    if(KDJ2->Ec ==-1) {
+      ed2+=1;
+      Ed2[ed2] = ohlc->C[ohlc->x] ;
+    }
+  }
+
+  if(KDJ4->Ec ==2 || KDJ4->Ec ==-2) {
+    if(KDJ3->Ec ==1) {
+      eu3+=1;
+      Eu3[eu3] = ohlc->C[ohlc->x] ;
+    }
+    if(KDJ3->Ec ==-1) {
+      ed3+=1;
+      Ed3[ed3] = ohlc->C[ohlc->x] ;
+    }
+  }
+
+} //-----update----
 
 } // namespace

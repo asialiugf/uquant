@@ -39,7 +39,7 @@ struct D_KDJ {
   double                 Dx ;
   double                 Jx ;
   double                 Ex ;
-  int  Kc ;
+  int  Kc ;   // K cross
   int  Dc ;
   int  Jc ;
   int  Ec ;            // --- E cross up Ec=1, Ec=2 -------------- Ec = -1, Ec=-2 -----------
@@ -61,22 +61,34 @@ public:
 
 struct G_KDJ {
   D_OHLC      * ohlc ;
-  D_KDJ       * G1 ;
-  D_KDJ       * G2 ;
-  D_KDJ       * G3 ;
-  D_KDJ       * G4 ;
+  D_KDJ       * KDJ1 ;
+  D_KDJ       * KDJ2 ;
+  D_KDJ       * KDJ3 ;
+  D_KDJ       * KDJ4 ;
 
-  int  cu1 ;   // 当第二级别处于金叉状态时，第一个级别的金叉次数
-  int  cu2 ;
-  int  cu3 ;
-  int  cu4 ;
+  int  eu1,eu2,eu3,eu4;   // E cross up 当第二级别处于金叉状态时，第一个级别的金叉次数
+  int  ed1,ed2,ed3,ed4;   // E  cross down 当第二级别处于金叉状态时，第一个级别的死叉次数
+  std::vector<double>    Eu1;   // 用于记录上涨 的位置，第0次 第1次，第 [eu1] 次
+  std::vector<double>    Eu2;
+  std::vector<double>    Eu3;
+  std::vector<double>    Eu4;
+  std::vector<double>    Ed1;   // 用于记录下跌的位置，Ed1[ed1] > Ed1[ed1-1] 表示第ed1次下降时，比第ed1-1（前一次）要高。
+  std::vector<double>    Ed2;
+  std::vector<double>    Ed3;
+  std::vector<double>    Ed4;
 
-  int  cd1 ;  // 当第二级别处于金叉状态时，第一个级别的死叉次数
-  int  cd2 ;
-  int  cd3 ;
-  int  cd4 ;
+  int  ku1,ku2,ku3,ku4;   // K value up --- K 当第二级别处于金叉状态时，第一个级别的金叉次数
+  int  kd1,kd2,kd3,kd4;   // K value down --- K 当第二级别处于金叉状态时，第一个级别的死叉次数
+  std::vector<double>    Ku1;
+  std::vector<double>    Ku2;
+  std::vector<double>    Ku3;
+  std::vector<double>    Ku4;
+  std::vector<double>    Kd1;
+  std::vector<double>    Kd2;
+  std::vector<double>    Kd3;
+  std::vector<double>    Kd4;
 
-  G_KDJ(D_KDJ *g1, D_KDJ *g2, D_KDJ *g3, D_KDJ *g4);
+  G_KDJ(D_KDJ *kdj1, D_KDJ *kdj2, D_KDJ *kdj3, D_KDJ *kdj4);
   int Update() ;
 
 }; //-----------
