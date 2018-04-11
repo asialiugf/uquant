@@ -234,7 +234,7 @@ int G_KDJ::G_KDJ::Update()
     kd3=0;
   }
 
-  if(KDJ2->Kc ==2 || KDJ2->Kc ==-2) {
+  //if(KDJ2->Kc ==2 || KDJ2->Kc ==-2) {
     if(KDJ1->Kc ==1) {
       ku1+=1;
       Ku1[ku1] = ohlc->C[ohlc->x] ;
@@ -243,9 +243,9 @@ int G_KDJ::G_KDJ::Update()
       kd1+=1;
       Kd1[kd1] = ohlc->C[ohlc->x] ;
     }
-  }
+  //}
 
-  if(KDJ3->Kc ==2 || KDJ3->Kc ==-2) {
+  //if(KDJ3->Kc ==2 || KDJ3->Kc ==-2) {
     if(KDJ2->Kc ==1) {
       ku2+=1;
       Ku2[ku2] = ohlc->C[ohlc->x] ;
@@ -254,9 +254,9 @@ int G_KDJ::G_KDJ::Update()
       kd2+=1;
       Kd2[kd2] = ohlc->C[ohlc->x] ;
     }
-  }
+  //}
 
-  if(KDJ4->Kc ==2 || KDJ4->Kc ==-2) {
+  //if(KDJ4->Kc ==2 || KDJ4->Kc ==-2) {
     if(KDJ3->Kc ==1) {
       ku3+=1;
       Ku3[ku3] = ohlc->C[ohlc->x] ;
@@ -265,7 +265,7 @@ int G_KDJ::G_KDJ::Update()
       kd3+=1;
       Kd3[kd3] = ohlc->C[ohlc->x] ;
     }
-  }
+  //}
 
   // KDJ2->Ec 表示 当 KDJ的E值 开始从下向上时，Ec为1，当E值一直向上时，Ec为2，
   // 当E值由上转下时，为-1，当一直为下时，Ec为-2 ...
@@ -289,7 +289,7 @@ int G_KDJ::G_KDJ::Update()
     ed3=0;
   }
 
-  if(KDJ2->Ec ==2 || KDJ2->Ec ==-2) {
+  //if(KDJ2->Ec ==2 || KDJ2->Ec ==-2) {
     if(KDJ1->Ec ==1) {
       eu1+=1;
       Eu1[eu1] = ohlc->C[ohlc->x] ;
@@ -298,9 +298,9 @@ int G_KDJ::G_KDJ::Update()
       ed1+=1;
       Ed1[ed1] = ohlc->C[ohlc->x] ;
     }
-  }
+  //}
 
-  if(KDJ3->Ec ==2 || KDJ3->Ec ==-2) {
+  //if(KDJ3->Ec ==2 || KDJ3->Ec ==-2) {
     if(KDJ2->Ec ==1) {
       eu2+=1;
       Eu2[eu2] = ohlc->C[ohlc->x] ;
@@ -309,9 +309,9 @@ int G_KDJ::G_KDJ::Update()
       ed2+=1;
       Ed2[ed2] = ohlc->C[ohlc->x] ;
     }
-  }
+  //}
 
-  if(KDJ4->Ec ==2 || KDJ4->Ec ==-2) {
+  //if(KDJ4->Ec ==2 || KDJ4->Ec ==-2) {
     if(KDJ3->Ec ==1) {
       eu3+=1;
       Eu3[eu3] = ohlc->C[ohlc->x] ;
@@ -320,7 +320,7 @@ int G_KDJ::G_KDJ::Update()
       ed3+=1;
       Ed3[ed3] = ohlc->C[ohlc->x] ;
     }
-  }
+  //}
 
 } //-----update----
 

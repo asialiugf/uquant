@@ -293,8 +293,10 @@ struct FuBo {
   std::shared_ptr<uBEE::DBPool> dbpool;
   uWS::Group<uWS::SERVER> * SG;
   int          iChange ;                    // Tick changed "20:59:??" to "21:00:00"
-  char         UpdateTime[9] ;              // for saving "20:59:??" .....
   char         InstrumentID[31];
+  char         ActionDay[9];
+  char         TradingDay[9];
+  char         UpdateTime[9] ;              // for saving "20:59:??" .....
   char         caFileName[1024];            // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",要组合 period
   int          iTickValid ;                    // 用于记录收到tick时，是否有效
   stTimeType  *pTimeType ;                  // TimeType

@@ -118,6 +118,7 @@ public:
   int SellShort(int n,double c);
   int SellLong(int n,double c);
   int StopLost(int n, double c);
+  int DStopLost(int n, double c);
   int StopProfit(int n, double c);
   int CurrPL(double c);
 };

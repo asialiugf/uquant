@@ -39,8 +39,15 @@ FuSim::FuSim(char *Future, const char *pFile)
   if(Future !=nullptr && strlen(Future) <= 31) {
     memcpy(InstrumentID,Future,strlen(Future));
   }
-
 }
+
+int FuSim::SetBarF(const char *pFile)
+{
+  see_memzero(BarF,1024);
+  snprintf(BarF,1024,"%s",pFile) ;
+  return 0;
+}
+
 TICK * FuSim::MkTickF()             // make tick from tick file
 {
   char          TradingDay[9];          ///交易日
@@ -64,7 +71,7 @@ TICK * FuSim::MkTickF()             // make tick from tick file
   }
   if(iCurLine <= iLineNum) {
     std::string TickLine =  ReadLine(File,iCurLine,iLineNum) ;
-    std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum <<" " << TickLine << std::endl;
+    //std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum <<" " << TickLine << std::endl;
     if(TickLine.empty()) {
       return nullptr ;
     }
@@ -79,7 +86,7 @@ TICK * FuSim::MkTickF()             // make tick from tick file
     see_memzero(ActionDay,9);
     see_memzero(UpdateTime,9);
     see_memzero(InstrumentID,31);
-    sscanf(TickLine.c_str(), "T:%s %s %d S:%d A:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+    sscanf(TickLine.c_str(), "A:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
            Ttemp, UpdateTime, &UpdateMillisec, &ss, Atemp,
            &HighestPrice, &LowestPrice, &LastPrice,
            &AskPrice1, &AskVolume1,
@@ -119,8 +126,40 @@ TICK * FuSim::MkTickF()             // make tick from tick file
   }
   return &Tick ;
 }
-int FuSim::MkBarsF(int Fr)       // make bars from bars file
+int FuSim::MkBarsF(uBEE::FuBo *fubo,int Fr)       // make bars from bars file
 {
+
+  char        cBE[30];              ///最新价
+
+  sData * nData = &Data;
+  nData->iType = T_BARS ;
+
+  string temp;
+  fstream file;
+  file.open(BarF,ios::in);
+  while(getline(file,temp)) {
+    //sscanf(temp.c_str(), "T:%s %s %d S:%d A:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+    //       ru1809 A:20180330 T:20180330 13:51:00--13:51:59 O:11585 H:11590 L:11575 C:11575 V:230950 vsam:230950
+    sscanf(temp.c_str(), "%s A:%s T:%s %s O:%lf H:%lf L:%lf C:%lf V:%d vsam:%d",
+           nData->InstrumentID, nData->ActionDay, nData->TradingDay, cBE,
+           &nData->KK[0].o,
+           &nData->KK[0].h,
+           &nData->KK[0].l,
+           &nData->KK[0].c,
+           &nData->KK[0].v,
+           &nData->KK[0].vsum);
+
+    nData->KK[0].iX = 9; // need to be modified !!!
+    nData->KK[0].iF = Fr ;
+    memcpy(nData->KK[0].cB,cBE,8);
+    memcpy(nData->KK[0].cE,cBE+10,8);
+    nData->KK[0].cB[8] = '\0';
+    nData->KK[0].cE[8] = '\0';
+
+    nData->iN = 1;
+    fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
+  }
+  file.close();
 }
 
 
@@ -196,6 +235,11 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     std::cout << "MkSim(): new FuSim Future Simulation :"<< p << std::endl;
     // --------- will call fusim->MkTick() -------------
     uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
+    // -------临时加 begin -----
+    if(memcmp(p,"ru1809",6) ==0) {
+      fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i");
+    }
+    // ------ 临时加 end -----
     M_FuSim.insert(std::pair<std::string,uBEE::FuSim>(p, *fusim));
   }
 
@@ -228,6 +272,28 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   // -------------- fusim 生成tick ,  fobo 用来生成 K柱 .
 
   usleep(10000000);
+
+  //----------- bar test  from bar file ---------------------------------------
+  for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
+    uBEE::FuSim *fusim = &(it->second) ;
+    std::map<std::string,uBEE::FuBo>::iterator iter;
+    iter = M_SimFuBo.find(it->first);
+    if(iter == M_SimFuBo.end()) {
+      sprintf(ca_errmsg,"MkSim not find: %s",it->first.c_str()) ;
+      uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+      continue ;
+    }
+    uBEE::FuBo *fubo = &(iter->second);
+    if(memcmp(it->first.c_str(),"ru1809",6)==0) {
+      std::cout << it->first << std::endl;
+      fusim->MkBarsF(fubo,60);
+    }
+  }
+  usleep(20000000);
+  exit(0);
+
+
+  //----------- bar test  from tick file ---------------------------------------
   while(1) {
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
       //char * fu = it->first ;
@@ -244,6 +310,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       uBEE::FuBo *fubo = &(iter->second);
 
       TICK *tick = fusim->MkTickF();
+
       memcpy(tick->InstrumentID,fubo->InstrumentID,strlen(fubo->InstrumentID)) ;
 
       if(fubo==nullptr || tick==nullptr) {
@@ -254,7 +321,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         SendTick(fubo,tick);
       }
       HandleTick(fubo,tick);
-      //SaveTick(fubo,tick);
+      SaveTick(fubo,tick);
       //usleep(100000);
     }
   }

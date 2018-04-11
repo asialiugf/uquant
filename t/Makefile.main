@@ -20,16 +20,16 @@ INCS = -I ../inc -I ./ \
 
 default:  exes
 
-exes: $(EXE)t1.x \
-	$(EXE)main.x
+exes: $(EXE)main.x \
+	t1.x
 
 MAINOBJS:= \
 	$(OBJ)Main.o \
-	$(OBJ)Index.o
+	$(OBJ)Index.o 
 
 T1OBJS:= \
 	$(OBJ)t1.o \
-	$(OBJ)Index.o
+	$(OBJ)Index.o 
 
 $(EXE)main.x: $(MAINOBJS)
 	$(CXX) $(CCFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
@@ -45,3 +45,4 @@ $(OBJ)Index.o: $(SRC)Index.cpp
 
 $(OBJ)t1.o: $(SRC)t1.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)t1.o  $(SRC)t1.cpp
+

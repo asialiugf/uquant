@@ -633,11 +633,11 @@ std::string TicksCheck(const char * serials, cJSON *tick)
   
 
   sprintf(ca_msg,"T:%s %s %s S:%s A:%s H:%g L:%g LP:%g AP:%g AV:%g BP:%g BV:%g OI:%g V:%g",
-          ca_TradingDay,
+          ca_ActionDay,
           ca_UpdateTime,
           ca_UpdateMillisec,
           serials,
-          ca_ActionDay,
+          ca_TradingDay,
           highest->valuedouble,
           lowest->valuedouble,
           last_price->valuedouble,

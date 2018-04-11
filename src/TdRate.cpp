@@ -45,8 +45,8 @@ double  BL ;
 double  BS ;
 double  SL ;
 double  SS ;
-int     NL ;
-int     NS ;
+int     NL ;       // number of long
+int     NS ;       // number of short
 double  mPL ;      // 盈亏 profit and loss
 // n 下单手数 c:信号产生时的收盘价
 int Future::BuyShort(int n, double c)
@@ -79,32 +79,64 @@ int Future::SellLong(int n, double c)
   mPL += (c-mMPF-LP)/mMPF*mLot*n ;
   return 0;
 }
-
-int Future::StopLost(int n, double c)
-{
+// ------- 动态止损 ----------------------------
+int Future::DStopLost(int n, double c)
+{ 
   if(NS >= n) {
-    if((SP-c-mMPF)/mMPF <= -4) {
+    if(SP>c) {
+       SP = c;
+    }
+    if((SP-c-mMPF)/mMPF <= -8) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+      std::cout << "stoplost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
   }
-
+  
   if(NL >= n) {
-    if((c-mMPF-LP)/mMPF <= -4) {
+    if(LP<c) {
+       LP = c;
+    }
+    if((c-mMPF-LP)/mMPF <= -8) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+      std::cout << "stoplost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
     }
   }
 }
 
+// ------- 止损 ----------------------------
+int Future::StopLost(int n, double c)
+{
+  if(NS >= n) {
+    if((SP-c-mMPF)/mMPF <= -8) {
+      NS = 0;
+      mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+      std::cout << "stoplost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
+      return 0;
+    }
+  }
+
+  if(NL >= n) {
+    if((c-mMPF-LP)/mMPF <= -8) {
+      NL = 0;
+      mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+      std::cout << "stoplost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
+      return 0;
+    }
+  }
+}
+
+//--------- 止赢 ----------------------------
 int Future::StopProfit(int n, double c)
 {
   if(NS >= n) {
     if((SP-c-mMPF)/mMPF >= 4) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+      std::cout << "stopprofit:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
   }
@@ -113,11 +145,14 @@ int Future::StopProfit(int n, double c)
     if((c-mMPF-LP)/mMPF >= 4) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+      std::cout << "stopprofit:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
     }
   }
+  return 0;
 }
 
+// ----------显示当前收益 -----------------
 int Future::CurrPL(double c)
 {
   if(NS > 0) {

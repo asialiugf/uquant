@@ -542,7 +542,6 @@ FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg)
 /*
   下面的period，是指在 fubo->aBarBo[]数组的下标
 */
-//int DealBar(see_fut_block_t *p_block, TICK *tick,int period)
 int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   stBar   *b1 = fubo->pBaBo[period]->b1 ;
@@ -698,6 +697,11 @@ bbbb:
         b1->vold = 0;
         b1->vsum = 0;
       }
+      snprintf(fubo->ActionDay,9,"%s",tick->ActionDay);
+      snprintf(fubo->TradingDay,9,"%s",tick->TradingDay);
+      snprintf(nData->InstrumentID,31,"%s",fubo->InstrumentID);
+      snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
+      snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
 
       if(MARK==0) {
         curiE = babo->seg[curiX]->iB-1 ;   //for do while below!!
@@ -856,9 +860,9 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick)
   SaveBin(f,(const char *)tick,sizeof(TICK)) ;
 
   snprintf(f,512,"../data/tick/%s.%s.tick.txt",tick->InstrumentID,tick->TradingDay);
-  snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
-           tick->TradingDay,      tick->UpdateTime,
-           tick->UpdateMillisec*1000, 0,            tick->ActionDay,
+  snprintf(ca_errmsg,ERR_MSG_LEN,"A:%s %s %06d S:%d T:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+           tick->ActionDay,      tick->UpdateTime,
+           tick->UpdateMillisec*1000, 0,            tick->TradingDay,
            tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
            tick->AskPrice1,    tick->AskVolume1,
            tick->BidPrice1,    tick->BidVolume1,
@@ -866,6 +870,12 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick)
   SaveLine(f,ca_errmsg) ;
 }
 
+
+/*
+  1. 调用 MarkBar() 标记那些已经结束的 bar !
+  2. 将这些 bar 先送给 策略进程进行处理。
+  3. 调用 DealBar() 处理相应的bar, 新生成 bar 
+*/
 int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
   int i = 0;
@@ -873,9 +883,11 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   int x = 0;
   stBar *b1;
 
+  /*
   snprintf(nData->InstrumentID,31,"%s",fubo->InstrumentID);
   snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
   snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
+  */
 
   nData->iType = T_BARS;
 
@@ -884,7 +896,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
       b1 = fubo->pBaBo[i]->b1 ;
-      MarkBar(fubo,tick,i) ;
+      MarkBar(fubo,tick,i) ;   //---------
       if(b1->sent == 1) {
         b1->sent = 2;
 
@@ -917,14 +929,14 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
              fubo->pBaBo[x]->iH, fubo->pBaBo[x]->iM,
              fubo->pBaBo[x]->iS, fubo->pBaBo[x]->iF, x);
 
-    snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+    snprintf(ca_errmsg,ERR_MSG_LEN,"%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
              nData->InstrumentID,
-             nData->TradingDay,
              nData->ActionDay,
+             nData->TradingDay,
              nData->KK[k].cB,nData->KK[k].cE,
              nData->KK[k].o, nData->KK[k].h, nData->KK[k].l, nData->KK[k].c,
              nData->KK[k].v, nData->KK[k].vsum) ;
-    //SaveLine(f,ca_errmsg) ;
+    SaveLine(f,ca_errmsg) ;
   }
 
 //-------------  update or new  bar!!!
@@ -966,6 +978,12 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   return 0;
 }
 
+
+/*
+  SendBar 用于 DealBar()内。
+  当一个tick到来时，它可能终结前一个bar,同时这个tick又是新一个bar。
+  DealBar()就会新生成这个bar,==> 但这个bar有可能也结束了，所以需要再 送给 策略进程。
+*/
 // period 是指数组下标
 int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
@@ -997,14 +1015,14 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
 
     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",nData->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
-    snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+    snprintf(ca_errmsg,ERR_MSG_LEN,"%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
              nData->InstrumentID,
-             nData->TradingDay,
              nData->ActionDay,
+             nData->TradingDay,
              nData->KK[0].cB,nData->KK[0].cE,
              nData->KK[0].o, nData->KK[0].h, nData->KK[0].l, nData->KK[0].c,
              nData->KK[0].v, nData->KK[0].vsum) ;
-    //SaveLine(f,ca_errmsg) ;
+    SaveLine(f,ca_errmsg) ;
   }
   return 0;
 }
