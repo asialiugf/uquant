@@ -87,7 +87,7 @@ TICK * FuSim::MkTickF()             // make tick from tick file
     see_memzero(UpdateTime,9);
     see_memzero(InstrumentID,31);
     sscanf(TickLine.c_str(), "A:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
-           Ttemp, UpdateTime, &UpdateMillisec, &ss, Atemp,
+           Atemp, UpdateTime, &UpdateMillisec, &ss, Ttemp,
            &HighestPrice, &LowestPrice, &LastPrice,
            &AskPrice1, &AskVolume1,
            &BidPrice1, &BidVolume1,

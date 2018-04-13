@@ -185,17 +185,19 @@ static const std::map<std::string,int> M_FF = {
                        if ( b1->l > tick->LastPrice ) { b1->l = tick->LastPrice ; } \
                        b1->vsum = tick->Volume ; \
                        b1->v = tick->Volume - b1->vold ;
-
-#define NEW_B1         memcpy(b1->TradingDay,tick->TradingDay,9) ; \
-                       memcpy(b1->cB,tick->UpdateTime,9) ; \
-                       memcpy(b1->ActionDay,tick->ActionDay,9) ; \
+/*
+#define NEW_B1         memcpy(b1->ActionDay,tick->ActionDay,9) ; \
+                       memcpy(b1->TradingDay,tick->TradingDay,9) ; \
+*/
+#define NEW_B1         b1->iX = period ; \
+                       b1->iF = fubo->pBaBo[period]->iF ; \
                        b1->o = tick->LastPrice ; \
-                       b1->c = tick->LastPrice ; \
                        b1->h = tick->LastPrice ; \
                        b1->l = tick->LastPrice ; \
-                       b1->vold = b1->vsum; \
-                       b1->vsum = tick->Volume ; \
+                       b1->c = tick->LastPrice ; \
                        b1->v = tick->Volume - b1->vold ; \
+                       b1->vsum = tick->Volume ; \
+                       b1->vold = b1->vsum; \
                        b1->sent = 0;
 
 
@@ -248,18 +250,20 @@ private:
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
 struct stBar {
-  char    TradingDay[9];
-  char    ActionDay[9];
+  //char    ActionDay[9];
+  //char    TradingDay[9];
+  int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int     iF;              // 周期  600 300 ...：:w
   char    cB[9];   		//begin time BAR K柱 的开始时间
   char    cE[9];   		//end time
-  int     iB ;          // 当前K柱 起始时间
-  int     iE ;          // 当前K柱 结束时间
-  int     iBidx;          // 此bar的起始点所在的 segment idx，
-  int     iEidx;          // 此bar的结束点所在的 segment idx，
-  double  h ;             // high
+  //int     iB ;          // 当前K柱 起始时间
+  //int     iE ;          // 当前K柱 结束时间
+  //int     iBidx;          // 此bar的起始点所在的 segment idx，
+  //int     iEidx;          // 此bar的结束点所在的 segment idx，
   double  o ;             // open
-  double  c ;             // close
+  double  h ;             // high
   double  l ;             // low
+  double  c ;             // close
   int     v ;             // volume
   int     vsum ;          // keep volume sum
   int     vold ;          // 前一个K柱的结束时的量
@@ -307,25 +311,12 @@ public:
 
 
 // -------------------- for sending -----------------
-struct Kline {
-  int iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
-  int iF;              //
-  char cK[200];
-};
-
-struct barSG {
-  char    InstrumentID[31];
-  char    TradingDay[9];
-  char    ActionDay[9];
-  int     iN ;   // 有多少个KK是需要传送的。
-  Kline   KK[50];
-};
 
 struct sTick{                  // tick for send !!
   int     iType ;                 // type :  0:tick  1 2 3 ... for other ....
   char    InstrumentID[31];
-  char    TradingDay[9];
   char    ActionDay[9];
+  char    TradingDay[9];
   //int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
   //int     iF;              // 周期  600 300 ...：:w
   char          UpdateTime[9];          ///最后修改时间
@@ -347,10 +338,10 @@ struct sKbar{              // Kbar for send !!
   int     iF;              // 周期  600 300 ...：:w
   char    cB[9];           // begin time BAR K柱 的开始时间
   char    cE[9];           // end time
-  double  h ;              // high
   double  o ;              // open
-  double  c ;              // close
+  double  h ;              // high
   double  l ;              // low
+  double  c ;              // close
   int     v ;              // volume
   int     vsum ;           // keep volume sum
 };
@@ -358,11 +349,10 @@ struct sKbar{              // Kbar for send !!
 struct sData{
   int     iType ;                 // type :  0:tick  1 2 3 ... for other ....  1:nomal 2:update
   char    InstrumentID[31];
-  char    TradingDay[9];
   char    ActionDay[9];
+  char    TradingDay[9];
   int     iN ;                 // number of KK below !!
   sKbar   KK[50];
-  //int     iU ;               // 改用 iT来表示 is for update bars or not  =1 for update!  =0: bar is ready !!
 };
 
 static const int hLen = sizeof(sData) - 50 * sizeof(sKbar) ;   // head length
@@ -370,6 +360,7 @@ static const int tLen = sizeof(sTick) ;                        // tick length
 static const int bLen = sizeof(sKbar) ;                        // bar length
 static const int oLen = hLen + bLen ;
 
+// --- define for sData iType
 #define T_TICK    0
 #define T_BARS    1
 #define T_UPDATE  2

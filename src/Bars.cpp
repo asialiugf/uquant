@@ -430,8 +430,6 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
   b1 = &bar1 ;
 
   stBar tmpBar ;
-  see_memzero(tmpBar.TradingDay,9);
-  see_memzero(tmpBar.ActionDay,9);
   see_memzero(tmpBar.cB,9);
   see_memzero(tmpBar.cE,9);
   tmpBar.h = DBL_MIN;
@@ -699,9 +697,6 @@ bbbb:
       }
       snprintf(fubo->ActionDay,9,"%s",tick->ActionDay);
       snprintf(fubo->TradingDay,9,"%s",tick->TradingDay);
-      snprintf(nData->InstrumentID,31,"%s",fubo->InstrumentID);
-      snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
-      snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
 
       if(MARK==0) {
         curiE = babo->seg[curiX]->iB-1 ;   //for do while below!!
@@ -824,7 +819,7 @@ int SendTick(uBEE::FuBo *fubo, TICK *tick)
 
 valid:
     nTick->iType = T_TICK;
-    snprintf(nTick->InstrumentID,31,"%s",fubo->InstrumentID);
+    snprintf(nTick->InstrumentID,31,"%s",tick->InstrumentID);
     snprintf(nTick->TradingDay,9,"%s",tick->TradingDay);
     snprintf(nTick->ActionDay,9,"%s",tick->ActionDay);
     memcpy(nTick->UpdateTime,tick->UpdateTime,9) ;
@@ -856,10 +851,10 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick)
     fubo->iChange = 0 ;
   }
 
-  snprintf(f,512,"../data/tick/%s.%s.tick.bin",tick->InstrumentID,tick->TradingDay);
+  snprintf(f,512,"../data/tick/%s.%s.tick.bin",tick->InstrumentID,tick->ActionDay);
   SaveBin(f,(const char *)tick,sizeof(TICK)) ;
 
-  snprintf(f,512,"../data/tick/%s.%s.tick.txt",tick->InstrumentID,tick->TradingDay);
+  snprintf(f,512,"../data/tick/%s.%s.tick.txt",tick->InstrumentID,tick->ActionDay);
   snprintf(ca_errmsg,ERR_MSG_LEN,"A:%s %s %06d S:%d T:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
            tick->ActionDay,      tick->UpdateTime,
            tick->UpdateMillisec*1000, 0,            tick->TradingDay,
@@ -874,7 +869,7 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick)
 /*
   1. 调用 MarkBar() 标记那些已经结束的 bar !
   2. 将这些 bar 先送给 策略进程进行处理。
-  3. 调用 DealBar() 处理相应的bar, 新生成 bar 
+  3. 调用 DealBar() 处理相应的bar, 新生成 bar
 */
 int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
@@ -885,9 +880,10 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 
   /*
   snprintf(nData->InstrumentID,31,"%s",fubo->InstrumentID);
-  snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
-  snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
+  snprintf(nData->ActionDay,9,"%s",fubo->ActionDay);
+  snprintf(nData->TradingDay,9,"%s",fubo->TradingDay);
   */
+  memcpy(nData->InstrumentID,fubo->InstrumentID,49);
 
   nData->iType = T_BARS;
 
@@ -900,6 +896,8 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
       if(b1->sent == 1) {
         b1->sent = 2;
 
+        memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
+        /*
         nData->KK[x].iX = i;
         nData->KK[x].iF = fubo->pBaBo[i]->iF;
         memcpy(nData->KK[x].cB,b1->cB,9);
@@ -910,6 +908,8 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
         nData->KK[x].c = b1->c ;
         nData->KK[x].v = b1->v ;
         nData->KK[x].vsum = b1->vsum ;
+        */
+
         ++x ;
       }
     }
@@ -956,6 +956,8 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
       if(fubo->pBaBo[i] != nullptr) {
         if(b1->sent == 0) {
 
+          memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
+          /*
           nData->KK[x].iX = i;
           nData->KK[x].iF = fubo->pBaBo[i]->iF;
           memcpy(nData->KK[x].cB,b1->cB,9);
@@ -966,6 +968,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
           nData->KK[x].c = b1->c ;
           nData->KK[x].v = b1->v ;
           nData->KK[x].vsum = b1->vsum ;
+          */
 
           ++x ;
         }
@@ -1000,6 +1003,8 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 
     nData->iType = T_BARS ;
 
+    memcpy((char*)&(nData->KK[0]),(char *)b1,bLen) ;
+    /*
     nData->KK[0].iX = period;
     nData->KK[0].iF = fubo->pBaBo[period]->iF;
     memcpy(nData->KK[0].cB,b1->cB,9);
@@ -1010,6 +1015,7 @@ int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
     nData->KK[0].c = b1->c ;
     nData->KK[0].v = b1->v ;
     nData->KK[0].vsum = b1->vsum ;
+    */
     nData->iN = 1;
 
     fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
@@ -1125,7 +1131,7 @@ int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
 
   if(T________) {
     sprintf(ca_errmsg,"%s fr:%d  T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d",
-            msg, babo->iF,b1->TradingDay, b1->ActionDay,
+            msg, babo->iF,fubo->TradingDay, fubo->ActionDay,
             b1->cB, b1->cE,
             b1->h, b1->o, b1->c, b1->l,
             b1->v, b1->vsum) ;
