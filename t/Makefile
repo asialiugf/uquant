@@ -21,7 +21,8 @@ INCS = -I ../inc -I ./ \
 default:  exes
 
 exes: $(EXE)t1.x \
-	$(EXE)main.x
+	$(EXE)main.x \
+	$(EXE)stc.x
 
 MAINOBJS:= \
 	$(OBJ)Main.o \
@@ -31,11 +32,18 @@ T1OBJS:= \
 	$(OBJ)t1.o \
 	$(OBJ)Index.o
 
+STCOBJS:= \
+	$(OBJ)stc.o \
+	$(OBJ)Index.o
+
 $(EXE)main.x: $(MAINOBJS)
 	$(CXX) $(CCFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
 
 $(EXE)t1.x: $(T1OBJS)
 	$(CXX) $(CCFLAGS) -o $(EXE)t1.x $(T1OBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
+
+$(EXE)stc.x: $(STCOBJS)
+	$(CXX) $(CCFLAGS) -o $(EXE)stc.x $(STCOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
 
 $(OBJ)Main.o: $(SRC)Main.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
@@ -45,3 +53,6 @@ $(OBJ)Index.o: $(SRC)Index.cpp
 
 $(OBJ)t1.o: $(SRC)t1.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)t1.o  $(SRC)t1.cpp
+
+$(OBJ)stc.o: $(SRC)stc.cpp
+	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)stc.o  $(SRC)stc.cpp

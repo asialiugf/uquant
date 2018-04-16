@@ -108,7 +108,7 @@ int D_KDJ::Update(int N, int M1, int M2, int N2)
       if((K[ohlc->x-1]-K[ohlc->x-2])>0) {
         Kc = 2;  // ---  表示一直是向上
       } else {
-        Kc = 1;  // ---  表示从向上变成向上
+        Kc = 1;  // ---  表示从向下变成向上
       }
     } else {
       if((K[ohlc->x-1]-K[ohlc->x-2])<0) {
@@ -205,9 +205,11 @@ int D_KDJ::Update(int N, int M1, int M2, int N2)
   return 0;
 }
 
+// G_KDJ，将4个级别的KDJ组合了。
+// 级别之间有相关性操作，所以放在一起。
 //--------- G_KDJ --------------------------------
 G_KDJ::G_KDJ(D_KDJ *kdj1, D_KDJ *kdj2, D_KDJ *kdj3, D_KDJ *kdj4):
-  Eu1(100,SEE_NULL),
+  Eu1(100,SEE_NULL),  // vector 数量为100,用于记录 金叉时的位置
   Eu2(100,SEE_NULL),
   Eu3(100,SEE_NULL),
   Eu4(100,SEE_NULL),
@@ -232,7 +234,7 @@ G_KDJ::G_KDJ(D_KDJ *kdj1, D_KDJ *kdj2, D_KDJ *kdj3, D_KDJ *kdj4):
   eu1 = 0;   // E cross up 当第二级别处于金叉状态时，第一个级别的金叉次数
   eu2 = 0;
   eu3 = 0;
-  eu4 = 0;
+  eu4 = 0;   // eu4目前 没有用到。
 
   ed1 = 0;  // E  cross down 当第二级别处于金叉状态时，第一个级别的死叉次数
   ed2 = 0;
@@ -253,10 +255,10 @@ G_KDJ::G_KDJ(D_KDJ *kdj1, D_KDJ *kdj2, D_KDJ *kdj3, D_KDJ *kdj4):
 int G_KDJ::G_KDJ::Update()
 {
   //---------------- K -----------------------
-  if(KDJ2->Kc ==1 || KDJ2->Kc ==-1) {
+  if(KDJ2->Kc ==1 || KDJ2->Kc ==-1) {   // 如果第二个级别 由下变上，或者 由上变下
     Ku1[0] = Ku1[ku1];  //保留2级别最后一个拐点
     Kd1[0] = Kd1[kd1];  //保留2级别最后一个拐点
-    ku1=0;
+    ku1=0;              //重新计数
     kd1=0;
   }
   if(KDJ3->Kc ==1 || KDJ3->Kc ==-1) {
@@ -275,7 +277,7 @@ int G_KDJ::G_KDJ::Update()
   //if(KDJ2->Kc ==2 || KDJ2->Kc ==-2) {
   if(KDJ1->Kc ==1) {
     ku1+=1;
-    Ku1[ku1] = ohlc->C[ohlc->x] ;
+    Ku1[ku1] = ohlc->C[ohlc->x] ;  //只记录了 收盘价， 其实还应该记录KDJ的J值。位置x等信息
   }
   if(KDJ1->Kc ==-1) {
     kd1+=1;

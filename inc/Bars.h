@@ -250,16 +250,10 @@ private:
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
 struct stBar {
-  //char    ActionDay[9];
-  //char    TradingDay[9];
   int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
   int     iF;              // 周期  600 300 ...：:w
   char    cB[9];   		//begin time BAR K柱 的开始时间
   char    cE[9];   		//end time
-  //int     iB ;          // 当前K柱 起始时间
-  //int     iE ;          // 当前K柱 结束时间
-  //int     iBidx;          // 此bar的起始点所在的 segment idx，
-  //int     iEidx;          // 此bar的结束点所在的 segment idx，
   double  o ;             // open
   double  h ;             // high
   double  l ;             // low
@@ -382,6 +376,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick,int period);
 
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
+int DispKbar(const char *InstrumentID, const char *TradingDay, const char *ActionDay, sKbar * bar);
 
 
 } //end namespace

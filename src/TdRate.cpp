@@ -152,7 +152,7 @@ int Future::StopProfit(int n, double c)
   return 0;
 }
 
-// ----------显示当前收益 -----------------
+// ----------动态计算显示当前收益 -----------------
 int Future::CurrPL(double c)
 {
   if(NS > 0) {

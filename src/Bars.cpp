@@ -1139,4 +1139,21 @@ int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg)
   }
 }
 
+int DispKbar(const char *InstrumentID, const char *TradingDay, const char *ActionDay, sKbar * bar)
+{
+  snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+           InstrumentID, TradingDay, ActionDay,
+           bar->cB, bar->cE,
+           bar->o,
+           bar->h,
+           bar->l,
+           bar->c,
+           bar->v,
+           bar->vsum) ;
+  std::cout << ca_errmsg << std::endl;
+  uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  return 0;
+}
+
+
 } //namespace
