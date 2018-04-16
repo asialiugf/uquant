@@ -17,8 +17,8 @@ all: libsee_talib.a \
 libsee_talib.a: see_talib.o
 	ar r ../lib/libsee_talib.a ../lib/see_talib.o  
 
-libsee_talib.so: see_talib.c
-	$(CXX) $(CCFLAGE) -o ../lib/libsee_talib.so -shared -fPIC -I ../include see_talib.c
+libsee_talib.so: see_talib.cpp
+	$(CXX) $(CCFLAGE) -o ../lib/libsee_talib.so -shared -fPIC -I ../include see_talib.cpp
 
-see_talib.o: see_talib.c
-	$(CXX) -c $(CCFLAGS) -o ../lib/see_talib.o -I ../include see_talib.c
+see_talib.o: see_talib.cpp
+	$(CXX) -c $(CCFLAGS) -o ../lib/see_talib.o -I ../include see_talib.cpp

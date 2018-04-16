@@ -45,6 +45,13 @@ int main()
   D_KDJ *F1_3 = new D_KDJ(F1);
   D_KDJ *F1_4 = new D_KDJ(F1);
 
+  D_RSI *rsi = new D_RSI(F1);
+
+  D_STC *T1 = new D_STC(F1_1);
+  D_STC *T2 = new D_STC(F1_2);
+  D_STC *T3 = new D_STC(F1_3);
+  D_STC *T4 = new D_STC(F1_4);
+
   G_KDJ *G = new G_KDJ(F1_1,F1_2,F1_3,F1_4);
   //-------------------- 变量定义 -----------------------------------
   //exit(0);
@@ -95,15 +102,10 @@ int main()
                bar[i]->cB, bar[i]->cE,
                bar[i]->o, bar[i]->h, bar[i]->l, bar[i]->c,
                bar[i]->v, bar[i]->vsum) ;
-      //std::cout << ca_errmsg << std::endl;
-      snprintf(f,512,"../exe/data/%s_%d_%di",BB->InstrumentID, bar[i]->iF, bar[i]->iX);
+      std::cout << ca_errmsg << std::endl;
+      //snprintf(f,512,"../exe/data/%s_%d_%di",BB->InstrumentID, bar[i]->iF, bar[i]->iX);
       //SaveLine(f,ca_errmsg) ;
 
-      /*
-      //---------------------------- S5 begin ----------------------------------------
-      if(bar[i]->iF == 5) {
-      } // end --5S-----------------------------------------
-      */
 
       // --------------------- F1 begin ---------------------------------
       if(bar[i]->iF == 60) {
@@ -112,8 +114,17 @@ int main()
         F1_2->Update(9*16, 3*16, 3*16, 16);     // calculate kdj
         F1_3->Update(9*64, 3*64, 3*64, 64);     // calculate kdj
         F1_4->Update(9*64*4, 3*64*4, 3*64*4, 64*4);     // calculate kdj
+        rsi->Update(14) ;
+
+        T1->Update(36) ;
+        T2->Update(9*16) ;
+        T3->Update(9*64) ;
+        T4->Update(9*64*4) ;
+
         G->Update();
         //---------for test ---------------------
+        std::cout <<"ssssssss:"<<rsi->RSI[rsi->x] << std::endl;
+        std::cout <<"TTTTTT1 2 3 4:"<<T1->STC[T1->x]<<" "<<T2->STC[T2->x]<<" "<<T3->STC[T3->x]<<" "<<T4->STC[T4->x] <<" "<< std::endl ;
         std::cout <<"kkkkkk: "<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1_1->K[F1->x]<<" "<<F1_2->K[F1->x]<<" ";
         std::cout <<F1_3->K[F1->x]<<" "<<F1_4->K[F1->x] <<std::endl;
         std::cout <<"cccccc: "<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<F1->O[F1->x]<<" "<<F1->H[F1->x] <<" ";

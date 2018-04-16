@@ -23,6 +23,21 @@ public:
   int Insert(sKbar * bar);
 };
 
+struct D_RSI {
+  D_OHLC             *ohlc ;
+  std::vector<double> _max;
+  std::vector<double> _abs;
+  std::vector<double> _sma1;
+  std::vector<double> _sma2;
+  std::vector<double> RSI;
+  int 				x ;
+public:
+  D_RSI(D_OHLC *o);
+  int Update(int N);
+};
+
+
+//-------------------------------KDJ-------------------
 struct D_KDJ {
   std::vector<double>    R;
   std::vector<double>    K;
@@ -51,12 +66,26 @@ struct D_KDJ {
   // ---- 大级别内 紧临 小级别 的第几次拐头
   //int
 
-
-
 public:
   D_KDJ(D_OHLC *o);
   int Update(int N, int M1, int M2, int N2);
 };
+
+
+//-------------------------------STC-------------------
+struct D_STC {
+  D_KDJ                 *kdj ;
+  double                 preH;
+  double                 preL;
+  int                    preF;
+  std::vector<double>    STC;
+  int                    x ;
+public:
+  D_STC(D_KDJ *k);
+  int Update(int N);
+};
+
+
 
 
 struct G_KDJ {

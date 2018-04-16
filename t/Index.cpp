@@ -6,6 +6,7 @@
 namespace uBEE
 {
 using namespace std;
+using namespace uBEE;
 
 D_OHLC::D_OHLC():
   O(100000,SEE_NULL),
@@ -35,6 +36,42 @@ int D_OHLC::Insert(sKbar *bar)
 }
 
 
+//--------------- RSI -----------
+D_RSI::D_RSI(D_OHLC * o):
+  _max(100000,SEE_NULL),
+  _abs(100000,SEE_NULL),
+  _sma1(100000,SEE_NULL),
+  _sma2(100000,SEE_NULL),
+  RSI(100000,SEE_NULL)
+{
+  ohlc = o;
+  x = -1;
+}
+
+int D_RSI::Update(int N){
+  x = ohlc->x ;
+  SEE_RSI(x,x,&ohlc->C[0],N,&_max[0],&_abs[0],&_sma1[0],&_sma2[0],&RSI[0]);
+  return 0;
+}
+//--------------- RSI end -----------
+//--------------- STC begin -----------
+D_STC::D_STC(D_KDJ *k):
+  STC(100000,SEE_NULL)
+{
+  preH = SEE_NULL;
+  preL = SEE_NULL;
+  preF = SEE_NULL;
+  kdj = k;
+  x = -1;
+}
+
+int D_STC::Update(int N){
+  x = kdj->x ;
+  SEE_RSV(x, x, &kdj->K[0], &kdj->K[0], &kdj->K[0], &preH, &preL, &preF, N, &STC[0]);
+  return 0;
+}
+//--------------- STC end -----------
+
 D_KDJ::D_KDJ(D_OHLC * o):
   R(100000,SEE_NULL),
   K(100000,SEE_NULL),
@@ -53,6 +90,7 @@ D_KDJ::D_KDJ(D_OHLC * o):
 */
 int D_KDJ::Update(int N, int M1, int M2, int N2)
 {
+  x = ohlc->x;
   SEE_KDJ(ohlc->x, ohlc->x,
           &ohlc->H[0], &ohlc->L[0], &ohlc->C[0],
           &preH, &preL, &preF,
@@ -235,36 +273,36 @@ int G_KDJ::G_KDJ::Update()
   }
 
   //if(KDJ2->Kc ==2 || KDJ2->Kc ==-2) {
-    if(KDJ1->Kc ==1) {
-      ku1+=1;
-      Ku1[ku1] = ohlc->C[ohlc->x] ;
-    }
-    if(KDJ1->Kc ==-1) {
-      kd1+=1;
-      Kd1[kd1] = ohlc->C[ohlc->x] ;
-    }
+  if(KDJ1->Kc ==1) {
+    ku1+=1;
+    Ku1[ku1] = ohlc->C[ohlc->x] ;
+  }
+  if(KDJ1->Kc ==-1) {
+    kd1+=1;
+    Kd1[kd1] = ohlc->C[ohlc->x] ;
+  }
   //}
 
   //if(KDJ3->Kc ==2 || KDJ3->Kc ==-2) {
-    if(KDJ2->Kc ==1) {
-      ku2+=1;
-      Ku2[ku2] = ohlc->C[ohlc->x] ;
-    }
-    if(KDJ2->Kc ==-1) {
-      kd2+=1;
-      Kd2[kd2] = ohlc->C[ohlc->x] ;
-    }
+  if(KDJ2->Kc ==1) {
+    ku2+=1;
+    Ku2[ku2] = ohlc->C[ohlc->x] ;
+  }
+  if(KDJ2->Kc ==-1) {
+    kd2+=1;
+    Kd2[kd2] = ohlc->C[ohlc->x] ;
+  }
   //}
 
   //if(KDJ4->Kc ==2 || KDJ4->Kc ==-2) {
-    if(KDJ3->Kc ==1) {
-      ku3+=1;
-      Ku3[ku3] = ohlc->C[ohlc->x] ;
-    }
-    if(KDJ3->Kc ==-1) {
-      kd3+=1;
-      Kd3[kd3] = ohlc->C[ohlc->x] ;
-    }
+  if(KDJ3->Kc ==1) {
+    ku3+=1;
+    Ku3[ku3] = ohlc->C[ohlc->x] ;
+  }
+  if(KDJ3->Kc ==-1) {
+    kd3+=1;
+    Kd3[kd3] = ohlc->C[ohlc->x] ;
+  }
   //}
 
   // KDJ2->Ec 表示 当 KDJ的E值 开始从下向上时，Ec为1，当E值一直向上时，Ec为2，
@@ -290,36 +328,36 @@ int G_KDJ::G_KDJ::Update()
   }
 
   //if(KDJ2->Ec ==2 || KDJ2->Ec ==-2) {
-    if(KDJ1->Ec ==1) {
-      eu1+=1;
-      Eu1[eu1] = ohlc->C[ohlc->x] ;
-    }
-    if(KDJ1->Ec ==-1) {
-      ed1+=1;
-      Ed1[ed1] = ohlc->C[ohlc->x] ;
-    }
+  if(KDJ1->Ec ==1) {
+    eu1+=1;
+    Eu1[eu1] = ohlc->C[ohlc->x] ;
+  }
+  if(KDJ1->Ec ==-1) {
+    ed1+=1;
+    Ed1[ed1] = ohlc->C[ohlc->x] ;
+  }
   //}
 
   //if(KDJ3->Ec ==2 || KDJ3->Ec ==-2) {
-    if(KDJ2->Ec ==1) {
-      eu2+=1;
-      Eu2[eu2] = ohlc->C[ohlc->x] ;
-    }
-    if(KDJ2->Ec ==-1) {
-      ed2+=1;
-      Ed2[ed2] = ohlc->C[ohlc->x] ;
-    }
+  if(KDJ2->Ec ==1) {
+    eu2+=1;
+    Eu2[eu2] = ohlc->C[ohlc->x] ;
+  }
+  if(KDJ2->Ec ==-1) {
+    ed2+=1;
+    Ed2[ed2] = ohlc->C[ohlc->x] ;
+  }
   //}
 
   //if(KDJ4->Ec ==2 || KDJ4->Ec ==-2) {
-    if(KDJ3->Ec ==1) {
-      eu3+=1;
-      Eu3[eu3] = ohlc->C[ohlc->x] ;
-    }
-    if(KDJ3->Ec ==-1) {
-      ed3+=1;
-      Ed3[ed3] = ohlc->C[ohlc->x] ;
-    }
+  if(KDJ3->Ec ==1) {
+    eu3+=1;
+    Eu3[eu3] = ohlc->C[ohlc->x] ;
+  }
+  if(KDJ3->Ec ==-1) {
+    ed3+=1;
+    Ed3[ed3] = ohlc->C[ohlc->x] ;
+  }
   //}
 
 } //-----update----

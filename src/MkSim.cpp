@@ -158,7 +158,8 @@ int FuSim::MkBarsF(uBEE::FuBo *fubo,int Fr)       // make bars from bars file
 
     nData->iN = 1;
     fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
-  }
+    std::cout<< nData->KK[0].cB <<"--"<<nData->KK[0].cE<<" O:"<< nData->KK[0].o << " C:"<< nData->KK[0].c << std::endl;
+  } //--while
   file.close();
 }
 
