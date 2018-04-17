@@ -26,19 +26,25 @@ std::map<std::string,std::string>    M_SimFuFile;         // 每个期货一个 
 //---
 
 // --- FuSim 每个期货一个FuSim,用于处理 模拟交易产生相应的tick ... bar 等.
-FuSim::FuSim(char *Future, const char *pFile)
+FuSim::FuSim(uBEE::FuBo *fu, char *Future, const char *pFile)
 {
   see_memzero(File,1024);
   see_memzero(Table,512);
   see_memzero(InstrumentID,31);
   snprintf(InstrumentID,31,"%s",Future) ;
+  snprintf(Tick.InstrumentID,31,"%s",Future) ;  // InstrumentID 是成员变量
   snprintf(File,1024,"%s",pFile) ;
+  fubo = fu ;
 
   iLineNum = CountLines(pFile) ;
   iCurLine = 1;
   if(Future !=nullptr && strlen(Future) <= 31) {
     memcpy(InstrumentID,Future,strlen(Future));
   }
+  nTick = &aTick;
+  nTick->iType = T_TICK ;
+  nData = &aData;
+  nData->iType = T_BARS ;
 }
 
 int FuSim::SetBarF(const char *pFile)
@@ -47,24 +53,41 @@ int FuSim::SetBarF(const char *pFile)
   snprintf(BarF,1024,"%s",pFile) ;
   return 0;
 }
+//---- 一次运行一个文件 --------------------------------------------------
+int FuSim::RunTickF()
+{
+  int ss;
+  //sTick * nTick = &stTick;  //
+  //nTick->iType = T_TICK;    // 在构造函数中初始化！
+  string temp;
+  fstream file;
+  file.open(File,ios::in);
+  while(getline(file,temp)) {
 
+    //snprintf(nTick->InstrumentID,31,"%s",Future) ;  // 在构造函数中初始化！
+    sscanf(temp.c_str(), "A:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+           nTick->ActionDay,
+           nTick->UpdateTime,
+           &nTick->UpdateMillisec, &ss,
+           nTick->TradingDay,
+           &nTick->HighestPrice,
+           &nTick->LowestPrice,
+           &nTick->LastPrice,
+           &nTick->AskPrice1, &nTick->AskVolume1,
+           &nTick->BidPrice1, &nTick->BidVolume1,
+           &nTick->OpenInterest, &nTick->Volume);
+    nTick->UpdateMillisec = nTick->UpdateMillisec/1000;
+
+    fubo->SG->broadcast((const char*)nTick, tLen, uWS::OpCode::BINARY);
+  }
+  file.close();
+  return 0;
+
+}
+
+//---- 每次读一行 ----------
 TICK * FuSim::MkTickF()             // make tick from tick file
 {
-  char          TradingDay[9];          ///交易日
-  char          InstrumentID[31];       ///合约代码
-  double        LastPrice;              ///最新价
-  double        OpenPrice;              ///今开盘
-  double        HighestPrice;           ///最高价
-  double        LowestPrice;            ///最低价
-  int           Volume;                 ///数量
-  double        OpenInterest;           ///持仓量
-  char          UpdateTime[9];          ///最后修改时间
-  int           UpdateMillisec;         ///最后修改毫秒
-  double        BidPrice1;              ///申买价一
-  int           BidVolume1;             ///申买量一
-  double        AskPrice1;              ///申卖价一
-  int           AskVolume1;             ///申卖量一
-  char          ActionDay[9];           ///业务日期
   int ss;
   if(iLineNum<=0) {
     return nullptr ;
@@ -76,47 +99,19 @@ TICK * FuSim::MkTickF()             // make tick from tick file
       return nullptr ;
     }
 
-    char Ttemp[15] ;
-    char Atemp[15] ;
-
-    see_memzero(Ttemp,15);
-    see_memzero(Atemp,15);
-
-    see_memzero(TradingDay,9);
-    see_memzero(ActionDay,9);
-    see_memzero(UpdateTime,9);
-    see_memzero(InstrumentID,31);
+    //snprintf(Tick.InstrumentID,31,"%s",Future) ;  // 在构造函数中初始化！
     sscanf(TickLine.c_str(), "A:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
-           Atemp, UpdateTime, &UpdateMillisec, &ss, Ttemp,
-           &HighestPrice, &LowestPrice, &LastPrice,
-           &AskPrice1, &AskVolume1,
-           &BidPrice1, &BidVolume1,
-           &OpenInterest, &Volume);
-    see_memzero(Tick.InstrumentID,31);
-
-    /*
-    memcpy(Tick.TradingDay,Ttemp,4) ;
-    memcpy(Tick.TradingDay+4,Ttemp+5,2) ;
-    memcpy(Tick.TradingDay+6,Ttemp+8,2) ;
-
-    memcpy(Tick.ActionDay,Atemp,4) ;
-    memcpy(Tick.ActionDay+4,Atemp+5,2) ;
-    memcpy(Tick.ActionDay+6,Atemp+8,2) ;
-    */
-    memcpy(Tick.TradingDay,Ttemp,8) ;
-    memcpy(Tick.ActionDay,Atemp,8) ;
-
-    memcpy(Tick.UpdateTime,UpdateTime,9) ;
-    Tick.UpdateMillisec = UpdateMillisec/1000;
-    Tick.HighestPrice = HighestPrice;
-    Tick.LowestPrice = LowestPrice;
-    Tick.LastPrice = LastPrice;
-    Tick.AskPrice1 = AskPrice1;
-    Tick.AskVolume1 = AskVolume1;
-    Tick.BidPrice1 = BidPrice1;
-    Tick.BidVolume1 = BidVolume1;
-    Tick.OpenInterest = OpenInterest;
-    Tick.Volume = Volume;
+           Tick.ActionDay,
+           Tick.UpdateTime,
+           &Tick.UpdateMillisec, &ss,
+           Tick.TradingDay,
+           &Tick.HighestPrice,
+           &Tick.LowestPrice,
+           &Tick.LastPrice,
+           &Tick.AskPrice1, &Tick.AskVolume1,
+           &Tick.BidPrice1, &Tick.BidVolume1,
+           &Tick.OpenInterest, &Tick.Volume);
+    Tick.UpdateMillisec = Tick.UpdateMillisec/1000;
 
     iCurLine++ ;
   }
@@ -126,16 +121,17 @@ TICK * FuSim::MkTickF()             // make tick from tick file
   }
   return &Tick ;
 }
-int FuSim::MkBarsF(uBEE::FuBo *fubo,int Fr)       // make bars from bars file
+
+
+int FuSim::RunBarsF(int Fr)       // make bars from bars file
 {
-
-  char        cBE[30];              ///最新价
-
-  sData * nData = &Data;
-  nData->iType = T_BARS ;
+  char        cBE[30];   // "xx:xx:xx--xx:xx:xx"
+  //sData * nData = &Data;
+  //nData->iType = T_BARS ;
 
   string temp;
   fstream file;
+  // charmi  BarF 以后可以放在 fubo中。 future block !!
   file.open(BarF,ios::in);
   while(getline(file,temp)) {
     //sscanf(temp.c_str(), "T:%s %s %d S:%d A:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
@@ -157,6 +153,7 @@ int FuSim::MkBarsF(uBEE::FuBo *fubo,int Fr)       // make bars from bars file
     nData->KK[0].cE[8] = '\0';
 
     nData->iN = 1;
+    //fubo 是成员变量
     fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
     std::cout<< nData->KK[0].cB <<"--"<<nData->KK[0].cE<<" O:"<< nData->KK[0].o << " C:"<< nData->KK[0].c << std::endl;
   } //--while
@@ -223,7 +220,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
   for(auto iter = M_SimFuFile.begin(); iter != M_SimFuFile.end(); ++iter) {
 
-    char* p = (char*)iter->first.c_str();
+    char* p = (char*)iter->first.c_str();  // char *Future, const char *pFile
     char* f = (char*)iter->second.c_str();
 
     sprintf(ca_errmsg,"MkSim(): Future:%s file:%s",p,f) ;
@@ -235,7 +232,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
     std::cout << "MkSim(): new FuSim Future Simulation :"<< p << std::endl;
     // --------- will call fusim->MkTick() -------------
-    uBEE::FuSim *fusim = new uBEE::FuSim(p, f);
+    uBEE::FuSim *fusim = new uBEE::FuSim(fubo, p, f);
     // -------临时加 begin -----
     if(memcmp(p,"ru1809",6) ==0) {
       fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i");
@@ -275,6 +272,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   usleep(10000000);
 
   //----------- bar test  from bar file ---------------------------------------
+  /*
   for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
     uBEE::FuSim *fusim = &(it->second) ;
     std::map<std::string,uBEE::FuBo>::iterator iter;
@@ -287,12 +285,12 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     uBEE::FuBo *fubo = &(iter->second);
     if(memcmp(it->first.c_str(),"ru1809",6)==0) {
       std::cout << it->first << std::endl;
-      fusim->MkBarsF(fubo,60);
+      fusim->RunBarsF(60);
     }
   }
   usleep(20000000);
   exit(0);
-
+  */
 
   //----------- bar test  from tick file ---------------------------------------
   while(1) {

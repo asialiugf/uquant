@@ -672,22 +672,33 @@ bbbb:
       // from curiX+1 to the end : babo->iSegNum-1 !!!!!!
       // ===> same problem for the coming ticks after 21:00:00 !!!!!!
       // so i must be 0 always !! that is correct!!
-
+for8:
       while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {
         i++;
         if(i >= babo->iSegNum) {
+          //-----------------------
           if(memcmp(ticK,"20:59:",6)==0) {
             memcpy(fubo->UpdateTime,ticK,9);      // save tick->UpdateTime "20:59:??" ...
             fubo->iChange = 1;
             memcpy(ticK,"21:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
             i = 0;
-            //b1->vold = 0;
-            //b1->vsum = 0;
             break;
           } else {
             fubo->iTickValid = -1;
             return 0;
           }
+          //-----------------------
+          if(memcmp(ticK,"08:59:",6)==0) {
+            memcpy(fubo->UpdateTime,ticK,9);      // save tick->UpdateTime "20:59:??" ...
+            fubo->iChange = 1;
+            memcpy(ticK,"09:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
+            i = 0;
+            goto for8;
+          } else {
+            fubo->iTickValid = -1;
+            return 0;
+          }
+          //-----------------------
         }
       }  // 找到 tick 在哪个段中
       curiX = i ;  // tick所在的段
@@ -801,21 +812,19 @@ int SendTick(uBEE::FuBo *fubo, TICK *tick)
     } else {                       //一天结束，从头开始
       i = 0;
     }
+
     while(memcmp(ticK,babo->seg[i]->cB,8)<0 || memcmp(ticK,babo->seg[i]->cE,8)>0) {
       i++;
       if(i >= babo->iSegNum) {
         if(memcmp(ticK,"20:59:",6)==0) {
-          i = 0;
           goto valid;
-        } else {
-          fubo->iTickValid = -1;
-          return 0;
         }
+        if(memcmp(ticK,"08:59:",6)==0) {
+          goto valid;
+        }
+        return 0;
       }
-    }  // 找到 tick 在哪个段中
-    curiX = i ;
-    memcpy(curB,babo->seg[i]->cB,9);
-    memcpy(curE,babo->seg[i]->cE,9);
+    }
 
 valid:
     nTick->iType = T_TICK;
@@ -836,7 +845,6 @@ valid:
     nTick->Volume          = tick->Volume;
     fubo->SG->broadcast((const char*)nTick, tLen, uWS::OpCode::BINARY);
 
-    fubo->iTickValid = 1;
   }
   return 0;
 }
