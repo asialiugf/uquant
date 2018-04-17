@@ -292,7 +292,7 @@ void Base::AssiHubInit()
 }
 
 //void Base::getFuTick(char *start_date, char *end_date)
-void Base::getFutureTick(char *start_date, char *end_date)
+void Base::getFutureTick(const char *start_date, const char *end_date)
 {
   // cs[0] 与 DataServer: HubAPI 相联系。
   if(cs[0] == nullptr) {

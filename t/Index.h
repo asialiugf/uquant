@@ -36,6 +36,34 @@ public:
   int Update(int N);
 };
 
+//--begin-------------------EKE (_R:=RSV(N)  _E:=EMA(_R,N1)  K:=SMA(_E,M1,1)  E:=EMA(K,N2) -----------
+struct D_EKE {
+private:
+  std::vector<double>    _R;
+  std::vector<double>    _E;
+  double                 preH;
+  double                 preL;
+  int                    preF;
+public:
+  std::vector<double>    K;
+  std::vector<double>    E;
+  D_OHLC               * ohlc ;
+  int                    x ;
+
+  // ---- 上涨下跌
+  double                 Kx ;  // = K[x] - K[x-1]
+  double                 Ex ;
+  int                    Kc ;   // K cross
+  int                    Ec ;   // --- E cross up Ec=1, Ec=2 -------------- Ec = -1, Ec=-2 -----------
+  // ---- 在哪个区间
+  int                    Kp ; // <20 |  20< <50 |  50< <80  | 80<
+  int                    Ep ;
+
+public:
+  D_EKE(D_OHLC *o);
+  int Update(int N, int N1, int M1, int N2);
+};
+//--end-------------------EKE (_R:=RSV(N)  _E:=EMA(_R,N1)  K:=SMA(_E,M1,1)  E:=EMA(K,N2) -----------
 
 //-------------------------------KDJ-------------------
 struct D_KDJ {
@@ -85,7 +113,19 @@ public:
   int Update(int N);
 };
 
-
+//----begin-------------------------- MNF magnetic force -----------------
+struct D_MNF {
+  D_EKE                 *KE;
+  double                 preH;
+  double                 preL;
+  int                    preF;
+  std::vector<double>    MNF;
+  int                    x ;
+public:
+  D_MNF(D_EKE *e);
+  int Update(int N);
+};
+//----end--------------------------  MNF magnetic force -----------------
 
 
 struct G_KDJ {

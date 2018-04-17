@@ -27,7 +27,7 @@ int SEE_EMA(int start, int end, const double in[],  int N, double out[]) ;
 int SEE_SMA(int start, int end, const double in[],  int N, int M, double out[]) ;
 int SEE_LMA(int start, int end, const double in[], char F, int N, int M, double out[]) ;
 
-
+// ------------ 只输入一个序列 in[] --------------------
 int SEE_RSV1(int           start,
              int           end,
              const double  in[],         /* outReal index and inReal index must be the same */
@@ -38,6 +38,7 @@ int SEE_RSV1(int           start,
              double        out[]);       /* out[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
 
 /*
+ ------------ 输入三个序列 H[] L[] C[] --------------------
  如果 只计算一个值的RSV，那让 H L C 等于同一个输入序列即可。
 */
 int SEE_RSV(int           start,
@@ -51,6 +52,106 @@ int SEE_RSV(int           start,
             int           N,            /* R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
             double        R[]);         /* R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
 
+//--------------------RSV -- K ------------------------------------------------------
+int SEE_K(int           start,
+          int           end,
+          const double  H[],          /* outReal index and inReal index must be the same */
+          const double  L[],          /* outReal index and inReal index must be the same */
+          const double  C[],          /* outReal index and inReal index must be the same */
+          double        *preH,        /* pre highest price */
+          double        *preL,        /* pre lowest price */
+          int           *preF,        /* 记录是涨停还是跌停 */
+          int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
+          int           M1,           /*  K:=SMA(_R,M1,1);                                    */
+          double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+          double        K[]);         /*  K[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+
+//--------------------RSV -- K -- D ----------------------------------------------------
+int SEE_KD(int           start,
+           int           end,
+           const double  H[],          /* outReal index and inReal index must be the same */
+           const double  L[],          /* outReal index and inReal index must be the same */
+           const double  C[],          /* outReal index and inReal index must be the same */
+           double        *preH,        /* pre highest price */
+           double        *preL,        /* pre lowest price */
+           int           *preF,        /* 记录是涨停还是跌停 */
+           int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
+           int           M1,           /*  K:=SMA(_R,M1,1);                                    */
+           int           M2,           /*  D:=SMA( K,M2,1);                                    */
+           double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        K[],          /*  K[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        D[]);         /*  D[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+
+//--------------------RSV -- K -- E ----------------------------------------------------
+int SEE_KE(int           start,
+           int           end,
+           const double  H[],          /* outReal index and inReal index must be the same */
+           const double  L[],          /* outReal index and inReal index must be the same */
+           const double  C[],          /* outReal index and inReal index must be the same */
+           double        *preH,        /* pre highest price */
+           double        *preL,        /* pre lowest price */
+           int           *preF,        /* 记录是涨停还是跌停 */
+           int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
+           int           M1,           /*  K:=SMA(_R,M1,1);                                    */
+           int           N2,           /*  E:=EMA( K,N2);                                      */
+           double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        K[],          /*  K[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        E[]);         /*  E[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+
+//-------------------------RSV-E -- K -------------------------------------------------
+int SEE_EK(int           start,
+           int           end,
+           const double  H[],          /* outReal index and inReal index must be the same */
+           const double  L[],          /* outReal index and inReal index must be the same */
+           const double  C[],          /* outReal index and inReal index must be the same */
+           double        *preH,        /* pre highest price */
+           double        *preL,        /* pre lowest price */
+           int           *preF,        /* 记录是涨停还是跌停 */
+           int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;  */
+           int           N1,           /* _E:=EMA(_R,N1);                                       */
+           int           M1,           /*  K:=SMA(_E,M1,1);                                     */
+           double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!    */
+           double        _E[],         /* _E[] _E:=EMA(_R,N1)                                   */
+           double        K[]);          /*  K[]  K:=SMA(_E,M1,1)                                 */
+
+//-------------------------RSV-E -- K -- D -------------------------------------------------
+int SEE_EKD(int           start,
+            int           end,
+            const double  H[],          /* outReal index and inReal index must be the same */
+            const double  L[],          /* outReal index and inReal index must be the same */
+            const double  C[],          /* outReal index and inReal index must be the same */
+            double        *preH,        /* pre highest price */
+            double        *preL,        /* pre lowest price */
+            int           *preF,        /* 记录是涨停还是跌停 */
+            int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;  */
+            int           N1,           /* _E:=EMA(_R,N1);                                       */
+            int           M1,           /*  K:=SMA(_E,M1,1);                                     */
+            int           M2,           /*  D:=SMA( K,M2,1);                                     */
+            double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!    */
+            double        _E[],         /* _E[]                                                  */
+            double        K[],          /*  K[]                                                  */
+            double        D[]);         /*  D[]                                                  */
+
+//-------------------------RSV-E -- K -- E -------------------------------------------------
+int SEE_EKE(int           start,
+            int           end,
+            const double  H[],          /* outReal index and inReal index must be the same */
+            const double  L[],          /* outReal index and inReal index must be the same */
+            const double  C[],          /* outReal index and inReal index must be the same */
+            double        *preH,        /* pre highest price */
+            double        *preL,        /* pre lowest price */
+            int           *preF,        /* 记录是涨停还是跌停 */
+            int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;  */
+            int           N1,           /* _E:=EMA(_R,N1);                                       */
+            int           M1,           /*  K:=SMA(_E,M1,1);                                     */
+            int           N2,           /*  E:=EMA( K,N2);                                       */
+            double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!    */
+            double        _E[],         /* _E[]                                                  */
+            double        K[],          /*  K[]                                                  */
+            double        E[]);         /*  E[]                                                  */
+
+
+//-------------------------RSV -- K -- D -- J  -------------------------------------------------
 int SEE_KDJ(int           start,
             int           end,
             const double  H[],          /* outReal index and inReal index must be the same */

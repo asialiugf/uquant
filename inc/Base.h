@@ -101,7 +101,7 @@ public:
   // ------------------------------- API ---------------------------------
   void FuInit(const std::map<std::string,std::vector<int>> *M);
   // ------------------------------- API ---------------------------------
-  void getFutureTick(char *start_date, char *end_date);
+  void getFutureTick(const char *start_date, const char *end_date);
   void getFutureBars(const char *period, const char *start_date, const char *end_date);
   void getStockBars(const char *period, const char *start_date, const char *end_date);
 private:

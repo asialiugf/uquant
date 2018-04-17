@@ -53,7 +53,7 @@ int main()
   //-------------------- initialize -----------------------------------
   gettimeofday(&start,NULL);
   for(int i=0; i<100; i++) {
-    BB->getFutureTick("20170101", "20180101");
+    BB->getFutureTick((const char *)"20170101", (const char *)"20180101");
   }
   gettimeofday(&end,NULL);
   unsigned  long diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;

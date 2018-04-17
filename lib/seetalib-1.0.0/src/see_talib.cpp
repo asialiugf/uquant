@@ -239,14 +239,14 @@ int SEE_LMA(int           start,
 
   if(start<0)  return -1 ;
   if(end<0)  return -1 ;
-  if(M<0 || M>ARRAY_SIZE)  return -1 ;
   if(N<0 || N>ARRAY_SIZE)  return -1 ;
-  if(M > N) return -1 ;
   if(end < start) return -1 ;
 
   if(F == 'E') {
     R = (double) 2 / (double)(N+1) ;
   } else if(F == 'S') {
+    if(M<0 || M>ARRAY_SIZE)  return -1 ;
+    if(M > N) return -1 ;
     R = (double) M / (double) N ;
   } else {
     return -1;
@@ -578,6 +578,189 @@ int SEE_RSV(int           start,
 }
 
 //--------------------RSV--end----------------------------------
+
+//--------------------RSV -- K ------------------------------------------------------
+int SEE_K(int           start,
+          int           end,
+          const double  H[],          /* outReal index and inReal index must be the same */
+          const double  L[],          /* outReal index and inReal index must be the same */
+          const double  C[],          /* outReal index and inReal index must be the same */
+          double        *preH,        /* pre highest price */
+          double        *preL,        /* pre lowest price */
+          int           *preF,        /* 记录是涨停还是跌停 */
+          int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
+          int           M1,           /*  K:=SMA(_R,M1,1);                                    */
+          double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+          double        K[])          /*  K[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+{
+  if(start<0)  return -1 ;
+  if(end<0)  return -1 ;
+  if(N<1 ||  N>ARRAY_SIZE)  return -1 ;
+  if(M1<1 || M1>ARRAY_SIZE)  return -1 ;
+  if(end < start) return -1 ;
+  SEE_RSV(start, end, &H[0], &L[0], &C[0], preH, preL, preF, N, &_R[0]);
+  SEE_SMA(start, end, &_R[0], M1, 1, &K[0]) ;
+  return 0 ;
+}
+
+//--------------------RSV -- K -- D ----------------------------------------------------
+int SEE_KD(int           start,
+           int           end,
+           const double  H[],          /* outReal index and inReal index must be the same */
+           const double  L[],          /* outReal index and inReal index must be the same */
+           const double  C[],          /* outReal index and inReal index must be the same */
+           double        *preH,        /* pre highest price */
+           double        *preL,        /* pre lowest price */
+           int           *preF,        /* 记录是涨停还是跌停 */
+           int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
+           int           M1,           /*  K:=SMA(_R,M1,1);                                    */
+           int           M2,           /*  D:=SMA( K,M2,1);                                    */
+           double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        K[],          /*  K[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        D[])          /*  D[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+{
+  if(start<0)  return -1 ;
+  if(end<0)  return -1 ;
+  if(N<1 ||  N>ARRAY_SIZE)  return -1 ;
+  if(M1<1 || M1>ARRAY_SIZE)  return -1 ;
+  if(M2<1 || M2>ARRAY_SIZE)  return -1 ;
+  if(end < start) return -1 ;
+
+  SEE_RSV(start, end, &H[0], &L[0], &C[0], preH, preL, preF, N, &_R[0]);
+  SEE_SMA(start, end, &_R[0], M1, 1, &K[0]) ;
+  SEE_SMA(start, end, &K[0], M2, 1, &D[0]) ;
+
+  return 0 ;
+}
+
+//--------------------RSV -- K -- E ----------------------------------------------------
+int SEE_KE(int           start,
+           int           end,
+           const double  H[],          /* outReal index and inReal index must be the same */
+           const double  L[],          /* outReal index and inReal index must be the same */
+           const double  C[],          /* outReal index and inReal index must be the same */
+           double        *preH,        /* pre highest price */
+           double        *preL,        /* pre lowest price */
+           int           *preF,        /* 记录是涨停还是跌停 */
+           int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100; */
+           int           M1,           /*  K:=SMA(_R,M1,1);                                    */
+           int           N2,           /*  E:=EMA( K,N2);                                      */
+           double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        K[],          /*  K[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+           double        E[])          /*  E[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!   */
+{
+  if(start<0)  return -1 ;
+  if(end<0)  return -1 ;
+  if(N<1 ||  N>ARRAY_SIZE)  return -1 ;
+  if(M1<1 || M1>ARRAY_SIZE)  return -1 ;
+  if(N2<1 || N2>ARRAY_SIZE)  return -1 ;
+  if(end < start) return -1 ;
+
+  SEE_RSV(start, end, &H[0], &L[0], &C[0], preH, preL, preF, N, &_R[0]);
+  SEE_SMA(start, end, &_R[0], M1, 1, &K[0]) ;
+  SEE_LMA(start, end, &K[0],'E',N2,2,&E[0]); // EMA
+
+  return 0 ;
+}
+
+//-------------------------RSV-E -- K -------------------------------------------------
+int SEE_EK(int           start,
+           int           end,
+           const double  H[],          /* outReal index and inReal index must be the same */
+           const double  L[],          /* outReal index and inReal index must be the same */
+           const double  C[],          /* outReal index and inReal index must be the same */
+           double        *preH,        /* pre highest price */
+           double        *preL,        /* pre lowest price */
+           int           *preF,        /* 记录是涨停还是跌停 */
+           int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;  */
+           int           N1,           /* _E:=EMA(_R,N1);                                       */
+           int           M1,           /*  K:=SMA(_E,M1,1);                                     */
+           double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!    */
+           double        _E[],         /* _E[] _E:=EMA(_R,N1)                                   */
+           double        K[])          /*  K[]  K:=SMA(_E,M1,1)                                 */
+{
+  if(start<0)  return -1 ;
+  if(end<0)  return -1 ;
+  if(N<1 ||  N>ARRAY_SIZE)  return -1 ;
+  if(N1<1 || N1>ARRAY_SIZE)  return -1 ;
+  if(M1<1 || M1>ARRAY_SIZE)  return -1 ;
+  if(end < start) return -1 ;
+
+  SEE_RSV(start, end, &H[0], &L[0], &C[0], preH, preL, preF, N, &_R[0]);
+  SEE_LMA(start, end, &_R[0],'E',N1,2,&_E[0]); // EMA
+  SEE_SMA(start, end, &_E[0], M1, 1, &K[0]) ;
+
+  return 0 ;
+}
+
+//-------------------------RSV-E -- K -- D -------------------------------------------------
+int SEE_EKD(int           start,
+            int           end,
+            const double  H[],          /* outReal index and inReal index must be the same */
+            const double  L[],          /* outReal index and inReal index must be the same */
+            const double  C[],          /* outReal index and inReal index must be the same */
+            double        *preH,        /* pre highest price */
+            double        *preL,        /* pre lowest price */
+            int           *preF,        /* 记录是涨停还是跌停 */
+            int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;  */
+            int           N1,           /* _E:=EMA(_R,N1);                                       */
+            int           M1,           /*  K:=SMA(_E,M1,1);                                     */
+            int           M2,           /*  D:=SMA( K,M2,1);                                     */
+            double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!    */
+            double        _E[],         /* _E[]                                                  */
+            double        K[],          /*  K[]                                                  */
+            double        D[])          /*  D[]                                                  */
+{
+  if(start<0)  return -1 ;
+  if(end<0)  return -1 ;
+  if(N<1 ||  N>ARRAY_SIZE)  return -1 ;
+  if(N1<1 || N1>ARRAY_SIZE)  return -1 ;
+  if(M1<1 || M1>ARRAY_SIZE)  return -1 ;
+  if(M2<1 || M2>ARRAY_SIZE)  return -1 ;
+  if(end < start) return -1 ;
+
+  SEE_RSV(start, end, &H[0], &L[0], &C[0], preH, preL, preF, N, &_R[0]);
+  SEE_LMA(start, end, &_R[0],'E',N1,2,&_E[0]); // EMA
+  SEE_SMA(start, end, &_E[0], M1, 1, &K[0]) ;
+  SEE_SMA(start, end,  &K[0], M2, 1, &D[0]) ;
+
+  return 0 ;
+}
+
+//-------------------------RSV-E -- K -- E -------------------------------------------------
+int SEE_EKE(int           start,
+            int           end,
+            const double  H[],          /* outReal index and inReal index must be the same */
+            const double  L[],          /* outReal index and inReal index must be the same */
+            const double  C[],          /* outReal index and inReal index must be the same */
+            double        *preH,        /* pre highest price */
+            double        *preL,        /* pre lowest price */
+            int           *preF,        /* 记录是涨停还是跌停 */
+            int           N,            /* _R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;  */
+            int           N1,           /* _E:=EMA(_R,N1);                                       */
+            int           M1,           /*  K:=SMA(_E,M1,1);                                     */
+            int           N2,           /*  E:=EMA( K,N2);                                       */
+            double        _R[],         /* _R[] 必须初始化为 SEE_NULL ; !!!!!!!!!!!!!!!!!!!!!    */
+            double        _E[],         /* _E[]                                                  */
+            double        K[],          /*  K[]                                                  */
+            double        E[])          /*  E[]                                                  */
+{
+  if(start<0)  return -1 ;
+  if(end<0)  return -1 ;
+  if(N<1 ||  N>ARRAY_SIZE)  return -1 ;
+  if(N1<1 || N1>ARRAY_SIZE)  return -1 ;
+  if(M1<1 || M1>ARRAY_SIZE)  return -1 ;
+  if(N2<1 || N2>ARRAY_SIZE)  return -1 ;
+  if(end < start) return -1 ;
+
+  SEE_RSV(start, end, &H[0], &L[0], &C[0], preH, preL, preF, N, &_R[0]);
+  SEE_LMA(start, end, &_R[0],'E',N1,2,&_E[0]); // EMA
+  SEE_SMA(start, end, &_E[0], M1,  1, &K[0]) ;
+  SEE_LMA(start, end,  &K[0],'E',N2,2,&E[0]); // EMA
+
+  return 0 ;
+}
+
 
 /*
 R:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;

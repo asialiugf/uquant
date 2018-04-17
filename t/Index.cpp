@@ -48,7 +48,8 @@ D_RSI::D_RSI(D_OHLC * o):
   x = -1;
 }
 
-int D_RSI::Update(int N){
+int D_RSI::Update(int N)
+{
   x = ohlc->x ;
   SEE_RSI(x,x,&ohlc->C[0],N,&_max[0],&_abs[0],&_sma1[0],&_sma2[0],&RSI[0]);
   return 0;
@@ -65,13 +66,111 @@ D_STC::D_STC(D_KDJ *k):
   x = -1;
 }
 
-int D_STC::Update(int N){
+int D_STC::Update(int N)
+{
   x = kdj->x ;
   SEE_RSV(x, x, &kdj->K[0], &kdj->K[0], &kdj->K[0], &preH, &preL, &preF, N, &STC[0]);
   return 0;
 }
 //--------------- STC end -----------
 
+//--------------- D_MNF begin -------------
+D_MNF::D_MNF(D_EKE *e):
+  MNF(100000,SEE_NULL)
+{
+  preH = SEE_NULL;
+  preL = SEE_NULL;
+  preF = SEE_NULL;
+  KE = e;
+  x = -1;
+}
+
+int D_MNF::Update(int N)
+{
+  x = KE->x ;            // kdj
+  SEE_RSV(x, x, &KE->K[0], &KE->K[0], &KE->K[0], &preH, &preL, &preF, N, &MNF[0]);
+  return 0;
+}
+//--------------- D_MNF end  -------------
+//--------D_EKE begin ------------------------------------------
+D_EKE::D_EKE(D_OHLC * o):
+  _R(100000,SEE_NULL),
+  _E(100000,SEE_NULL),
+  K(100000,SEE_NULL),
+  E(100000,SEE_NULL)
+{
+  preH = SEE_NULL;
+  preL = SEE_NULL;
+  preF = SEE_NULL;
+  x = -1;
+  ohlc = o ;
+}
+int D_EKE::Update(int N, int N1, int M1, int N2)
+{
+  x = ohlc->x;
+  SEE_EKE(x, x,
+          &ohlc->H[0], &ohlc->L[0], &ohlc->C[0],
+          &preH, &preL, &preF,
+          N, N1, M1, N2,
+          &_R[0], &_E[0], &K[0], &E[0]) ;
+
+  if(x>2) {
+    Kx = K[x] - K[x-1] ;
+    Ex = E[x] - E[x-1] ;
+
+    if(Kx > 0) {
+      if((K[x-1]-K[x-2])>0) {
+        Kc = 2;  // ---  表示一直是向上
+      } else {
+        Kc = 1;  // ---  表示从向下变成向上
+      }
+    } else {
+      if((K[x-1]-K[x-2])<0) {
+        Kc = -2; // ---  表示一直向下
+      } else {
+        Kc = -1; // ---  表示从向上变为向下
+      }
+    }
+
+    if(Ex > 0) {
+      if((E[x-1]-E[x-2])>0) {
+        Ec = 2;  // ---  表示一直是向上
+      } else {
+        Ec = 1;  // ---  表示从向上变成向上
+      }
+    } else {
+      if((E[x-1]-E[x-2])<0) {
+        Ec = -2; // ---  表示一直向下
+      } else {
+        Ec = -1; // ---  表示从向上变为向下
+      }
+    }
+  } //---
+
+
+  if(K[x]<20) {
+    Kp = 0 ;
+  } else if(K[x]>=20 && K[x]<=50) {
+    Kp = 1 ;
+  } else if(K[x]>50 && K[x]<=80) {
+    Kp = 2 ;
+  } else {
+    Kp = 3 ;
+  }
+
+  if(E[x]<20) {
+    Ep = 0 ;
+  } else if(E[x]>=20 && E[x]<=50) {
+    Ep = 1 ;
+  } else if(E[x]>50 && E[x]<=80) {
+    Ep = 2 ;
+  } else {
+    Ep = 3 ;
+  }
+
+  return 0;
+}
+//--------D_EKE end -------------------------------------------------------
 D_KDJ::D_KDJ(D_OHLC * o):
   R(100000,SEE_NULL),
   K(100000,SEE_NULL),
