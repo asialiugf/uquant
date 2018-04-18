@@ -87,26 +87,32 @@ int Future::SellLong(int n, double c)
 int Future::DStopLost(int n, double c)
 {
   if(NS >= n) {
-    if(SP>c) {
-      SP = c;
-    }
     if((SP-c-mMPF)/mMPF <= -15) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
       std::cout << "TdRate:DStopLost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
+    if(SP>c) {
+      mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+      SP = c;
+    } else if(SP<c) {
+      //mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+    }
   }
 
   if(NL >= n) {
-    if(LP<c) {
-      LP = c;
-    }
     if((c-mMPF-LP)/mMPF <= -15) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
       std::cout << "TdRate:DStopLost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
+    }
+    if(LP<c) {
+      mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+      LP = c;
+    } else if(LP>c) {
+      //todo
     }
   }
 }
