@@ -31,8 +31,9 @@ public:
   int SetBarF(const char *Filename);
   TICK * MkTickF();         // make tick from tick file
   int RunTickF();           // make tick from tick file
-  int RunBarsF(int Fr);      // make bars from bars file
+  int RunBarsF(int Fr);     // make bars from bars file
   int MkTickBarsF(int Fr);  // make bars from tick file
+  int RunTickBarsF();       // make bars from tick file
   int MkTickT();            // make tick from database tick table
   int MkBarsT(int Fr);      // make bars from database bars table
   int MkTickBarsT(int Fr);  // make bars from database tick table

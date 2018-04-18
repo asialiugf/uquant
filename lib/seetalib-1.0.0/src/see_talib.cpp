@@ -60,7 +60,6 @@ int SEE_RSI(int          start,
     }
     for(int i = x; i<=end; i++) {
       _max[i] = in[i] - in[i-1] ;
-      std::cout <<"c:"<< in[i] <<" c-1:"<< in[i-1] << std::endl;
       if(_max[i] <0) {
         _abs[i] = 0-_max[i] ;
         _max[i] = 0 ;
@@ -68,12 +67,10 @@ int SEE_RSI(int          start,
         _abs[i] = _max[i] ;
       }
     }
-    std::cout <<"_max:"<< _max[end] <<" abs:"<< _abs[end] << std::endl;
   }
 
   SEE_SMA(start, end, &_max[0], N, 1, &_sma1[0]) ;
   SEE_SMA(start, end, &_abs[0], N, 1, &_sma2[0]) ;
-  std::cout <<"sma1:"<< _sma1[end] <<" sma2:"<< _sma2[end] << std::endl;
 
   for(int i = x; i<=end; i++) {
     rsi[i] = _sma1[i]/_sma2[i]*100;

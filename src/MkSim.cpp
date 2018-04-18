@@ -161,6 +161,41 @@ int FuSim::RunBarsF(int Fr)       // make bars from bars file
 }
 
 
+//----------------------------------------------------------------------------------
+int FuSim::RunTickBarsF()
+{
+  int ss;
+
+  string temp;
+  fstream file;
+  file.open(File,ios::in);
+  while(getline(file,temp)) {
+
+    sscanf(temp.c_str(), "A:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+           Tick.ActionDay,
+           Tick.UpdateTime,
+           &Tick.UpdateMillisec, &ss,
+           Tick.TradingDay,
+           &Tick.HighestPrice,
+           &Tick.LowestPrice,
+           &Tick.LastPrice,
+           &Tick.AskPrice1, &Tick.AskVolume1,
+           &Tick.BidPrice1, &Tick.BidVolume1,
+           &Tick.OpenInterest, &Tick.Volume);
+    Tick.UpdateMillisec = Tick.UpdateMillisec/1000;
+
+    if(fubo->pBaBo[0] != nullptr) {
+      SendTick(fubo,&Tick);
+    }
+    HandleTick(fubo,&Tick);
+    SaveTick(fubo,&Tick);
+
+  }
+  file.close();
+  return 0;
+}
+
+
 int FuSim::MkTickBarsF(int Fr)   // make bars from tick file
 {
   if(iLineNum ==0) {
@@ -209,7 +244,8 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ag1606","../Sim/tick/ag1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180404.tick.txt"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180404.tick.txt"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180326.tick.txt"));
   // M_SimFuFile.insert(std::pair<std::string,std::string>("ag1808","../Sim/tick/ag1808.20180327.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
@@ -235,6 +271,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     uBEE::FuSim *fusim = new uBEE::FuSim(fubo, p, f);
     // -------临时加 begin -----
     if(memcmp(p,"ru1809",6) ==0) {
+      //fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i");
       fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i");
     }
     // ------ 临时加 end -----
@@ -272,7 +309,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   usleep(10000000);
 
   //----------- bar test  from bar file ---------------------------------------
-  /*
+
   for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
     uBEE::FuSim *fusim = &(it->second) ;
     std::map<std::string,uBEE::FuBo>::iterator iter;
@@ -284,13 +321,24 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     }
     uBEE::FuBo *fubo = &(iter->second);
     if(memcmp(it->first.c_str(),"ru1809",6)==0) {
-      std::cout << it->first << std::endl;
+      std::cout <<"enter into send :fr:60:  "<< it->first << std::endl;
       fusim->RunBarsF(60);
+      /*
+      struct  timeval start;
+      struct  timeval end1;
+      unsigned  long diff;
+      gettimeofday(&start,NULL);
+      fusim->RunTickBarsF();
+      gettimeofday(&end1,NULL);
+      diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
+      printf("thedifference is %ld\n",diff);
+      */
+
     }
   }
   usleep(20000000);
   exit(0);
-  */
+
 
   //----------- bar test  from tick file ---------------------------------------
   while(1) {

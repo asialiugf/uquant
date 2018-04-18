@@ -53,12 +53,14 @@ int Future::BuyShort(int n, double c)
 {
   NS = n;
   SP = c - mMPF ;
+  std::cout << "TdRate:BuyShort:SP:"<<SP<< std::endl;
   return 0;
 }
 int Future::BuyLong(int n, double c)
 {
   NL = n;
   LP = c + mMPF ;
+  std::cout << "TdRate:BuyLong:LP:"<<LP<< std::endl;
   return 0;
 }
 int Future::SellShort(int n, double c)
@@ -68,6 +70,7 @@ int Future::SellShort(int n, double c)
   }
   NS = 0;
   mPL += (SP-c-mMPF)/mMPF*mLot*n ;
+  std::cout << "TdRate:SellShort:mPL:"<<mPL<< std::endl;
   return 0;
 }
 int Future::SellLong(int n, double c)
@@ -77,31 +80,32 @@ int Future::SellLong(int n, double c)
   }
   NL = 0;
   mPL += (c-mMPF-LP)/mMPF*mLot*n ;
+  std::cout << "TdRate:SellLong:mPL:"<<mPL<< std::endl;
   return 0;
 }
 // ------- 动态止损 ----------------------------
 int Future::DStopLost(int n, double c)
-{ 
+{
   if(NS >= n) {
     if(SP>c) {
-       SP = c;
+      SP = c;
     }
-    if((SP-c-mMPF)/mMPF <= -8) {
+    if((SP-c-mMPF)/mMPF <= -15) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
-      std::cout << "stoplost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
+      std::cout << "TdRate:DStopLost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
   }
-  
+
   if(NL >= n) {
     if(LP<c) {
-       LP = c;
+      LP = c;
     }
-    if((c-mMPF-LP)/mMPF <= -8) {
+    if((c-mMPF-LP)/mMPF <= -15) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
-      std::cout << "stoplost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
+      std::cout << "TdRate:DStopLost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
     }
   }
@@ -136,7 +140,7 @@ int Future::StopProfit(int n, double c)
     if((SP-c-mMPF)/mMPF >= 4) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
-      std::cout << "stopprofit:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
+      std::cout << "TdRate:stopprofit:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
   }
@@ -145,7 +149,7 @@ int Future::StopProfit(int n, double c)
     if((c-mMPF-LP)/mMPF >= 4) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
-      std::cout << "stopprofit:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
+      std::cout << "TdRate:stopprofit:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
     }
   }

@@ -23,7 +23,7 @@ int main()
   fuMap["ru1809"] = {5,60};
   fuMap["xu1807"] = {60,19,300,3600};
   fuMap["zz1805"] = {5,15,30,60,300,3600,14401};
-  fuMap["ag1809"] = {5,15,30,60,300,3600,14401};
+  //fuMap["ag1809"] = {5,15,30,60,300,3600,14401};
 
   //-------------------- 变量定义 -----------------------------------
   uBEE::Base *BB = new uBEE::Base();
@@ -35,6 +35,8 @@ int main()
 
   //-------------------- 变量定义 -----------------------------------
   D_OHLC *F1 = new D_OHLC() ;
+  int &x = F1->x;
+
   D_RSI *rsi = new D_RSI(F1);
 
   D_EKE *KE1 = new D_EKE(F1);
@@ -74,6 +76,7 @@ int main()
       // --------------------- F1 begin ---------------------------------
       if(bar[i]->iF == 60) {
         F1->Insert(bar[i]);                 // add OHLC
+        //x = F1->x;
         rsi->Update(14) ;
 
         KE1->Update(36, 1, 12, 4);                    // calculate kdj
@@ -86,14 +89,41 @@ int main()
         M3->Update(9*64) ;
         M4->Update(9*64*4) ;
 
-        std::cout <<"mmmmmm1 2 3 4:"<<M1->MNF[M1->x]<<" "<<M2->MNF[M2->x]<<" "<<M3->MNF[M3->x]<<" "<<M4->MNF[M4->x]<<" "<< std::endl ;
-        std::cout <<"ke:"<<M1->KE->K[M1->x]<<" "<<M2->KE->K[M2->x]<<" "<<M3->KE->K[M3->x]<<" "<<M4->KE->K[M4->x]<<" "<< std::endl ;
+        std::cout <<"mmmmmm1 2 3 4:"<<M1->MNF[x]<<" "<<M2->MNF[x]<<" "<<M3->MNF[x]<<" "<<M4->MNF[x]<<" "<< std::endl ;
+        std::cout <<"ke:"<<M1->KE->K[x]<<" "<<M2->KE->K[x]<<" "<<M3->KE->K[x]<<" "<<M4->KE->K[x]<<" "<< std::endl ;
 
         //---------for test ---------------------
+        //std::cout <<"ssssssss:"<<rsi->RSI[rsi->x] << std::endl;
+        if(rsi->RSI[x] > rsi->RSI[x-1] && rsi->RSI[x] > 30 && rsi->RSI[x-1] < 30) {
+          std::cout << "rsi--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
+        }
+        if(rsi->RSI[x] < rsi->RSI[x-1] && rsi->RSI[x] < 70 && rsi->RSI[x-1] > 70) {
+          std::cout << "rsi--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
+        }
         //---------for test ---------------------
 
         if(F1->x > 700) {
+          BB->fu->DStopLost(1,bar[i]->c);
+          BB->fu->StopProfit(1,bar[i]->c);
+          BB->fu->CurrPL(bar[i]->c) ;
+          std::cout << "current pl:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" " << BB->fu->cPL << std::endl;
 
+          /*
+          U4:=IF(Q4>REF(Q4,1) AND REF(Q4,2)>=REF(Q4,1),1,0);
+          T4:=IF(Q4<REF(Q4,1) AND REF(Q4,2)<=REF(Q4,1),1,0);
+          */
+          if(M3->MNF[x] > M3->MNF[x-1] && M3->MNF[x-1] < M3->MNF[x-2]) {
+            std::cout << "bbbbbbbbb:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
+            BB->fu->SellShort(1,bar[i]->c);
+            BB->fu->BuyLong(1,bar[i]->c);
+            std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
+          }
+          if(M3->MNF[x] < M3->MNF[x-1] && M3->MNF[x-1] > M3->MNF[x-2]) {
+            std::cout << "sssssssss:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
+            BB->fu->SellLong(1,bar[i]->c);
+            BB->fu->BuyShort(1,bar[i]->c);
+            std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
+          }
 
         } // ----- end --- 700
 

@@ -195,9 +195,9 @@ static const std::map<std::string,int> M_FF = {
                        b1->h = tick->LastPrice ; \
                        b1->l = tick->LastPrice ; \
                        b1->c = tick->LastPrice ; \
-                       b1->v = tick->Volume - b1->vold ; \
-                       b1->vsum = tick->Volume ; \
                        b1->vold = b1->vsum; \
+                       b1->vsum = tick->Volume ; \
+                       b1->v = tick->Volume - b1->vold ; \
                        b1->sent = 0;
 
 

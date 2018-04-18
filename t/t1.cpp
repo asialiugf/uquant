@@ -86,7 +86,7 @@ int main()
              tick->OpenInterest, tick->Volume);
     //std::cout << ca_errmsg <<std::endl;
     snprintf(f,512,"../exe/data/tick/%s.%s.tick.txtr",tick->InstrumentID,tick->TradingDay);
-    //SaveLine(f,ca_errmsg) ;
+    SaveLine(f,ca_errmsg) ;
   });
 
   //-------------------- onBars -----------------------------------
