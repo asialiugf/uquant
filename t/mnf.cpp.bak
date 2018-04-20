@@ -100,7 +100,6 @@ int main()
         // --------- for debug ---------------
 
         //---------for test ---------------------
-        /*
         if(rsi->RSI[x] > rsi->RSI[x-1] && rsi->RSI[x] > 30 && rsi->RSI[x-1] < 30) {
           std::cout << "rsi--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
         }
@@ -113,52 +112,30 @@ int main()
         if(rsi->ls == -1) {
           std::cout << "rsi--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
         }
-        */
         //---------for test ---------------------
 
         if(F1->x > 1000) {
           BB->fu->DStopLost(1,bar[i]->c);
           BB->fu->StopProfit(1,bar[i]->c);
-          // BB->fu->CurrPL(bar[i]->c) ;
+         // BB->fu->CurrPL(bar[i]->c) ;
           std::cout << "current pl:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" " << BB->fu->mPL <<" "<<bar[i]->c << std::endl;
 
-          /*
-              if(M3->MNF[x] > M3->MNF[x-1] && M3->MNF[x-1] < M3->MNF[x-2]) {
-                //if(M3->ls == 1) {
-                std::cout << "bbbbbbbbb:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-                BB->fu->SellShort(1,bar[i]->c);
-                BB->fu->BuyLong(1,bar[i]->c);
-                std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
-              }
-              if(M3->MNF[x] < M3->MNF[x-1] && M3->MNF[x-1] > M3->MNF[x-2]) {
-                //if(M3->ls == -1) {
-                std::cout << "sssssssss:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-                BB->fu->SellLong(1,bar[i]->c);
-                BB->fu->BuyShort(1,bar[i]->c);
-                std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
-              }
-          */
-
-
-          //if((M3->ud == 99 || M3->ud == 0) && (M2->ud ==99 || M2->ud ==0)) {
-          if((M3->ud == 99 || M3->ud == 0)) {
-            if(rsi->ls == -1) {
-              std::cout << "rsi--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
-			if(M1->KE->Ec ==-1) {
-              std::cout << "eke--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
+          //if(M3->MNF[x] > M3->MNF[x-1] && M3->MNF[x-1] <= M3->MNF[x-2]) {
+          if(M3->ls == 1) {
+            std::cout << "bbbbbbbbb:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
+            BB->fu->SellShort(1,bar[i]->c);
+            BB->fu->BuyLong(1,bar[i]->c);
+            std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
           }
-          if((M3->ud == 100 || M3->ud ==1) && (M2->ud ==1 || M2->ud ==100)) {
-            if(rsi->ls == 1) {
-              std::cout << "rsi--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
-			if(M1->KE->Ec ==1) {
-              std::cout << "eke--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
+          //if(M3->MNF[x] < M3->MNF[x-1] && M3->MNF[x-1] >= M3->MNF[x-2]) {
+          if(M3->ls == -1) {
+            std::cout << "sssssssss:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
+            BB->fu->SellLong(1,bar[i]->c);
+            BB->fu->BuyShort(1,bar[i]->c);
+            std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
           }
 
-        } // ----- end --- 1000
+        } // ----- end --- 700
 
       } // ----- end --- F1 60-----------
 

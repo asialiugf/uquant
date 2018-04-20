@@ -31,6 +31,7 @@ struct D_RSI {
   std::vector<double> _sma2;
   std::vector<double> RSI;
   int 				x ;
+  int               ls ;
 public:
   D_RSI(D_OHLC *o);
   int Update(int N);
@@ -121,6 +122,19 @@ struct D_MNF {
   int                    preF;
   std::vector<double>    MNF;
   int                    x ;
+  // -------
+  //  当MNF >=100时，  ud = 100 ;  贴上边了。
+  //  当MNF从 100开始向下时，ud = 99 ; 离开上边了。
+  //  当MNF从 0开始向上时，ud = 1 ; 离开下边了。
+  //  当MNF <=0 时，   ud = 0 ;  贴下边了。
+  int                    ud ;   // 记录起始点  up down ==> ud;
+  int                    udN ;
+  int                    uN ;   // up Number ; 记录时间长度
+  int                    dN ;   // down Number ;
+
+  int                    ls ;   // long short 
+  int                    lsN ;  // long short number ;
+
 public:
   D_MNF(D_EKE *e);
   int Update(int N);

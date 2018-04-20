@@ -46,12 +46,23 @@ D_RSI::D_RSI(D_OHLC * o):
 {
   ohlc = o;
   x = -1;
+  ls = 0;
 }
 
 int D_RSI::Update(int N)
 {
   x = ohlc->x ;
   SEE_RSI(x,x,&ohlc->C[0],N,&_max[0],&_abs[0],&_sma1[0],&_sma2[0],&RSI[0]);
+  if(x <=2) {
+    return 0 ;
+  }
+  if(RSI[x] >30 && RSI[x-1]<30) {
+    ls = 1;
+  } else if(RSI[x] <70 && RSI[x-1]>70) {
+    ls = -1;
+  } else {
+    ls = 0;
+  }
   return 0;
 }
 //--------------- RSI end -----------
@@ -83,12 +94,75 @@ D_MNF::D_MNF(D_EKE *e):
   preF = SEE_NULL;
   KE = e;
   x = -1;
+
+  ud = -1;
+  udN = 1;
+
+  uN = 0;
+  dN = 0;
+
+  ls = 0 ;
+  lsN = 0 ;
 }
 
 int D_MNF::Update(int N)
 {
   x = KE->x ;            // kdj
   SEE_RSV(x, x, &KE->K[0], &KE->K[0], &KE->K[0], &preH, &preL, &preF, N, &MNF[0]);
+
+  if(x<=2) {
+    return 0;
+  }
+
+  // --------- calculate ud -----------
+  if(MNF[x] >= 100) {
+    if(MNF[x-1] < 100) {
+      ud = 100 ;
+      udN = 1;
+    } else {
+      udN +=1 ;
+    }
+  } else if(MNF[x] <= 0) {
+    if(MNF[x-1] > 0) {
+      ud = 0;
+      udN = 1;
+    } {
+      udN +=1 ;
+    }
+  } else {
+    if(MNF[x-1] >= 100) {
+      ud = 99;
+      udN = 1;
+    } else if(MNF[x-1] <= 0) {
+      ud = 1;
+      udN = 1;
+    } else {
+      udN +=1 ;
+    }
+  }
+
+  // --------- calculate ls -----------
+  if(MNF[x] > MNF[x-1]) {
+    if(MNF[x-1] < MNF[x-2]) {
+      ls = 1;
+      lsN = 1;
+    } else {
+      ls = 2;
+      lsN +=1;
+    }
+  } else if(MNF[x] < MNF[x-1]) {
+    if(MNF[x-1] > MNF[x-2]) {
+      ls = -1;
+      lsN = 1;
+    } else {
+      ls = -2;
+      lsN +=1;
+    }
+  } else {
+    lsN +=1;
+  }
+  //-------------------------------------
+
   return 0;
 }
 //--------------- D_MNF end  -------------
