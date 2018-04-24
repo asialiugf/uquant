@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <see_talib.h>
-#include <cmath>
 
 namespace uBEE
 {
@@ -299,11 +298,6 @@ int SEE_LMA(int           start,
   return 0 ;
 }
 
-/*
-  SEE_RSV1() 和 SEE_RSV()区别：
-  RSV1()是针对一个序列计算。
-  RSV()计算 H L C
-*/
 //--------------------RSV1--begin----------------------------------
 int SEE_RSV1(int           start,
              int           end,
@@ -1073,73 +1067,6 @@ int SEE_KDJ1(int           start,
     J[i]=3*K[i]-2*D[i];
   }
 
-  return 0 ;
-}
-
-/*
-SEE_BOLL()
-*/
-int SEE_BOLL(int           start,
-             int           end,
-             const double  in[],        /* outReal index and inReal index must be the same */
-             int           N,           /* From 0 to ARRAY_SIZE                                */
-             double        _MA[],       /* 保留中间计算和值 */
-             double        E[],
-             double        U[],
-             double        D[])
-{
-  if(start<0)  return -1 ;
-  if(end<0)  return -1 ;
-  if(N<0 || N>ARRAY_SIZE)  return -1 ;
-  if(end < start) return -1 ;
-  if(SEE_MA(start,end,&in[0],N,&_MA[0]) != 0) {
-    return -1;
-  }
-  if(SEE_LMA(start,end,&in[0],'E',N,2,&E[0]) != 0) {
-    return -1;
-  }
-
-  if(N<=1) {
-    for(int i=start;i<=end;++i) {
-      U[i] = E[i];
-      D[i] = E[i];
-    }
-    return 0;
-  }
-
-  if(end<=N) {
-    for(int i=start;i<=end;++i) {
-      U[i] = E[i];
-      D[i] = E[i];
-    }
-    return 0;
-  }
-
-  int s ;
-  double dMean = 0;
-  if(N<end) {
-    if(start<=N) {
-      s = N+1;
-    } else {
-      s = start ;
-    }
-    for(int i=s; i<=end; ++i) {
-      for(int j=s-N+1; j<=s; ++j) {
-        dMean += pow(_MA[i]-in[j],2);
-      }
-      double kk = dMean/N;
-      kk = sqrt(kk);
-      U[i] = E[i] + kk ;
-      D[i] = E[i] - kk ;
-    }
-  }
-
-  if(start<=N) {
-    for(int i=start;i<=N;++i) {
-      U[i] = E[i];
-      D[i] = E[i];
-    }
-  }
   return 0 ;
 }
 

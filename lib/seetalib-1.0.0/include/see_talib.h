@@ -208,8 +208,18 @@ int SEE_RSI(int          start,
             double       _abs[],       //中间变量 要保留
             double       _sma1[],       //中间变量 要保留
             double       _sma2[],       //中间变量 要保留
-            double       rsi[]) ;
-/* rsi 初始化为 SEE_NULL                           */
+            double       rsi[]) ;      /* rsi 初始化为 SEE_NULL                           */
+
+int SEE_BOLL(int           start,
+             int           end,
+             const double  in[],        /* outReal index and inReal index must be the same */
+             int           N,           /* From 0 to ARRAY_SIZE                                */
+             double        _MA[],       /* 保留中间计算和值 */
+             double        E[],
+             double        U[],
+             double        D[]);
+
+
 } // namespace
 
 #endif /* _SEE_TALIB_H_INCLUDED_ */
