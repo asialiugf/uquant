@@ -12,7 +12,6 @@
 namespace uBEE
 {
 
-
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   Mode         = 4;
@@ -42,6 +41,7 @@ void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
       for(auto itt = M_FF.begin(); itt != M_FF.end(); ++itt) {    // all periods defined in M_FF <bars.h>
         if(*iter == itt->second) {
           fu->iP[i] = *iter ;
+          fu->pBars[i] = new X_OHLC() ;
           std::cout << "i:" << i << "  ip:" << *iter << std::endl;
           break;
         }
@@ -57,6 +57,12 @@ void Base::Init()
 {
 
 }
+
+void Base::onInit(std::function<void()> handler)
+{
+  Base::onInitHandler = handler;
+}
+
 
 void Base::onTick(std::function<void(sTick *)> handler)
 {
@@ -93,6 +99,8 @@ void Base::onMessageInit()
         for(int i=0; i<this->data->iN; ++i) {
           if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
             this->bars[j] = (sKbar *)&this->data->KK[i] ;
+            it->second.pBars[ this->data->KK[i].iX ]->Insert(this->bars[j]);
+            // todo 更新各种指标......
             ++j ;
           }
         }
@@ -103,6 +111,25 @@ void Base::onMessageInit()
       } // -----  end if(it != this->M_Fu.end())
       break;
     case T_UPDATE:
+      memcpy((char *)this->data,data,length);
+      it = this->M_Fu.find(this->data->InstrumentID);
+      if(it != this->M_Fu.end()) {
+        //it->second
+        //--------------- deal bars --------------------------
+        int j = 0;
+        for(int i=0; i<this->data->iN; ++i) {
+          if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
+            this->bars[j] = (sKbar *)&this->data->KK[i] ;
+            it->second.pBars[ this->data->KK[i].iX ]->Update(this->bars[j]);
+            // todo 更新各种指标......
+            ++j ;
+          }
+        }
+        if(j>0) {
+          this->fu = &it->second ;
+          this->onBarsHandler(this->bars,j);
+        }
+      } // -----  end if(it != this->M_Fu.end())
       // todo !!
       // send to websocket web browser !
       break;
@@ -176,6 +203,9 @@ void Base::onMessageInit()
 void Base::Run()
 {
   std::cout << "enter into Start !!\n";
+
+  this->onInitHandler();
+
   mainHub.onConnection([this](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     switch((long) ws->getUserData()) {
     case 1:

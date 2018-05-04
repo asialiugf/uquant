@@ -188,7 +188,7 @@ int FuSim::RunTickBarsF()
       SendTick(fubo,&Tick);
     }
     HandleTick(fubo,&Tick);
-    SaveTick(fubo,&Tick);
+    //SaveTick(fubo,&Tick);
 
   }
   file.close();

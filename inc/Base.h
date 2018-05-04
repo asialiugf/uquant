@@ -1,7 +1,9 @@
 #ifndef UBEE_BASE_H
 #define UBEE_BASE_H
 
-#include "Bars.h"
+#include <uBEE.h>
+//#include "Bars.h"
+#include "TdRate.h"
 #include <uWS/uWS.h>
 #include <thread>
 #include <mutex>
@@ -50,7 +52,8 @@ public:
 
 struct Base {
   int Mode;
-  std::map<std::string,Future>    M_Fu;    // map <"ru1805",struct Future>
+  std::map<std::string,Future>    M_Fu;    // map <"ru1805",struct Future> 记录策略要用到的 合约,和用户在策略主进程中定义的
+										   // std::map< std::string, std::vector<int> > fuMap ; 一致，通过 BB->FuInit(&fuMap); 来初始化。
 
   // -------- 下面的变量只记录当前收到的 future的信息 --------------------
   // 如果是多合约策略，要在其它的地方保存更完整的每个合约的基础信息 ------ 
@@ -82,6 +85,7 @@ struct Base {
 
   //std::function<void(char *, size_t)> onBarsHandler;
   //std::function<void(char *, size_t)> onTickHandler;
+  std::function<void()> onInitHandler;
   std::function<void(sKbar *[],int)> onBarsHandler;
   std::function<void(sTick *)> onTickHandler;
 
@@ -93,6 +97,7 @@ public:
   void Restart();
   void Pause();
   void Continue();
+  void onInit(std::function<void()> handler);
   void onTick(std::function<void(sTick *)> handler);
   void onBars(std::function<void(sKbar *[],int)> handler);
   //void onTick(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);

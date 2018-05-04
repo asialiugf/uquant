@@ -683,12 +683,7 @@ for8:
             memcpy(ticK,"21:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
             i = 0;
             break;
-          } else {
-            fubo->iTickValid = -1;
-            return 0;
-          }
-          //-----------------------
-          if(memcmp(ticK,"08:59:",6)==0) {
+          } else if(memcmp(ticK,"08:59:",6)==0) {
             memcpy(fubo->UpdateTime,ticK,9);      // save tick->UpdateTime "20:59:??" ...
             fubo->iChange = 1;
             memcpy(ticK,"09:00:00",8);            // 对于 "20:50:0x" 第一个周期走到这里
@@ -902,7 +897,7 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
       b1 = fubo->pBaBo[i]->b1 ;
       MarkBar(fubo,tick,i) ;   //---------
       if(b1->sent == 1) {
-        b1->sent = 2;
+        b1->sent = 2; // 如果已经send过，在下面的 DealBar中，可能会再次MarkBar() SendBar()
 
         memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
         /*
@@ -917,7 +912,6 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
         nData->KK[x].v = b1->v ;
         nData->KK[x].vsum = b1->vsum ;
         */
-
         ++x ;
       }
     }
@@ -932,7 +926,6 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
   char f[512];
   for(k=0; k<nData->iN; ++k) {
     x = nData->KK[k].iX ;
-    fubo->pBaBo[x]->b1->sent = 2 ;   // 如果已经send过，在下面的 DealBar中，可能会再次MarkBar() SendBar()
     snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",nData->InstrumentID,
              fubo->pBaBo[x]->iH, fubo->pBaBo[x]->iM,
              fubo->pBaBo[x]->iS, fubo->pBaBo[x]->iF, x);
@@ -956,28 +949,12 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 
   // ---------- send other updating bars : bar not end !!  ---------------
   if(fubo->iTickValid ==1) {
-
     nData->iType = T_UPDATE;
-
     x=0;
     for(i=1; i<50; ++i) {
       if(fubo->pBaBo[i] != nullptr) {
         if(b1->sent == 0) {
-
           memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
-          /*
-          nData->KK[x].iX = i;
-          nData->KK[x].iF = fubo->pBaBo[i]->iF;
-          memcpy(nData->KK[x].cB,b1->cB,9);
-          memcpy(nData->KK[x].cE,b1->cE,9);
-          nData->KK[x].o = b1->o ;
-          nData->KK[x].h = b1->h ;
-          nData->KK[x].l = b1->l ;
-          nData->KK[x].c = b1->c ;
-          nData->KK[x].v = b1->v ;
-          nData->KK[x].vsum = b1->vsum ;
-          */
-
           ++x ;
         }
       }
@@ -1160,6 +1137,57 @@ int DispKbar(const char *InstrumentID, const char *TradingDay, const char *Actio
            bar->vsum) ;
   std::cout << ca_errmsg << std::endl;
   uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
+  return 0;
+}
+
+//--------------------------------------------
+
+X_OHLC::X_OHLC():
+  O(100000,SEE_NULL),
+  H(100000,SEE_NULL),
+  L(100000,SEE_NULL),
+  C(100000,SEE_NULL),
+  V(100000,SEE_NULL)
+{
+  memset(cB,'\0',9);
+  memset(cE,'\0',9);
+  u = 0;
+  x = -1;
+}
+
+
+/*
+ x: index !
+*/
+int X_OHLC::Insert(sKbar *bar)
+{
+  if(u==0) {
+    x++;
+  }
+  O[x] = bar->o ;
+  H[x] = bar->h ;
+  L[x] = bar->l ;
+  C[x] = bar->c ;
+  V[x] = bar->v ;
+  memcpy(cB,bar->cB,9);
+  memcpy(cE,bar->cE,9);
+  u = 0;
+  return 0;
+}
+
+int X_OHLC::Update(sKbar *bar)
+{
+  if(u==0) {
+    x++;
+    u = 1;
+  }
+  O[x] = bar->o ;
+  H[x] = bar->h ;
+  L[x] = bar->l ;
+  C[x] = bar->c ;
+  V[x] = bar->v ;
+  memcpy(cB,bar->cB,9);
+  memcpy(cE,bar->cE,9);
   return 0;
 }
 

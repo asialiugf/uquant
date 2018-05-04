@@ -2,6 +2,7 @@
 #define UBEE_TDRATE_H
 
 #include <uWS/uWS.h>
+//#include <uBEE.h>
 #include "Bars.h"
 #include <thread>
 #include <mutex>
@@ -97,6 +98,7 @@ struct Future {
   char    InstrumentID[31];
   char    ID2[3] ;
   int     iP[50] ;  //period
+  X_OHLC  *pBars[50]; //用于存储 kbar数据 
   double  mMPF ;   // 最小变动价位  Tick Size, Minimum Price Fluctuation  比如橡胶是5元
   double  mLot ;   // 每手收益 比如 一手橡胶 是50元
   double  mOP ;    // money for open position 开仓手续费

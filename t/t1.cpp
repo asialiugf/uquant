@@ -72,7 +72,10 @@ int main()
   std::cout << " end getTick() !!\n";
 
   int aa = 1009;
+  BB->onInit([&]() {
 
+
+  });
   //-------------------- onTick -----------------------------------
   BB->onTick([&aa,&BB](sTick *tick) {
     //std::cout << BB->fu->ID2 <<" "<<BB->fu->mMPF<<" "<< BB->fu->mLot<<" "<<BB->fu->mOP<<" "<<BB->fu->mCP<< std::endl;
