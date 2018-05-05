@@ -80,15 +80,15 @@ int main()
   BB->onTick([&aa,&BB](sTick *tick) {
     //std::cout << BB->fu->ID2 <<" "<<BB->fu->mMPF<<" "<< BB->fu->mLot<<" "<<BB->fu->mOP<<" "<<BB->fu->mCP<< std::endl;
     char f[512];
-    snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
-             tick->TradingDay,   tick->UpdateTime,
-             tick->UpdateMillisec*1000, 0,            tick->ActionDay,
+    snprintf(ca_errmsg,ERR_MSG_LEN,"A:%s %s %06d S:%d T:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+             tick->ActionDay,   tick->UpdateTime,
+             tick->UpdateMillisec*1000, 0,            tick->TradingDay,
              tick->HighestPrice, tick->LowestPrice,   tick->LastPrice,
              tick->AskPrice1,    tick->AskVolume1,
              tick->BidPrice1,    tick->BidVolume1,
              tick->OpenInterest, tick->Volume);
     //std::cout << ca_errmsg <<std::endl;
-    snprintf(f,512,"../exe/data/tick/%s.%s.tick.txtr",tick->InstrumentID,tick->TradingDay);
+    snprintf(f,512,"../exe/data/tick/%s.%s.tick.txt",tick->InstrumentID,tick->ActionDay);
     SaveLine(f,ca_errmsg) ;
   });
 
@@ -100,14 +100,14 @@ int main()
     //std::cout << BB->fu->ID2 <<" "<<BB->fu->mMPF<<" "<< BB->fu->mLot<<" "<<BB->fu->mOP<<" "<<BB->fu->mCP<< std::endl;
     char f[512];
     for(int i=0; i<len; ++i) {
-      snprintf(ca_errmsg,ERR_MSG_LEN,"%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
-               BB->InstrumentID, BB->TradingDay, BB->ActionDay,
+      snprintf(ca_errmsg,ERR_MSG_LEN,"%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+               BB->InstrumentID, BB->ActionDay, BB->TradingDay,
                bar[i]->cB, bar[i]->cE,
                bar[i]->o, bar[i]->h, bar[i]->l, bar[i]->c,
                bar[i]->v, bar[i]->vsum) ;
       std::cout << ca_errmsg << std::endl;
-      //snprintf(f,512,"../exe/data/%s_%d_%di",BB->InstrumentID, bar[i]->iF, bar[i]->iX);
-      //SaveLine(f,ca_errmsg) ;
+      snprintf(f,512,"../exe/data/%s_%d_%di",BB->InstrumentID, bar[i]->iF, bar[i]->iX);
+      SaveLine(f,ca_errmsg) ;
 
 
       // --------------------- F1 begin ---------------------------------

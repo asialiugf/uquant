@@ -15,6 +15,19 @@
 namespace uBEE
 {
 
+#define SAVE_ALL 1
+#define SAVE_BAR 2
+#define SAVE_TICK 3
+
+#define SEND_BAR 4
+#define SEND_ALL 5
+#define SEND_TICK 6
+
+#define SEND_SAVE_ALL 7
+#define SEND_SAVE_BAR 8
+#define SEND_SAVE_TICK 9
+
+
 #define T________  1
 
 #define see_memzero(buf, n)         (void) memset(buf, 0, n)
@@ -368,11 +381,11 @@ int MakeTime(char *caT, int T) ;
 
 int SendTick  (uBEE::FuBo *fubo, TICK *tick);
 int SaveTick  (uBEE::FuBo *fubo, TICK *tick);
-int HandleTick(uBEE::FuBo *fubo, TICK *tick);
-int MarkBar(uBEE::FuBo *fubo, TICK *tick,int period);
-int SendBar(uBEE::FuBo *fubo, TICK *tick,int period);
-int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period);
-int DealBar(uBEE::FuBo *fubo, TICK *tick,int period);
+int HandleTick(uBEE::FuBo *fubo, TICK *tick,            int flag);
+int MarkBar   (uBEE::FuBo *fubo, TICK *tick,int period);
+int SendBar   (uBEE::FuBo *fubo,            int period, int flag);
+int SaveBar   (uBEE::FuBo *fubo, sKbar *KK ,int period);
+int DealBar   (uBEE::FuBo *fubo, TICK *tick,int period, int flag);
 
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);

@@ -238,11 +238,7 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
   if(iter==M_CtpFuBo.end())
     std::cout<<"we do not find :"<< tick->InstrumentID <<std::endl;
   else {
-    if((&(iter->second))->pBaBo[0] != nullptr) {
-      SendTick(&(iter->second),tick);
-    }
-    HandleTick(&(iter->second),tick);
-    SaveTick(&(iter->second),tick);
+    HandleTick(&(iter->second),tick,SEND_SAVE_ALL);
   }
 }
 

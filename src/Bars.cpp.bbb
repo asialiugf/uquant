@@ -540,7 +540,7 @@ FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg)
 /*
   下面的period，是指在 fubo->aBarBo[]数组的下标
 */
-int DealBar(uBEE::FuBo *fubo, TICK *tick,int period,int flag)
+int DealBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
   stBar   *b1 = fubo->pBaBo[period]->b1 ;
 
@@ -744,7 +744,7 @@ rrr:
           if(tick->UpdateMillisec >= 500) {
             //Display(fubo,tick,period,"eeee:goo---0");
             MarkBar(fubo,tick,period);
-            SendBar(fubo,period,flag);
+            SendBar(fubo,tick,period);
           }
         }
         fubo->iTickValid = 1;
@@ -874,7 +874,7 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick)
   2. 将这些 bar 先送给 策略进程进行处理。
   3. 调用 DealBar() 处理相应的bar, 新生成 bar
 */
-int HandleTick(uBEE::FuBo *fubo, TICK *tick , int flag)
+int HandleTick(uBEE::FuBo *fubo, TICK *tick)
 {
   int i = 0;
   int k = 0;
@@ -897,78 +897,74 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick , int flag)
       MarkBar(fubo,tick,i) ;   //---------
       if(b1->sent == 1) {
         b1->sent = 2; // 如果已经send过，在下面的 DealBar中，可能会再次MarkBar() SendBar()
+
         memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
+        /*
+        nData->KK[x].iX = i;
+        nData->KK[x].iF = fubo->pBaBo[i]->iF;
+        memcpy(nData->KK[x].cB,b1->cB,9);
+        memcpy(nData->KK[x].cE,b1->cE,9);
+        nData->KK[x].o = b1->o ;
+        nData->KK[x].h = b1->h ;
+        nData->KK[x].l = b1->l ;
+        nData->KK[x].c = b1->c ;
+        nData->KK[x].v = b1->v ;
+        nData->KK[x].vsum = b1->vsum ;
+        */
         ++x ;
       }
     }
   } // for --
   nData->iN = x ;
-  if(flag == SEND_ALL || flag == SEND_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
-    if(x>0) {
-      fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
-    }
+  if(x>0) {
+    fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
   }
 
-  //-------------  saving Klines Kbars !!!
-  if(flag == SAVE_ALL || flag == SAVE_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
-    for(k=0; k<nData->iN; ++k) {
-      SaveBar(fubo, &nData->KK[k], nData->KK[k].iX);
-    }
+//  ---------  saving Klines Kbars !!!
+//下面两个for必须分开写，因为DealBar中会改写 KBuf
+  char f[512];
+  for(k=0; k<nData->iN; ++k) {
+    x = nData->KK[k].iX ;
+    snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",nData->InstrumentID,
+             fubo->pBaBo[x]->iH, fubo->pBaBo[x]->iM,
+             fubo->pBaBo[x]->iS, fubo->pBaBo[x]->iF, x);
+
+    snprintf(ca_errmsg,ERR_MSG_LEN,"%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+             nData->InstrumentID,
+             nData->ActionDay,
+             nData->TradingDay,
+             nData->KK[k].cB,nData->KK[k].cE,
+             nData->KK[k].o, nData->KK[k].h, nData->KK[k].l, nData->KK[k].c,
+             nData->KK[k].v, nData->KK[k].vsum) ;
+    SaveLine(f,ca_errmsg) ;
   }
 
-  //-------------  update or new  bar!!!
+//-------------  update or new  bar!!!
   for(i=1; i<50; ++i) {
     if(fubo->pBaBo[i] != nullptr) {
-      DealBar(fubo,tick,i,flag) ;
+      DealBar(fubo,tick,i) ;
     }
   }
 
   // ---------- send other updating bars : bar not end !!  ---------------
-  if(flag == SEND_ALL || flag == SEND_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
-    if(fubo->iTickValid ==1) {
-      nData->iType = T_UPDATE;
-      x=0;
-      for(i=1; i<50; ++i) {
-        if(fubo->pBaBo[i] != nullptr) {
-          if(b1->sent == 0) {
-            memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
-            ++x ;
-          }
+  if(fubo->iTickValid ==1) {
+    nData->iType = T_UPDATE;
+    x=0;
+    for(i=1; i<50; ++i) {
+      if(fubo->pBaBo[i] != nullptr) {
+        if(b1->sent == 0) {
+          memcpy((char*)&(nData->KK[x]),(char *)b1,bLen) ;
+          ++x ;
         }
-      } // for --
-      nData->iN = x ;
-      fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
-    }
-  }
-
-  if(flag == SEND_ALL || flag == SEND_TICK || flag == SEND_SAVE_ALL || flag == SEND_SAVE_TICK) {
-    if(fubo->iTickValid ==1) {
-      nTick->iType = T_TICK;
-      snprintf(nTick->InstrumentID,31,"%s",tick->InstrumentID);
-      snprintf(nTick->TradingDay,9,"%s",tick->TradingDay);
-      snprintf(nTick->ActionDay,9,"%s",tick->ActionDay);
-      memcpy(nTick->UpdateTime,tick->UpdateTime,9) ;
-      nTick->OpenPrice       = tick->OpenPrice;
-      nTick->HighestPrice    = tick->HighestPrice;
-      nTick->LowestPrice     = tick->LowestPrice;
-      nTick->LastPrice       = tick->LastPrice;
-      nTick->OpenInterest    = tick->OpenInterest;
-      nTick->UpdateMillisec  = tick->UpdateMillisec;
-      nTick->BidPrice1       = tick->BidPrice1;
-      nTick->BidVolume1      = tick->BidVolume1;
-      nTick->AskPrice1       = tick->AskPrice1;
-      nTick->AskVolume1      = tick->AskVolume1;
-      nTick->Volume          = tick->Volume;
-      fubo->SG->broadcast((const char*)nTick, tLen, uWS::OpCode::BINARY);
-    }
-  }
-
-  if(flag == SAVE_ALL || flag == SAVE_TICK || flag == SEND_SAVE_ALL || flag == SEND_SAVE_TICK) {
-    SaveTick(fubo, tick);
+      }
+    } // for --
+    nData->iN = x ;
+    fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
   }
 
   return 0;
 }
+
 
 /*
   SendBar 用于 DealBar()内。
@@ -976,9 +972,11 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick , int flag)
   DealBar()就会新生成这个bar,==> 但这个bar有可能也结束了，所以需要再 送给 策略进程。
 */
 // period 是指数组下标
-int SendBar(uBEE::FuBo *fubo, int period, int flag)
+int SendBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  stBar *b1 = fubo->pBaBo[period]->b1 ;
+  BaBo * babo = fubo->pBaBo[period] ;
+  stBar *b1 = babo->b1 ;
+  char f[512] ;
 
   //snprintf(nData->InstrumentID,31,"%s",fubo->InstrumentID);
   //snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
@@ -991,36 +989,24 @@ int SendBar(uBEE::FuBo *fubo, int period, int flag)
     memcpy((char*)&(nData->KK[0]),(char *)b1,bLen) ;
     nData->iN = 1;
 
-    if(flag == SEND_BAR || flag == SEND_ALL || flag == SEND_SAVE_BAR || flag == SEND_SAVE_ALL) {
-      fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
-    }
+    fubo->SG->broadcast((const char*)nData, oLen, uWS::OpCode::BINARY);
 
-    if(flag == SAVE_BAR || flag == SAVE_ALL || flag == SEND_SAVE_BAR || flag == SEND_SAVE_ALL) {
-      SaveBar(fubo, &nData->KK[0], period);
-    }
-
+    snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",nData->InstrumentID,babo->iH,babo->iM,babo->iS,babo->iF,period);
+    snprintf(ca_errmsg,ERR_MSG_LEN,"%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
+             nData->InstrumentID,
+             nData->ActionDay,
+             nData->TradingDay,
+             nData->KK[0].cB,nData->KK[0].cE,
+             nData->KK[0].o, nData->KK[0].h, nData->KK[0].l, nData->KK[0].c,
+             nData->KK[0].v, nData->KK[0].vsum) ;
+    SaveLine(f,ca_errmsg) ;
   }
   return 0;
 }
 
 // period 是指数组下标
-int SaveBar(uBEE::FuBo *fubo, sKbar *KK, int period)
+int SaveBar(uBEE::FuBo *fubo, TICK *tick,int period)
 {
-  char f[512] ;
-  BaBo * babo = fubo->pBaBo[period] ;
-
-  snprintf(f,512,"../data/%s_%02d_%02d_%02d.%d.%di",fubo->InstrumentID,
-           babo->iH, babo->iM,
-           babo->iS, babo->iF, period);
-  snprintf(ca_errmsg,ERR_MSG_LEN,"%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d",
-           fubo->InstrumentID,
-           fubo->ActionDay,
-           fubo->TradingDay,
-           KK->cB,KK->cE,
-           KK->o, KK->h, KK->l, KK->c,
-           KK->v, KK->vsum) ;
-  SaveLine(f,ca_errmsg) ;
-  return 0;
 }
 
 // period 是指数组下标

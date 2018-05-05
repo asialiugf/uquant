@@ -165,7 +165,6 @@ int FuSim::RunBarsF(int Fr)       // make bars from bars file
 int FuSim::RunTickBarsF()
 {
   int ss;
-
   string temp;
   fstream file;
   file.open(File,ios::in);
@@ -184,11 +183,8 @@ int FuSim::RunTickBarsF()
            &Tick.OpenInterest, &Tick.Volume);
     Tick.UpdateMillisec = Tick.UpdateMillisec/1000;
 
-    if(fubo->pBaBo[0] != nullptr) {
-      SendTick(fubo,&Tick);
-    }
-    HandleTick(fubo,&Tick);
-    //SaveTick(fubo,&Tick);
+    HandleTick(fubo,&Tick,SEND_ALL);
+    usleep(50);
 
   }
   file.close();
@@ -322,8 +318,8 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     uBEE::FuBo *fubo = &(iter->second);
     if(memcmp(it->first.c_str(),"ru1809",6)==0) {
       std::cout <<"enter into send :fr:60:  "<< it->first << std::endl;
-      fusim->RunBarsF(60);
-      /*
+      //fusim->RunBarsF(60);
+      ///*
       struct  timeval start;
       struct  timeval end1;
       unsigned  long diff;
@@ -332,7 +328,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       gettimeofday(&end1,NULL);
       diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
       printf("thedifference is %ld\n",diff);
-      */
+      //*/
 
     }
   }
@@ -364,11 +360,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
 
-      if(fubo->pBaBo[0] != nullptr) {
-        SendTick(fubo,tick);
-      }
-      HandleTick(fubo,tick);
-      SaveTick(fubo,tick);
+      HandleTick(fubo,tick,SEND_ALL);
       //usleep(100000);
     }
   }
