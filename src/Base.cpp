@@ -29,7 +29,10 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
   usleep(1000000); // should wait for thread ready
 }
 
-
+/*
+  策略主进程 要调用 Base::FuInit()，针对每个需要处理的合约，初始化，并放在一个map中，M_Fu.insert()。
+  M_Fu 是 Base的成员变量。
+*/
 void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
 {
   int i =0;
@@ -37,7 +40,7 @@ void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
     uBEE::Future *fu = new uBEE::Future(it->first) ;
     for(auto iter = it->second.cbegin(); iter != it->second.cend(); iter++) {
       i = 0;
-      std::map<std::string,int>::const_iterator itt;
+      //std::map<std::string,int>::const_iterator itt;
       for(auto itt = M_FF.begin(); itt != M_FF.end(); ++itt) {    // all periods defined in M_FF <bars.h>
         if(*iter == itt->second) {
           fu->iP[i] = *iter ;
@@ -51,6 +54,24 @@ void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
     M_Fu.insert(std::pair<std::string,uBEE::Future>(it->first, *fu));
   }  // ---- (*M).begin()
 }
+
+//----------------------------------------
+int Base::GetFrequencyIdx(int f)
+{
+  int i = 0;
+  std::map<std::string,int>::const_iterator itt;
+  for(itt = M_FF.begin(); itt != M_FF.end(); ++itt) {    // all periods defined in M_FF <bars.h>
+    if(f == itt->second) {
+      break;
+    }
+    i++;
+  }
+  if(itt == M_FF.end()) {
+    return -1;
+  }
+  return i;
+}
+//----------------------------------------
 
 
 void Base::Init()

@@ -29,6 +29,10 @@ int main()
   uBEE::Base *BB = new uBEE::Base();
   BB->Mode = 4;
   BB->FuInit(&fuMap);
+  int idx5 = BB->GetFrequencyIdx(5);
+  int idx60 = BB->GetFrequencyIdx(60);
+  int idx300 = BB->GetFrequencyIdx(300);
+  idx300 = GetFrequencyIdx(300);
 
   D_OHLC S5 ;
   D_OHLC *F1 = new D_OHLC() ;
@@ -66,13 +70,14 @@ int main()
   unsigned  long diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
   diff = diff/10000;
   printf("thedifference is %ld\n",diff);
-  //uBEE::ErrLog(1000,"kkkk",1,(const char*)&diff,sizeof(unsigned  long));
-  //uBEE::ErrLog(1000,"notttttttttttttt",1,0,0);
 
   std::cout << " end getTick() !!\n";
 
   int aa = 1009;
   BB->onInit([&]() {
+    //F1_1 = new D_KDJ(BB,"ru1809", 5, 9*64*4, 3*64*4, 3*64*4, 64*4);     // calculate kdj
+    uRSI *mm = new uRSI(BB,(char*)"ru1809", 5, 10);     // calculate kdj
+
 
 
   });

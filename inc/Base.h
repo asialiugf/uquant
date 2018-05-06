@@ -65,7 +65,7 @@ struct Base {
   char  *TradingDay;                // point to data->TradingDay
   char  *ActionDay;                 // point to data->ActionDay
   sKbar *bars[50] ;                 // current bars! mainhub.onMessage will set bars[0] bars[1] ... and send it to onBars() !!
-  Future * fu ;                     // current future block for strategy !! more fu, refer to M_Fu ......
+  Future *fu ;                      // current future block for strategy !! more fu, refer to M_Fu ......
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
@@ -105,6 +105,7 @@ public:
   void onMessageInit();
   // ------------------------------- API ---------------------------------
   void FuInit(const std::map<std::string,std::vector<int>> *M);
+  int GetFrequencyIdx(int f);
   // ------------------------------- API ---------------------------------
   void getFutureTick(const char *start_date, const char *end_date);
   void getFutureBars(const char *period, const char *start_date, const char *end_date);

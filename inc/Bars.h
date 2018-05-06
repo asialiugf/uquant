@@ -390,19 +390,24 @@ int DealBar   (uBEE::FuBo *fubo, TICK *tick,int period, int flag);
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 int DispKbar(const char *InstrumentID, const char *TradingDay, const char *ActionDay, sKbar * bar);
+int GetFrequencyIdx(int f);
 
 
 //--------------------------------------------------
+
 struct X_OHLC {
+  char cB[9];
+  char cE[9];
   std::vector<double> O;
   std::vector<double> H;
   std::vector<double> L;
   std::vector<double> C;
   std::vector<int> V;
+  int  x;       // index !! O[0]... O[1]... O[x] ...
   int  u;       // update bar  u:=0 表示真正结束的bar， u:=1 表示这是一个没有结束的bar。 u:=-1 表示第一个，新开始。
-  char cB[9];
-  char cE[9];
-  int  x;    // index !! O[0]... O[1]... O[x] ...
+  int  iCall ;  // callbacks数量.
+  //void (*callbacks[256])();
+  std::function<void()> callbacks[256] ;
 public:
   X_OHLC();
   int Insert(sKbar * bar);

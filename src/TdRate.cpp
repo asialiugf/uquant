@@ -20,8 +20,8 @@ Future::Future(std::string f)
   memcpy(ID2,fn,strlen(fn));
   memcpy(InstrumentID,id,strlen(id));
 
-  std::map<std::string,std::string>::const_iterator it;
-  it = M_FuRate.find(ID2);
+  //std::map<std::string,std::string>::const_iterator it;
+  auto it = M_FuRate.find(ID2);
   if(it==M_FuRate.end()) {
     sprintf(ca_errmsg,"M_FuRate in TdRate.h : %s %s not found!",InstrumentID,ID2) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
@@ -39,6 +39,7 @@ Future::Future(std::string f)
   NS = 0;
 } // ---------
 
+/*
 double  LP ;     // long position 多头头寸
 double  SP ;     // short position 空头头寸
 double  BL ;
@@ -48,6 +49,8 @@ double  SS ;
 int     NL ;       // number of long
 int     NS ;       // number of short
 double  mPL ;      // 盈亏 profit and loss
+*/
+
 // n 下单手数 c:信号产生时的收盘价
 int Future::BuyShort(int n, double c)
 {

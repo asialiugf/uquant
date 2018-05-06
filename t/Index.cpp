@@ -35,6 +35,70 @@ int D_OHLC::Insert(sKbar *bar)
   return 0;
 }
 
+//--------------- uRSI -----------------------------------------------------
+uRSI::uRSI(uBEE::Base *BB,char *ID, int Frequency, int n):
+  _max(100000,SEE_NULL),
+  _abs(100000,SEE_NULL),
+  _sma1(100000,SEE_NULL),
+  _sma2(100000,SEE_NULL),
+  RSI(100000,SEE_NULL)
+{
+  Future *fu ;
+  int    Fidx ;
+  int    iC ;
+  map<std::string,uBEE::Future>::iterator it;
+
+  it = BB->M_Fu.find(ID);
+  if(it != BB->M_Fu.end()) {
+    fu = &it->second ;
+  }
+  Fidx = GetFrequencyIdx(Frequency);
+  ohlc = fu->pBars[Fidx];
+  N = n;
+  x = -1;
+  ls = 0;
+
+
+  iC = fu->pBars[Fidx]->iCall ;
+  /*
+  for(int i = 0; i < iC; i++) {
+    if(fu->callbacks[i] == Call) {
+      break;
+    }
+  }
+  */
+  //typedef void* (*FUNC)();//定义FUNC类型是一个指向函数的指针，该函数参数为void*，返回值为void*
+  //FUNC callback = (FUNC)&uRSI::Call;//强制转换func()的类型
+  if(iC<256) {
+    fu->pBars[Fidx]->callbacks[iC] = Call;
+  }
+  fu->pBars[Fidx]->iCall++;
+
+}
+
+/*
+static void uRSI::CB()
+{
+  Call();
+}
+*/
+
+void Call()
+{
+  x = ohlc->x ;
+  SEE_RSI(x,x,&ohlc->C[0],N,&_max[0],&_abs[0],&_sma1[0],&_sma2[0],&RSI[0]);
+  if(x <=2) {
+    return ;
+  }
+  if(RSI[x] >30 && RSI[x-1]<30) {
+    ls = 1;
+  } else if(RSI[x] <70 && RSI[x-1]>70) {
+    ls = -1;
+  } else {
+    ls = 0;
+  }
+  return ;
+}
 
 //--------------- RSI -----------
 D_RSI::D_RSI(D_OHLC * o):

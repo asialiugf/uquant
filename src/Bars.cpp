@@ -1140,6 +1140,24 @@ int DispKbar(const char *InstrumentID, const char *TradingDay, const char *Actio
   return 0;
 }
 
+//----------------------------------------
+int GetFrequencyIdx(int f)
+{
+  int i = 0;
+  std::map<std::string,int>::const_iterator itt;
+  for(itt = M_FF.begin(); itt != M_FF.end(); ++itt) {    // all periods defined in M_FF <bars.h>
+    if(f == itt->second) {
+      break;
+    }
+    i++;
+  }
+  if(itt == M_FF.end()) {
+    return -1;
+  }
+  return i;
+}
+
+
 //--------------------------------------------
 
 X_OHLC::X_OHLC():
@@ -1153,6 +1171,10 @@ X_OHLC::X_OHLC():
   memset(cE,'\0',9);
   u = 0;  //表示当前的bar是已经结束了的bar。每个bar只有最后一个tick过来时，才会结束，中间的tick会update这个bar。
   x = -1;
+  iCall = 0;
+  for(int i=0;i<256;++i) {
+    callbacks[i] == nullptr;
+  }
 }
 
 

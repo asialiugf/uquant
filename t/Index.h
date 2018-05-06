@@ -23,6 +23,24 @@ public:
   int Insert(sKbar * bar);
 };
 
+//------------------------------------------------------------
+struct uRSI {
+  int               N ;
+  int               x ;
+  X_OHLC             *ohlc;
+  std::vector<double> _max;
+  std::vector<double> _abs;
+  std::vector<double> _sma1;
+  std::vector<double> _sma2;
+  std::vector<double> RSI;
+  int               ls ;
+public:
+  uRSI(uBEE::Base *BB,char *ID, int Frequency, int n);
+  //static void CB(uRSI *) ;
+  friend void Call();
+};
+//------------------------------------------------------------
+
 struct D_RSI {
   D_OHLC             *ohlc ;
   std::vector<double> _max;
