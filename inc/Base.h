@@ -3,7 +3,7 @@
 
 #include <uBEE.h>
 //#include "Bars.h"
-#include "TdRate.h"
+#include "TdFuBo.h"
 #include <uWS/uWS.h>
 #include <thread>
 #include <mutex>
@@ -19,7 +19,7 @@ namespace uBEE
 #define ON_BARS      '2'
 #define ON_ERROR     '3'
 
-// Future storage for  future and periods! 
+// sFuBo storage for  future and periods! 
 // the memory image:
 //  "ru1805"
 //  iP[0] = -1;
@@ -37,7 +37,7 @@ namespace uBEE
 // ip[n] noused will be set to  -1 ;
 // refer to FuInit() ! | index 0 for tick. index 1----30 basic periods.  index 31-49 for custom define .
 /*
-struct Future {
+struct sFuBo {
   char    InstrumentID[31];
   char    ID2[3] ;
   int     iP[50] ;  //period
@@ -46,13 +46,14 @@ struct Future {
   double  mOP ;    // money for open position 开仓手续费
   double  mCP ;    // money for close position 平仓手续费
 public:
-  Future();
+  sFuBo();
 };
 */
 
 struct Base {
   int Mode;
-  std::map<std::string,Future>    M_Fu;    // map <"ru1805",struct Future> 记录策略要用到的 合约,和用户在策略主进程中定义的
+  std::map<std::string,sFuBo *>    MFuBo;    // map <"ru1805",struct sFuBo> 记录策略要用到的 合约,和用户在策略主进程中定义的
+  std::map<std::string,sFuBo>    M_Fu;    // map <"ru1805",struct sFuBo> 记录策略要用到的 合约,和用户在策略主进程中定义的
 										   // std::map< std::string, std::vector<int> > fuMap ; 一致，通过 BB->FuInit(&fuMap); 来初始化。
 
   // -------- 下面的变量只记录当前收到的 future的信息 --------------------
@@ -65,7 +66,7 @@ struct Base {
   char  *TradingDay;                // point to data->TradingDay
   char  *ActionDay;                 // point to data->ActionDay
   sKbar *bars[50] ;                 // current bars! mainhub.onMessage will set bars[0] bars[1] ... and send it to onBars() !!
-  Future *fu ;                      // current future block for strategy !! more fu, refer to M_Fu ......
+  sFuBo *fu ;                      // current future block for strategy !! more fu, refer to M_Fu ......
 
   uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...

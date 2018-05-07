@@ -1,7 +1,7 @@
-CCFLAGS =  -std=c++11 -O3 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-result
+CCFLAGS =  -std=c++11 -O3 -fPIC  -luWS -lindicator -lssl -lz -lpthread -lcjson -Wunused-result
 LIBPATH = -L/home/riddle/uws -L ./ -L ../../u/lib -L ../lib/seetalib-1.0.0/lib
 
-ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lsee_talib
+ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lsee_talib -lindicator
 
 CTPLIBS:= ../ctp/thostmduserapi.so \
         ../ctp/thosttraderapi.so
@@ -12,7 +12,7 @@ SRC = ./
 INC = ../inc/
 OBJ = ../../u/obj/
 
-INCS = -I ../inc -I ./ \
+INCS = -I ../inc -I ./indicator -I ../indicator \
        -I ../lib/seetalib-1.0.0/include \
        -I /usr/include \
        -I /usr/local/include \
@@ -48,8 +48,8 @@ $(EXE)mnf.x: $(MNFOBJS)
 $(OBJ)Main.o: $(SRC)Main.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
 
-$(OBJ)Index.o: $(SRC)Index.cpp
-	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Index.o  $(SRC)Index.cpp
+#$(OBJ)Index.o: $(SRC)Index.cpp
+#	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Index.o  $(SRC)Index.cpp
 
 $(OBJ)t1.o: $(SRC)t1.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)t1.o  $(SRC)t1.cpp

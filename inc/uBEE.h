@@ -2,7 +2,7 @@
 #define UBEE_UBEE_H
 
 #include "Bars.h"
-#include "TdRate.h"
+#include "TdFuBo.h"
 #include "HubApi.h"
 #include "HubBck.h"
 #include "HubCtp.h"
@@ -15,5 +15,6 @@
 #include <Json.h>
 #include <ErrLog.h>
 #include "FuList.h"
+#include "SigSlot.h"
 
 #endif //UBEE_UBEE_H

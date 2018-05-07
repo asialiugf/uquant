@@ -1,5 +1,5 @@
 CPP_SHARED := -std=c++11 -O3 -shared -fPIC -I ../inc -I /usr/include -I /usr/local/include -I /usr/include/postgresql \
-Base.cpp Bars.cpp File.cpp Json.cpp Title.cpp FuList.cpp ErrLog.cpp Daemon.cpp HubApi.cpp HubCtp.cpp HubSim.cpp HubBck.cpp MdCtp.cpp MdSpi.cpp MkSim.cpp Global.cpp TdRate.cpp \
+Base.cpp Bars.cpp File.cpp Json.cpp Title.cpp FuList.cpp ErrLog.cpp Daemon.cpp HubApi.cpp HubCtp.cpp HubSim.cpp HubBck.cpp MdCtp.cpp MdSpi.cpp MkSim.cpp Global.cpp TdFuBo.cpp \
 Psqlpool.cpp PsqlFunc.cpp
 
 default: exes

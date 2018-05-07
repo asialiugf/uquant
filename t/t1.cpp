@@ -1,5 +1,5 @@
 #include "uBEE.h"
-#include "Index.h"
+#include "Indicator.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
@@ -76,9 +76,7 @@ int main()
   int aa = 1009;
   BB->onInit([&]() {
     //F1_1 = new D_KDJ(BB,"ru1809", 5, 9*64*4, 3*64*4, 3*64*4, 64*4);     // calculate kdj
-    uRSI *mm = new uRSI(BB,(char*)"ru1809", 5, 10);     // calculate kdj
-
-
+    //uRSI *mm = new uRSI(BB,(char*)"ru1809", 5, 10);     // calculate kdj
 
   });
   //-------------------- onTick -----------------------------------

@@ -60,7 +60,6 @@ void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
     std::cout << "befor insert !!!\n" ;
     //M_Fu.insert(std::pair<std::string,uBEE::sFuBo>(it->first, *fu));
     MFuBo.insert(std::pair<std::string,uBEE::sFuBo *>(it->first, fu));
-    //MFuBo.insert(std::pair<std::string,void*>(it->first, (void*)fu));
   }  // ---- (*M).begin()
 }
 
@@ -108,58 +107,57 @@ void Base::onMessageInit()
 {
   mainHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *data, size_t length, uWS::OpCode opCode) {
 
-    map<std::string,uBEE::sFuBo *>::iterator it;
+    map<std::string,uBEE::sFuBo>::iterator it;
 
     switch(*((int*)data)) {
     case T_TICK:
       memcpy((char *)this->tick,data,length);
-      it = this->MFuBo.find(this->tick->InstrumentID);
-      if(it != this->MFuBo.end()) {
-        this->fu = it->second ;
+      it = this->M_Fu.find(this->tick->InstrumentID);
+      if(it != this->M_Fu.end()) {
+        this->fu = &it->second ;
         this->onTickHandler(this->tick);
       }
       break;
     case T_BARS:
       memcpy((char *)this->data,data,length);
-      it = this->MFuBo.find(this->data->InstrumentID);
-      if(it != this->MFuBo.end()) {
+      it = this->M_Fu.find(this->data->InstrumentID);
+      if(it != this->M_Fu.end()) {
         //it->second
         //--------------- deal bars --------------------------
         int j = 0;
         for(int i=0; i<this->data->iN; ++i) {
-          if(it->second->iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
+          if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
             this->bars[j] = (sKbar *)&this->data->KK[i] ;
             // todo 更新各种指标......
-            //std::cout << this->bars[j]->cB << std::endl;
-            it->second->pBars[ this->data->KK[i].iX ]->Insert(this->bars[j]);
-            it->second->Update[ this->data->KK[i].iX ]();
+            it->second.pBars[ this->data->KK[i].iX ]->Insert(this->bars[j]);
+            it->second.Update[ this->data->KK[i].iX ]();
             ++j ;
           }
         }
         if(j>0) {
-          this->fu = it->second ;
+          this->fu = &it->second ;
           this->onBarsHandler(this->bars,j);
         }
       } // -----  end if(it != this->M_Fu.end())
       break;
     case T_UPDATE:
       memcpy((char *)this->data,data,length);
-      it = this->MFuBo.find(this->data->InstrumentID);
-      if(it != this->MFuBo.end()) {
+      it = this->M_Fu.find(this->data->InstrumentID);
+      if(it != this->M_Fu.end()) {
         //it->second
         //--------------- deal bars --------------------------
         int j = 0;
         for(int i=0; i<this->data->iN; ++i) {
-          if(it->second->iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
+          if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
             this->bars[j] = (sKbar *)&this->data->KK[i] ;
             // todo 更新各种指标......
-            it->second->pBars[ this->data->KK[i].iX ]->Update(this->bars[j]);
-            it->second->Update[ this->data->KK[i].iX ]();
+            it->second.pBars[ this->data->KK[i].iX ]->Update(this->bars[j]);
+            it->second.Update[ this->data->KK[i].iX ]();
             ++j ;
           }
         }
         if(j>0) {
-          this->fu = it->second ;
+          this->fu = &it->second ;
           this->onBarsHandler(this->bars,j);
         }
       } // -----  end if(it != this->M_Fu.end())
@@ -170,12 +168,72 @@ void Base::onMessageInit()
       break;
     }
 
+
+    /*
+    if(*((int*)data) ==0) {
+      memcpy((char *)this->tick,data,length);
+      std::cout << this->tick->InstrumentID << this->tick->UpdateTime << std::endl ;
+
+      it = this->M_Fu.find(this->tick->InstrumentID);
+      if(it != this->M_Fu.end()) {
+
+        snprintf(ca_errmsg,ERR_MSG_LEN,"T:%s %s %06d S:%d A:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d OI:%g V:%d",
+                 this->tick->TradingDay,   this->tick->UpdateTime,
+                 this->tick->UpdateMillisec*1000, 0,            this->tick->ActionDay,
+                 this->tick->HighestPrice, this->tick->LowestPrice,   this->tick->LastPrice,
+                 this->tick->AskPrice1,    this->tick->AskVolume1,
+                 this->tick->BidPrice1,    this->tick->BidVolume1,
+                 this->tick->OpenInterest, this->tick->Volume);
+        std::cout << ca_errmsg <<std::endl;
+
+        this->onTickHandler(this->tick);
+      }
+    }
+    */
+
+    /*
+    if(*((int*)data) ==0) {
+      memcpy((char *)this->tick,data,length);
+      it = this->M_Fu.find(this->tick->InstrumentID);
+      if(it != this->M_Fu.end()) {
+        this->onTickHandler(this->tick);
+      }
+    } else {
+      memcpy((char *)this->data,data,length);
+    }
+
+    it = this->M_Fu.find(this->data->InstrumentID);
+    if(it != this->M_Fu.end()) {
+      //it->second
+      //--------------- deal tick --------------------------
+      //--------------- deal bars --------------------------
+      if(this->data->iN !=0) {
+        int j = 0;
+        for(int i=0; i<this->data->iN; ++i) {
+          std::cout<<"i:"<<i<<" "<<it->second.iP[ this->data->KK[i].iX ]<<" "<<"b:iX:";
+          std::cout<<this->data->KK[i].iX<<"iF:"<< this->data->KK[i].iF << std::endl;
+          if(it->second.iP[ this->data->KK[i].iX ] == this->data->KK[i].iF) {
+            this->bars[j] = (sKbar *)&this->data->KK[i] ;
+            ++j ;
+          }
+        }
+        if(j>0) {
+          this->onBarsHandler(this->bars,j);
+        }
+      } //---------------- end deal bars
+    } // -----  end if(it != this->M_Fu.end())
+    */
+
+    /*
+     case : weekend ==> change kkk;
+     case : monthend ==> do something;
+    */
   });
 }
 
 void Base::Run()
 {
-  std::cout << " enter into Start !!\n";
+  std::cout << "enter into Start !!\n";
 
   this->onInitHandler();
 
@@ -255,7 +313,7 @@ void Base::Run()
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   mainHub.run();
   std::cout << "after run \n";
-// 程序何时结束 ？？
+  // 程序何时结束 ？？
 }
 
 void Base::AssiHubInit()

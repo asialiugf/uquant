@@ -317,7 +317,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     }
     uBEE::FuBo *fubo = &(iter->second);
     if(memcmp(it->first.c_str(),"ru1809",6)==0) {
-      std::cout <<"enter into send :fr:60:  "<< it->first << std::endl;
+      //std::cout <<"enter into send :fr:60:  "<< it->first << std::endl;
       //fusim->RunBarsF(60);
       ///*
       struct  timeval start;

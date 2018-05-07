@@ -1,5 +1,5 @@
 #include "uBEE.h"
-#include "Index.h"
+#include "Indicator.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>

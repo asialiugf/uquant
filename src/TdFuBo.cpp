@@ -1,10 +1,61 @@
-#include "TdRate.h"
+#include "TdFuBo.h"
 #include "ErrLog.h"
 
 namespace uBEE
 {
 
-Future::Future(std::string f)
+sOHLC::sOHLC():
+  O(100000,SEE_NULL),
+  H(100000,SEE_NULL),
+  L(100000,SEE_NULL),
+  C(100000,SEE_NULL),
+  V(100000,SEE_NULL)
+{
+  memset(cB,'\0',9);
+  memset(cE,'\0',9);
+  u = 0;  //表示当前的bar是已经结束了的bar。每个bar只有最后一个tick过来时，才会结束，中间的tick会update这个bar。
+  x = -1;
+}
+
+/*
+ x: index !
+*/
+int sOHLC::Insert(sKbar *bar)
+{
+  if(u==0) {
+    x++;
+  }
+  O[x] = bar->o ;
+  H[x] = bar->h ;
+  L[x] = bar->l ;
+  C[x] = bar->c ;
+  V[x] = bar->v ;
+  memcpy(cB,bar->cB,9);
+  memcpy(cE,bar->cE,9);
+  u = 0;
+  return 0;
+}
+
+int sOHLC::Update(sKbar *bar)
+{
+  if(u==0) {
+    x++;
+    u = 1;
+  }
+  O[x] = bar->o ;
+  H[x] = bar->h ;
+  L[x] = bar->l ;
+  C[x] = bar->c ;
+  V[x] = bar->v ;
+  memcpy(cB,bar->cB,9);
+  memcpy(cE,bar->cE,9);
+  return 0;
+}
+
+
+//=========================================================================
+
+sFuBo::sFuBo(std::string f)
 {
   const char *id = f.c_str() ;
 
@@ -23,7 +74,7 @@ Future::Future(std::string f)
   //std::map<std::string,std::string>::const_iterator it;
   auto it = M_FuRate.find(ID2);
   if(it==M_FuRate.end()) {
-    sprintf(ca_errmsg,"M_FuRate in TdRate.h : %s %s not found!",InstrumentID,ID2) ;
+    sprintf(ca_errmsg,"M_FuRate in TdFuBo.h : %s %s not found!",InstrumentID,ID2) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
   } else {
     sscanf(it->second.c_str(), "mMPF:%lf mLot:%lf mOP:%lf mCP:%lf",
@@ -39,61 +90,50 @@ Future::Future(std::string f)
   NS = 0;
 } // ---------
 
-/*
-double  LP ;     // long position 多头头寸
-double  SP ;     // short position 空头头寸
-double  BL ;
-double  BS ;
-double  SL ;
-double  SS ;
-int     NL ;       // number of long
-int     NS ;       // number of short
-double  mPL ;      // 盈亏 profit and loss
-*/
 
 // n 下单手数 c:信号产生时的收盘价
-int Future::BuyShort(int n, double c)
+int sFuBo::BuyShort(int n, double c)
 {
   NS = n;
   SP = c - mMPF ;
-  std::cout << "TdRate:BuyShort:SP:"<<SP<< std::endl;
+  std::cout << "TdFuBo:BuyShort:SP:"<<SP<< std::endl;
   return 0;
 }
-int Future::BuyLong(int n, double c)
+int sFuBo::BuyLong(int n, double c)
 {
   NL = n;
   LP = c + mMPF ;
-  std::cout << "TdRate:BuyLong:LP:"<<LP<< std::endl;
+  std::cout << "TdFuBo:BuyLong:LP:"<<LP<< std::endl;
   return 0;
 }
-int Future::SellShort(int n, double c)
+int sFuBo::SellShort(int n, double c)
 {
   if(NS < n) {
     return -1;
   }
   NS = 0;
   mPL += (SP-c-mMPF)/mMPF*mLot*n ;
-  std::cout << "TdRate:SellShort:mPL:"<<mPL<< std::endl;
+  std::cout << "TdFuBo:SellShort:mPL:"<<mPL<< std::endl;
   return 0;
 }
-int Future::SellLong(int n, double c)
+int sFuBo::SellLong(int n, double c)
 {
   if(NL < n) {
     return -1;
   }
   NL = 0;
   mPL += (c-mMPF-LP)/mMPF*mLot*n ;
-  std::cout << "TdRate:SellLong:mPL:"<<mPL<< std::endl;
+  std::cout << "TdFuBo:SellLong:mPL:"<<mPL<< std::endl;
   return 0;
 }
 // ------- 动态止损 ----------------------------
-int Future::DStopLost(int n, double c)
+int sFuBo::DStopLost(int n, double c)
 {
   if(NS >= n) {
     if((SP-c-mMPF)/mMPF <= -15) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
-      std::cout << "TdRate:DStopLost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
+      std::cout << "TdFuBo:DStopLost:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
     if(SP>c) {
@@ -108,7 +148,7 @@ int Future::DStopLost(int n, double c)
     if((c-mMPF-LP)/mMPF <= -15) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
-      std::cout << "TdRate:DStopLost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
+      std::cout << "TdFuBo:DStopLost:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
     }
     if(LP<c) {
@@ -121,7 +161,7 @@ int Future::DStopLost(int n, double c)
 }
 
 // ------- 止损 ----------------------------
-int Future::StopLost(int n, double c)
+int sFuBo::StopLost(int n, double c)
 {
   if(NS >= n) {
     if((SP-c-mMPF)/mMPF <= -8) {
@@ -143,13 +183,13 @@ int Future::StopLost(int n, double c)
 }
 
 //--------- 止赢 ----------------------------
-int Future::StopProfit(int n, double c)
+int sFuBo::StopProfit(int n, double c)
 {
   if(NS >= n) {
     if((SP-c-mMPF)/mMPF >= 4) {
       NS = 0;
       mPL += (SP-c-mMPF)/mMPF*mLot*n ;
-      std::cout << "TdRate:stopprofit:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
+      std::cout << "TdFuBo:stopprofit:SP:"<<SP<<" c:"<<c<<" "<< (SP-c-mMPF)/mMPF << std::endl;
       return 0;
     }
   }
@@ -158,7 +198,7 @@ int Future::StopProfit(int n, double c)
     if((c-mMPF-LP)/mMPF >= 4) {
       NL = 0;
       mPL += (c-mMPF-LP)/mMPF*mLot*n ;
-      std::cout << "TdRate:stopprofit:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
+      std::cout << "TdFuBo:stopprofit:LP:"<<LP<<" c:"<<c<<" "<< (c-mMPF-LP)/mMPF << std::endl;
       return 0;
     }
   }
@@ -166,7 +206,7 @@ int Future::StopProfit(int n, double c)
 }
 
 // ----------动态计算显示当前收益 -----------------
-int Future::CurrPL(double c)
+int sFuBo::CurrPL(double c)
 {
   if(NS > 0) {
     cPL = mPL + (SP-c-mMPF)/mMPF*mLot*NS ;

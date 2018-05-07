@@ -4,6 +4,7 @@
 #include <uWS/uWS.h>
 //#include <uBEE.h>
 #include "Bars.h"
+#include "SigSlot.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -13,6 +14,28 @@
 
 namespace uBEE
 {
+using lSignal::Connection;
+using lSignal::Signal;
+using lSignal::Slot;
+
+//--------------------------------------------------------------------------
+struct sOHLC {
+  char cB[9];
+  char cE[9];
+  std::vector<double> O;
+  std::vector<double> H;
+  std::vector<double> L;
+  std::vector<double> C;
+  std::vector<int> V;
+  int  x;       // index !! O[0]... O[1]... O[x] ...
+  int  u;       // update bar  u:=0 表示真正结束的bar， u:=1 表示这是一个没有结束的bar。 u:=-1 表示第一个，新开始。
+public:
+  sOHLC();
+  int Insert(sKbar * bar);
+  int Update(sKbar * bar);
+};
+
+//--------------------------------------------------------------------------
 
 static const std::map<std::string,std::string> M_FuRate = {
   //  czce 郑商所 -------801 4位------------
@@ -84,8 +107,7 @@ static const std::map<std::string,std::string> M_FuRate = {
 //  ip[1] = -1;
 //  ip[2] = -1;
 //  ip[3] = -1;
-//  ip[4] = 5;     // index 4 === period is 5 seconds.
-//  ...
+//  ip[4] = 5;     // index 4 === period is 5 seconds//  ...
 //  ip[x] = 60;    // index x === period is 60 seconds.
 //  ...
 //  ip[49] = -1;
@@ -94,27 +116,28 @@ static const std::map<std::string,std::string> M_FuRate = {
 // bars[1] ==> ip[x] = 60;
 // ip[n] noused will be set to  -1 ;
 // refer to FuInit() ! | index 0 for tick. index 1----30 basic periods.  index 31-49 for custom define .
-struct Future {
-  char    InstrumentID[31];
-  char    ID2[3] ;
-  int     iP[50] ;  //period
-  X_OHLC  *pBars[50]; //用于存储 kbar数据 
-  double  mMPF ;   // 最小变动价位  Tick Size, Minimum Price Fluctuation  比如橡胶是5元
-  double  mLot ;   // 每手收益 比如 一手橡胶 是50元
-  double  mOP ;    // money for open position 开仓手续费
-  double  mCP ;    // money for close position 平仓手续费
-  double  LP ;     // long position 多头头寸
-  double  SP ;     // short position 空头头寸
-  double  BL ;
-  double  BS ;
-  double  SL ;
-  double  SS ;
-  int 	  NL ;
-  int     NS ;
-  double  mPL ;      // 盈亏 profit and loss
-  double  cPL ;      // 盈亏 current profit and loss
+struct sFuBo {
+  char            InstrumentID[31];
+  char            ID2[3] ;
+  int             iP[50] ;           //period
+  sOHLC          *pBars[50];         //用于存储 kbar数据
+  Signal<void()>  Update[50];        // signal slot 这是一个信号
+  double          mMPF ;             // 最小变动价位  Tick Size, Minimum Price Fluctuation  比如橡胶是5元
+  double          mLot ;             // 每手收益 比如 一手橡胶 是50元
+  double          mOP ;              // money for open position 开仓手续费
+  double          mCP ;              // money for close position 平仓手续费
+  double          LP ;               // long position 多头头寸
+  double          SP ;               // short position 空头头寸
+  double          BL ;
+  double          BS ;
+  double          SL ;
+  double          SS ;
+  int 	          NL ;
+  int             NS ;
+  double          mPL ;      // 盈亏 profit and loss
+  double          cPL ;      // 盈亏 current profit and loss
 public:
-  Future(std::string);
+  sFuBo(std::string);
   int BuyShort(int n,double c);  //手数，收盘价
   int BuyLong(int n,double c);
   int SellShort(int n,double c);

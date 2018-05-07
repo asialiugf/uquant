@@ -1,5 +1,5 @@
 #include "uBEE.h"
-#include "Index.h"
+#include "Indicator.h"
 #include <thread>
 #include <unistd.h>
 #include <iostream>
@@ -29,28 +29,23 @@ int main()
   uBEE::Base *BB = new uBEE::Base();
   BB->Mode = 4;
   BB->FuInit(&fuMap);
-
   //-------------------- 变量定义 -----------------------------------
 
+  sRSI *r;
 
-  //-------------------- 变量定义 -----------------------------------
-  D_OHLC *F1 = new D_OHLC() ;
-  int &x = F1->x;
+  sEKE *e1;
+  sEKE *e2;
+  sEKE *e3;
+  sEKE *e4;
 
-  D_RSI *rsi = new D_RSI(F1);
+  sMNF *m1;
+  sMNF *m2;
+  sMNF *m3;
+  sMNF *m4;
 
-  D_EKE *EKE1 = new D_EKE(F1);
-  D_EKE *EKE2 = new D_EKE(F1);
-  D_EKE *EKE3 = new D_EKE(F1);
-  D_EKE *EKE4 = new D_EKE(F1);
-
-  D_MNF *M1 = new D_MNF(EKE1);
-  D_MNF *M2 = new D_MNF(EKE2);
-  D_MNF *M3 = new D_MNF(EKE3);
-  D_MNF *M4 = new D_MNF(EKE4);
   //-------------------- initialize -----------------------------------
   gettimeofday(&start,NULL);
-  for(int i=0; i<100; i++) {
+  for(int i=0; i<2; i++) {
     BB->getFutureTick((const char *)"20170101",(const char *) "20180101");
   }
   gettimeofday(&end,NULL);
@@ -64,102 +59,33 @@ int main()
 
   int aa = 1009;
 
+
+
+  //-------------------- onInit -----------------------------------
+  BB->onInit([&]() {
+    r = new sRSI(BB,(char*)"ru1809", 5, 14);
+    e1 = new sEKE(BB,(char*)"ru1809",5, 36, 1, 12, 4);
+    e2 = new sEKE(BB,(char*)"ru1809",5, 9*16, 8, 3*16, 16);
+    e3 = new sEKE(BB,(char*)"ru1809",5, 9*64, 21, 3*64, 64);
+    e4 = new sEKE(BB,(char*)"ru1809",5, 9*64*4, 34, 3*64*4, 64*4);
+    m1 = new sMNF(BB,e1,(char*)"ru1809",5, 36);
+    m2 = new sMNF(BB,e2,(char*)"ru1809",5, 9*16);
+    m3 = new sMNF(BB,e3,(char*)"ru1809",5, 9*64);
+    m4 = new sMNF(BB,e4,(char*)"ru1809",5, 9*64*4);
+    std::cout << "whyyyyy333333\n" ;
+  });
   //-------------------- onTick -----------------------------------
-  BB->onTick([&aa,&BB](sTick *tick) {
+  BB->onTick([&](sTick *tick) {
+    std::cout << "tick mnf4::" <<  m4->MNF[m4->x] << std::endl;
   });
 
   //-------------------- onBars -----------------------------------
   BB->onBars([&](sKbar * bar[], int len) {
     for(int i=0; i<len; ++i) {
-
       // --------------------- F1 begin ---------------------------------
-      if(bar[i]->iF == 60) {
-        F1->Insert(bar[i]);                 // add OHLC
-        //x = F1->x;
-        rsi->Update(14) ;
-
-        EKE1->Update(36, 1, 12, 4);                    // calculate kdj
-        EKE2->Update(9*16, 8, 3*16, 16);             // calculate kdj
-        EKE3->Update(9*64, 21, 3*64, 64);             // calculate kdj
-        EKE4->Update(9*64*4, 34, 3*64*4, 64*4);     // calculate kdj
-
-        M1->Update(36) ;                          // RSV ---
-        M2->Update(9*16) ;
-        M3->Update(9*64) ;
-        M4->Update(9*64*4) ;
-
-        // --------- for debug ---------------
-        //DispKbar(BB->InstrumentID, BB->TradingDay, BB->ActionDay,bar[i]);
-        //std::cout <<"mmmmmm1 2 3 4:"<<M1->MNF[x]<<" "<<M2->MNF[x]<<" "<<M3->MNF[x]<<" "<<M4->MNF[x]<<" "<< std::endl ;
-        std::cout <<"mmmmmm1 2 3 4:"<<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<< " " ;
-        std::cout <<" ud:"<< M1->ud<<" " << M2->ud<<" "<< M3->ud<<" "<< M4->ud<<" " ;
-        std::cout <<" udN:"<< M1->udN<<" " << M2->udN<<" "<< M3->udN<<" "<< M4->udN<<" ";
-        std::cout <<M1->MNF[x]<<" "<<M2->MNF[x]<<" "<<M3->MNF[x]<<" "<<M4->MNF[x]<<" " << std::endl;
-        //std::cout <<"ke:"<<M1->EKE->K[x]<<" "<<M2->EKE->K[x]<<" "<<M3->EKE->K[x]<<" "<<M4->EKE->K[x]<<" "<< std::endl ;
-        //std::cout <<"ssssssss:"<<rsi->RSI[rsi->x] << std::endl;
-        // --------- for debug ---------------
-
-        //---------for test ---------------------
-        /*
-        if(rsi->RSI[x] > rsi->RSI[x-1] && rsi->RSI[x] > 30 && rsi->RSI[x-1] < 30) {
-          std::cout << "rsi--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-        }
-        if(rsi->RSI[x] < rsi->RSI[x-1] && rsi->RSI[x] < 70 && rsi->RSI[x-1] > 70) {
-          std::cout << "rsi--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-        }
-        if(rsi->ls == 1) {
-          std::cout << "rsi--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-        }
-        if(rsi->ls == -1) {
-          std::cout << "rsi--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-        }
-        */
-        //---------for test ---------------------
-
-        if(F1->x > 1000) {
-          BB->fu->DStopLost(1,bar[i]->c);
-          BB->fu->StopProfit(1,bar[i]->c);
-          // BB->fu->CurrPL(bar[i]->c) ;
-          std::cout << "current pl:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" " << BB->fu->mPL <<" "<<bar[i]->c << std::endl;
-
-          /*
-              if(M3->MNF[x] > M3->MNF[x-1] && M3->MNF[x-1] < M3->MNF[x-2]) {
-                //if(M3->ls == 1) {
-                std::cout << "bbbbbbbbb:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-                BB->fu->SellShort(1,bar[i]->c);
-                BB->fu->BuyLong(1,bar[i]->c);
-                std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
-              }
-              if(M3->MNF[x] < M3->MNF[x-1] && M3->MNF[x-1] > M3->MNF[x-2]) {
-                //if(M3->ls == -1) {
-                std::cout << "sssssssss:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-                BB->fu->SellLong(1,bar[i]->c);
-                BB->fu->BuyShort(1,bar[i]->c);
-                std::cout <<" mPL:"<<BB->fu->mPL<< " NL:"<< BB->fu->NL<< " NS:"<< BB->fu->NS << std::endl;
-              }
-          */
-
-
-          //if((M3->ud == 99 || M3->ud == 0) && (M2->ud ==99 || M2->ud ==0)) {
-          if((M3->ud == 99 || M3->ud == 0)) {
-            if(rsi->ls == -1) {
-              std::cout << "rsi--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
-			if(M1->KE->Ec ==-1) {
-              std::cout << "eke--down:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
-          }
-          if((M3->ud == 100 || M3->ud ==1) && (M2->ud ==1 || M2->ud ==100)) {
-            if(rsi->ls == 1) {
-              std::cout << "rsi--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
-			if(M1->KE->Ec ==1) {
-              std::cout << "eke--up:" <<BB->ActionDay<<" "<<bar[i]->cB<<"-"<<bar[i]->cE<<" "<<bar[i]->c << std::endl;
-            }
-          }
-
-        } // ----- end --- 1000
-
+      if(bar[i]->iF == 5) {
+        std::cout << r->RSI[r->x] << std::endl;
+        std::cout << "bar mnf4::" <<  m4->MNF[m4->x] << std::endl;
       } // ----- end --- F1 60-----------
 
     } // -----------------for -----
