@@ -99,6 +99,8 @@ class FutureApiServiceImpl final : public FutureApi::Service
   Status getBars(ServerContext* context, const kBarRequest* request,
                  kBarReply* reply) override
   { 
+    std::cout << request->id() << " " << request->start() << " " ;
+    std::cout << request->end() << " " << request->frequency() << std::endl;
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     kBar* kbar;
     for(int i=0; i<10000; ++i) {

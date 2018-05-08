@@ -93,10 +93,14 @@ public:
   }
 
 
-  kBarReply getBars(const std::string& id)
+  kBarReply getBars(const std::string& id, const std::string& start,
+                    const std::string& end,int frequency)
   {
     kBarRequest request;
     request.set_id(id);
+    request.set_start(start);
+    request.set_end(end);
+    request.set_frequency(frequency);
     kBarReply reply;
     ClientContext context;
 
@@ -124,10 +128,14 @@ public:
     : stub_(FutureApi::NewStub(channel)) {}
 
   //---------------
-  kBarReply getBars(const std::string& id)
+  kBarReply getBars(const std::string& id, const std::string& start,
+                    const std::string& end,int frequency)
   {
     kBarRequest request;
     request.set_id(id);
+    request.set_start(start);
+    request.set_end(end);
+    request.set_frequency(frequency);
     kBarReply reply;
     ClientContext context;
 
@@ -165,7 +173,10 @@ int main(int argc, char** argv)
   std::cout << "Greeter received: " << reply << std::endl;
 
   std::string ID = "ru1809";
-  kBarReply ret = greeter.getBars(ID);
+  std::string start = "ru1809";
+  std::string end = "ru1809";
+  int  frequency = 300;
+  kBarReply ret = greeter.getBars(ID,start,end,frequency);
   int size = ret.kk_size();
   std::cout << "bars num: " << size << std::endl;
   for(int i=0; i<size; i++) {
@@ -176,7 +187,10 @@ int main(int argc, char** argv)
   FutureApiClient futureapi(grpc::CreateChannel(
                               "localhost:50051", grpc::InsecureChannelCredentials()));
   ID = "ru1809";
-  ret = futureapi.getBars(ID);
+  start = "20180101";
+  end = "20180507";
+  frequency = 300;
+  ret = futureapi.getBars(ID,start,end,frequency);
   size = ret.kk_size();
   std::cout << "bars num: " << size << std::endl;
   for(int i=0; i<size; i++) {

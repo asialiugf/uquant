@@ -30,11 +30,11 @@ service Greeter {  //class
 }
 
 service FutureApi {
-        rpc getBars (kBarRequest) returns (kBarReply) {}
+		rpc getBars (kBarRequest) returns (kBarReply) {}
 }
 
 service StockApi {
-        rpc getBars (kBarRequest) returns (kBarReply) {}
+		rpc getBars (kBarRequest) returns (kBarReply) {}
 }
 
 // The request message containing the user's name.
@@ -48,7 +48,10 @@ message HelloReply {
 }
 
 message kBarRequest {
-		string ID = 1;
+		string id = 1;
+		string start = 2;
+		string end = 3;
+		int32  frequency = 4;
 }
 
 message kBar {
