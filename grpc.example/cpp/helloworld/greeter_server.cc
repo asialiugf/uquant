@@ -67,13 +67,15 @@ class GreeterServiceImpl final : public Greeter::Service
     // kBarReply reply;
     kBar* kbar;
 
-    kbar = reply->add_kk();
-    kbar->set_b("09:00:00");
-    kbar->set_e("10:00:00");
-    kbar->set_o(1001);
-    kbar->set_h(1002);
-    kbar->set_l(1003);
-    kbar->set_c(1004);
+    for(int i=0; i<10000; ++i) {
+      kbar = reply->add_kk();
+      kbar->set_b("09:00:00");
+      kbar->set_e("10:00:00");
+      kbar->set_o((double) i);
+      kbar->set_h((double) i);
+      kbar->set_l((double) i);
+      kbar->set_c((double) i);
+    }
 
     kbar = reply->add_kk();
     kbar->set_b("10:00:00");
