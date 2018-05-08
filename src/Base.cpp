@@ -88,11 +88,25 @@ void Base::Init()
 
 }
 
+void Base::onDaily(std::function<void()> handler)
+{
+  Base::onDailyHandler = handler;
+}
+
+void Base::onWeekly(std::function<void()> handler)
+{
+  Base::onWeeklyHandler = handler;
+}
+
+void Base::onMonthly(std::function<void()> handler)
+{
+  Base::onMonthlyHandler = handler;
+}
+
 void Base::onInit(std::function<void()> handler)
 {
   Base::onInitHandler = handler;
 }
-
 
 void Base::onTick(std::function<void(sTick *)> handler)
 {
@@ -237,7 +251,7 @@ void Base::Run()
   case 1:
     break;
   case 2:
-    mainHub.connect("ws://localhost:3002",(void *) 2);  //  data server HubCtp  //实盘
+    mainHub.connect("ws://localhost:3002",(void *) 2);  //  data server HubBck  //回测
     break;
   case 3:
     mainHub.connect("ws://localhost:3003",(void *) 3);  //  data server HubCtp  //实盘
@@ -251,7 +265,7 @@ void Base::Run()
   }
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
-  mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
+  //mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   mainHub.run();
   std::cout << "after run \n";

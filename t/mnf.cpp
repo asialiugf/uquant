@@ -11,6 +11,7 @@ int main()
 
   struct  timeval start;
   struct  timeval end;
+  unsigned  long diff;
 
 
   //------------------ 定义合约 及操作周期 --------------------------
@@ -49,17 +50,25 @@ int main()
     BB->getFutureTick((const char *)"20170101",(const char *) "20180101");
   }
   gettimeofday(&end,NULL);
-  unsigned  long diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+  diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
   diff = diff/10000;
   printf("thedifference is %ld\n",diff);
-  //uBEE::ErrLog(1000,"kkkk",1,(const char*)&diff,sizeof(unsigned  long));
-  //uBEE::ErrLog(1000,"notttttttttttttt",1,0,0);
 
   std::cout << " end getTick() !!\n";
 
   int aa = 1009;
 
+  BB->onDaily([]() {
 
+  });
+
+  BB->onWeekly([]() {
+
+  });
+
+  BB->onMonthly([]() {
+
+  });
 
   //-------------------- onInit -----------------------------------
   BB->onInit([&]() {

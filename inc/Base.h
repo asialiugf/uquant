@@ -82,10 +82,11 @@ struct Base {
 
   std::mutex m_mtx; 					// 全局互斥锁.
   std::condition_variable cv; 		// 全局条件变量.
-  //bool ready = false; 			// 全局标志位.
 
-  //std::function<void(char *, size_t)> onBarsHandler;
-  //std::function<void(char *, size_t)> onTickHandler;
+  std::function<void()> onDailyHandler;
+  std::function<void()> onWeeklyHandler;
+  std::function<void()> onMonthlyHandler;
+
   std::function<void()> onInitHandler;
   std::function<void(sKbar *[],int)> onBarsHandler;
   std::function<void(sTick *)> onTickHandler;
@@ -98,11 +99,15 @@ public:
   void Restart();
   void Pause();
   void Continue();
+  
+  void onDaily(std::function<void()> handler);
+  void onWeekly(std::function<void()> handler);
+  void onMonthly(std::function<void()> handler);
+
   void onInit(std::function<void()> handler);
   void onTick(std::function<void(sTick *)> handler);
   void onBars(std::function<void(sKbar *[],int)> handler);
-  //void onTick(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
-  //void onBars(std::function<void(uWS::WebSocket<uWS::CLIENT> *, char *, size_t, uWS::OpCode)> handler);
+
   void onMessageInit();
   // ------------------------------- API ---------------------------------
   void FuInit(const std::map<std::string,std::vector<int>> *M);
