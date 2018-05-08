@@ -34,15 +34,20 @@ using grpc::Status;
 using helloworld::HelloRequest;
 using helloworld::HelloReply;
 using helloworld::Greeter;
+using helloworld::kBarRequest;
+using helloworld::kBar;
+using helloworld::kBarReply;
 
-class GreeterClient {
- public:
+class GreeterClient
+{
+public:
   GreeterClient(std::shared_ptr<Channel> channel)
-      : stub_(Greeter::NewStub(channel)) {}
+    : stub_(Greeter::NewStub(channel)) {}
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
-  std::string SayHello(const std::string& user) {
+  std::string SayHello(const std::string& user)
+  {
     // Data we are sending to the server.
     HelloRequest request;
     request.set_name(user);
@@ -58,7 +63,7 @@ class GreeterClient {
     Status status = stub_->SayHello(&context, request, &reply);
 
     // Act upon its status.
-    if (status.ok()) {
+    if(status.ok()) {
       return reply.message();
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
@@ -67,7 +72,8 @@ class GreeterClient {
     }
   }
 
-  std::string SayHelloAgain(const std::string& user) {
+  std::string SayHelloAgain(const std::string& user)
+  {
     // Follows the same pattern as SayHello.
     HelloRequest request;
     request.set_name(user);
@@ -76,7 +82,7 @@ class GreeterClient {
 
     // Here we can the stub's newly available method we just added.
     Status status = stub_->SayHelloAgain(&context, request, &reply);
-    if (status.ok()) {
+    if(status.ok()) {
       return reply.message();
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
@@ -86,17 +92,37 @@ class GreeterClient {
   }
 
 
- private:
+  kBarReply getBars(const std::string& id)
+  {
+    kBarRequest request;
+    request.set_id(id);
+    kBarReply reply;
+    ClientContext context;
+
+    // Here we can the stub's newly available method we just added.
+    Status status = stub_->getBars(&context, request, &reply);
+    if(status.ok()) {
+      return reply;
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      //return "RPC failed";
+    }
+  }
+
+
+private:
   std::unique_ptr<Greeter::Stub> stub_;
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   // Instantiate the client. It requires a channel, out of which the actual RPCs
   // are created. This channel models a connection to an endpoint (in this case,
   // localhost at port 50051). We indicate that the channel isn't authenticated
   // (use of InsecureChannelCredentials()).
   GreeterClient greeter(grpc::CreateChannel(
-      "localhost:50051", grpc::InsecureChannelCredentials()));
+                          "localhost:50051", grpc::InsecureChannelCredentials()));
   std::string user("world");
   std::string reply = greeter.SayHello(user);
   std::cout << "Greeter received: " << reply << std::endl;
@@ -104,6 +130,15 @@ int main(int argc, char** argv) {
   user = "haha!!";
   reply = greeter.SayHelloAgain(user);
   std::cout << "Greeter received: " << reply << std::endl;
+
+  std::string ID = "ru1809";
+  kBarReply ret = greeter.getBars(ID);
+  int size = ret.kk_size();
+  std::cout << "bars num: " << size << std::endl;
+  for(int i=0; i<size; i++) {
+    kBar psn = ret.kk(i);
+    std::cout << i+1 << " o: " << psn.o() << " h: " << psn.h() << std::endl;
+  }
 
   return 0;
 }

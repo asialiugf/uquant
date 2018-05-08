@@ -35,6 +35,9 @@ using grpc::Status;
 using helloworld::HelloRequest;
 using helloworld::HelloReply;
 using helloworld::Greeter;
+using helloworld::kBarRequest;
+using helloworld::kBar;
+using helloworld::kBarReply;
 
 // Logic and data behind the server's behavior.
 class GreeterServiceImpl final : public Greeter::Service
@@ -54,6 +57,37 @@ class GreeterServiceImpl final : public Greeter::Service
     reply->set_message(prefix + request->name());
     return Status::OK;
   }
+
+  //-----------------
+  Status getBars(ServerContext* context, const kBarRequest* request,
+                 kBarReply* reply) override
+  {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+    // kBarReply reply;
+    kBar* kbar;
+
+    kbar = reply->add_kk();
+    kbar->set_b("09:00:00");
+    kbar->set_e("10:00:00");
+    kbar->set_o(1001);
+    kbar->set_h(1002);
+    kbar->set_l(1003);
+    kbar->set_c(1004);
+
+    kbar = reply->add_kk();
+    kbar->set_b("10:00:00");
+    kbar->set_b("11:00:00");
+    kbar->set_o(2001);
+    kbar->set_h(2002);
+    kbar->set_l(2003);
+    kbar->set_c(2004);
+
+    return Status::OK;
+
+  }
+  //-----------------
+
 
 
 };
