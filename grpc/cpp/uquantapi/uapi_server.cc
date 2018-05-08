@@ -35,6 +35,8 @@ using grpc::Status;
 using uquantapi::HelloRequest;
 using uquantapi::HelloReply;
 using uquantapi::Greeter;
+using uquantapi::FutureApi;
+using uquantapi::StockApi;
 using uquantapi::kBarRequest;
 using uquantapi::kBar;
 using uquantapi::kBarReply;
@@ -89,15 +91,46 @@ class GreeterServiceImpl final : public Greeter::Service
 
   }
   //-----------------
-
-
-
 };
+
+class FutureApiServiceImpl final : public FutureApi::Service
+{
+  //-------------------------------------------------
+  Status getBars(ServerContext* context, const kBarRequest* request,
+                 kBarReply* reply) override
+  { 
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    kBar* kbar;
+    for(int i=0; i<10000; ++i) {
+      kbar = reply->add_kk();
+      kbar->set_b("09:00:00");
+      kbar->set_e("10:00:00");
+      kbar->set_o((double) i);
+      kbar->set_h((double) i);
+      kbar->set_l((double) i);
+      kbar->set_c((double) i);
+    }
+    
+    kbar = reply->add_kk();
+    kbar->set_b("10:00:00");
+    kbar->set_b("11:00:00");
+    kbar->set_o(2001);
+    kbar->set_h(2002);
+    kbar->set_l(2003);
+    kbar->set_c(2004);
+
+    return Status::OK;
+  }
+  //-------------------------------------------------
+};
+
+
 
 void RunServer()
 {
   std::string server_address("0.0.0.0:50051");
   GreeterServiceImpl service;
+  FutureApiServiceImpl futureapi;
 
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
@@ -105,6 +138,7 @@ void RunServer()
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
+  builder.RegisterService(&futureapi);
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;

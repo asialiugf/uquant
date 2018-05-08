@@ -34,6 +34,7 @@ using grpc::Status;
 using uquantapi::HelloRequest;
 using uquantapi::HelloReply;
 using uquantapi::Greeter;
+using uquantapi::FutureApi;
 using uquantapi::kBarRequest;
 using uquantapi::kBar;
 using uquantapi::kBarReply;
@@ -115,6 +116,38 @@ private:
   std::unique_ptr<Greeter::Stub> stub_;
 };
 
+//-------------------------------------------------------------
+class FutureApiClient
+{
+public:
+  FutureApiClient(std::shared_ptr<Channel> channel)
+    : stub_(FutureApi::NewStub(channel)) {}
+
+  //---------------
+  kBarReply getBars(const std::string& id)
+  {
+    kBarRequest request;
+    request.set_id(id);
+    kBarReply reply;
+    ClientContext context;
+
+    // Here we can the stub's newly available method we just added.
+    Status status = stub_->getBars(&context, request, &reply);
+    if(status.ok()) {
+      return reply;
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      //return "RPC failed";
+    }
+  }
+  //---------------
+
+private:
+  std::unique_ptr<FutureApi::Stub> stub_;
+};
+//-------------------------------------------------------------
+
 int main(int argc, char** argv)
 {
   // Instantiate the client. It requires a channel, out of which the actual RPCs
@@ -138,6 +171,17 @@ int main(int argc, char** argv)
   for(int i=0; i<size; i++) {
     kBar psn = ret.kk(i);
     std::cout << i+1 << " o: " << psn.o() << " h: " << psn.h() << std::endl;
+  }
+
+  FutureApiClient futureapi(grpc::CreateChannel(
+                              "localhost:50051", grpc::InsecureChannelCredentials()));
+  ID = "ru1809";
+  ret = futureapi.getBars(ID);
+  size = ret.kk_size();
+  std::cout << "bars num: " << size << std::endl;
+  for(int i=0; i<size; i++) {
+    kBar psn = ret.kk(i);
+    std::cout << i+1 <<":" << psn.b() << " o: " << psn.o() << " h: " << psn.h() << std::endl;
   }
 
   return 0;
