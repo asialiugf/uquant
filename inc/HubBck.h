@@ -12,6 +12,19 @@
 namespace uBEE
 {
 
+struct BckFu{
+  char            InstrumentID[31];
+  int             iP[50] ;           //period  如果没有用到 frequency 必须设置为-1 要小于0
+};
+
+struct BckMsg{
+  int     iType ;                 // type :  0:初始请求， 1:请传下一个数据 
+  char    DayB[9];                // 测试起始日期
+  char    DayE[9];                // 测试结束日期
+  int     iN ;                 // number of BckFu below !!
+  BckFu   fubo[256];           // 一个策略中最多允许256个合约同时处理。
+};
+
 struct HubBck {
   char URL[256];
   int port;

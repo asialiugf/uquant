@@ -98,7 +98,7 @@ struct sMNF {
   int                    lsN ;  // long short number ;
 
 public:
-  sMNF(uBEE::Base *BB, sEKE *e, char *ID, int Frequency, int n);
+  sMNF(uBEE::Base *BB, sEKE *e, char *ID, int frequency, int n);
   void RunUpdate();
   int Update(int N);
 };

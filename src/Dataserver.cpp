@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     sleep(1);
   }
 
-  if( iFunc<2 || iFunc>8 ) {
+  if(iFunc<2 || iFunc>8) {
     std::cout << "Input Error !! \n" ;
     exit(-1);
   }
@@ -124,6 +124,9 @@ int ForkBck()
   int pid;
   int i = 0;
   pid = fork();
+  uBEE::HubBck hh;
+  hh.Init();
+  hh.Start();
   switch(pid) {
   case -1:
     return -1;
@@ -132,7 +135,7 @@ int ForkBck()
     pid = getpid();
     uBEE::InitSetProcTitle();
     uBEE:: SetProcTitle("HubBck:","DataServ: ");
-    hb.Run();
+    hh.Run();
     break;
   default:
     break;

@@ -18,7 +18,7 @@ using lSignal::Slot;
 
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
-  Mode         = 4;
+  Mode         = 4;                // default
   data         = &DT;
   tick         = &TK;
   InstrumentID = data->InstrumentID;
@@ -184,6 +184,9 @@ void Base::onMessageInit()
       break;
     }
 
+    if(Mode == 2) {
+      this->BckNextData();
+    }
   });
 }
 
@@ -199,14 +202,35 @@ void Base::Run()
       this->cs[1] = ws;
       this->cw = ws;
       break;
-    case 7:
-      this->cs[2] = ws;
-      this->cd = ws;
-      break;
-    case 2:
+    case 2: {
       this->cs[2] = ws;
       this->c_bck = ws;
+
+      //map<std::string,uBEE::sFuBo *>::iterator it;
+
+      /*
+      std::string msg;
+      for(auto iter = this->MFuBo.begin(); iter != this->MFuBo.end(); ++iter) {
+        //std::string p = (char*)iter->first.c_str();  // char *Future, const char *pFile
+        msg += iter->first ;
+      }
+      ws->send((char*)msg.c_str(), msg.length(), uWS::OpCode::BINARY);
+      */
+
+      std::cout << "================================================================\n";
+      BckMsg *bckmsg = new BckMsg() ;
+      int n = BckMsgInit(bckmsg);
+      std::cout <<"n:"<<n<< std::endl;
+      if(n>0) {
+        int len = sizeof(BckMsg) - (256-n) * sizeof(BckFu) ;
+        ws->send((char*)bckmsg, len, uWS::OpCode::BINARY);
+      } else {
+        std::cout << "no future !!\n" ;
+      }
+      delete bckmsg;
+
       break;
+    }
     case 3:
       this->cs[3] = ws;
       this->c_ctp = ws;
@@ -271,5 +295,29 @@ void Base::Run()
 // 程序何时结束 ？？
 }
 
+void Base::BckNextData()
+{
+  int iType = 1;
+  c_bck->send((char*)&iType, sizeof(int), uWS::OpCode::BINARY);
+}
+
+int Base::BckMsgInit(BckMsg *bck_msg)
+{
+  bck_msg->iType = 0;
+  memcpy(bck_msg->DayB,DayB,9);
+  memcpy(bck_msg->DayE,DayE,9);
+
+  int i = 0;
+  for(auto iter = MFuBo.begin(); iter != MFuBo.end(); ++iter) {
+    memset(bck_msg->fubo[i].InstrumentID,'\0',31);
+    memcpy(bck_msg->fubo[i].InstrumentID,(char*)iter->first.c_str(),iter->first.length());
+    for(int j=0; j<50; ++j) {
+      bck_msg->fubo[i].iP[j] = iter->second->iP[j] ;
+    }
+    i++;
+  }
+  bck_msg->iN = i;
+  return i;
+}
 
 } //namespace

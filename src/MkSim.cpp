@@ -268,7 +268,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     // -------临时加 begin -----
     if(memcmp(p,"ru1809",6) ==0) {
       //fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i");
-      fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i");
+      fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i"); //设置要处理的OHLC文件.
     }
     // ------ 临时加 end -----
     M_FuSim.insert(std::pair<std::string,uBEE::FuSim>(p, *fusim));

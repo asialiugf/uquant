@@ -22,16 +22,16 @@ void HubBck::Init()
 void HubBck::S_onMessage()
 {
   h.onMessage([this](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
-    char tmp[256];
-    memcpy(tmp, message, length);
-    tmp[length] = 0;
-    message[0] = '0';
-    uBEE::ErrLog(1000,"kkkk",1,(const char*)message,length);
-    message[length-1] = 0;
-    int pid = getpid();
-    printf("pid: %d   Server onMessage receive: %s\n", pid,message);
-    ws->send(message, length, opCode);
-    std::printf("Server onMessage send: %s\n", tmp);
+    switch(*((int*)message)) {
+    case 0: {
+      BckMsg *bckmsg = (BckMsg *)message ;
+      std::cout << bckmsg->iType <<" " << bckmsg->iN << std::endl;
+      break;
+    }
+    case 1:
+      ws->send(message, length, opCode);
+      break;
+    }
   });
 }
 
@@ -39,7 +39,10 @@ void HubBck::S_onConnection()
 {
   h.onConnection([this](uWS::WebSocket<uWS::SERVER> *ws, uWS::HttpRequest req) {
     //ws->send("--server--");
-    std::cout <<"Server onConnection send: --server--" << std::endl;
+    //todo ----
+    // save ws....
+    long user_data = (long) ws->getUserData();
+    std::cout <<"BackTest Server onConnection :"<< user_data << "pid:" << getpid() << std::endl;
   });
 }
 
@@ -61,7 +64,8 @@ void HubBck::S_onPong()
 
 void HubBck::S_Listen()
 {
-  bool k = h.listen(port) ;
+  //bool k = h.listen(port) ;
+  bool k = h.listen(port, nullptr, uS::REUSE_PORT);
   if(!k) {
     std::cout << " listen error !!" << std::endl;
     exit(-1);

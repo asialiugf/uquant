@@ -47,7 +47,7 @@ int D_OHLC::Insert(sKbar *bar)
   return 0;
 }
 //---------------sRSI----------------------------------------------
-sRSI::sRSI(uBEE::Base *BB,char *ID, int Frequency, int n):
+sRSI::sRSI(uBEE::Base *BB,char *ID, int frequency, int n):
   _max(100000,SEE_NULL),
   _abs(100000,SEE_NULL),
   _sma1(100000,SEE_NULL),
@@ -64,7 +64,7 @@ sRSI::sRSI(uBEE::Base *BB,char *ID, int Frequency, int n):
   if(it != BB->MFuBo.end()) {
     fu = it->second ;
   }
-  int idx = GetFrequencyIdx(Frequency);
+  int idx = GetFrequencyIdx(frequency);
 
   ohlc = fu->pBars[idx];
   fu->Update[idx].Connect(this, &sRSI::RunUpdate);
@@ -94,7 +94,7 @@ void sRSI::RunUpdate()
 }
 
 //--------sEKE begin ------------------------------------------
-sEKE::sEKE(uBEE::Base *BB, char *ID, int Frequency, int n, int n1, int m1, int n2):
+sEKE::sEKE(uBEE::Base *BB, char *ID, int frequency, int n, int n1, int m1, int n2):
   _R(100000,SEE_NULL),
   _E(100000,SEE_NULL),
   K(100000,SEE_NULL),
@@ -116,7 +116,7 @@ sEKE::sEKE(uBEE::Base *BB, char *ID, int Frequency, int n, int n1, int m1, int n
   if(it != BB->MFuBo.end()) {
     fu = it->second ;
   }
-  int idx = GetFrequencyIdx(Frequency);
+  int idx = GetFrequencyIdx(frequency);
 
   ohlc = fu->pBars[idx];
   fu->Update[idx].Connect(this, &sEKE::RunUpdate);
@@ -196,7 +196,7 @@ void sEKE::RunUpdate()
   Update(N, N1, M1, N2);
 }
 //--------sMNF begin  ------------------------------------------
-sMNF::sMNF(uBEE::Base *BB, sEKE *e, char *ID, int Frequency, int n):
+sMNF::sMNF(uBEE::Base *BB, sEKE *e, char *ID, int frequency, int n):
   MNF(100000,SEE_NULL)
 {
   preH = SEE_NULL;
@@ -222,7 +222,7 @@ sMNF::sMNF(uBEE::Base *BB, sEKE *e, char *ID, int Frequency, int n):
   if(it != BB->MFuBo.end()) {
     fu = it->second ;
   }
-  int idx = GetFrequencyIdx(Frequency);
+  int idx = GetFrequencyIdx(frequency);
   
   ohlc = fu->pBars[idx];
   fu->Update[idx].Connect(this, &sMNF::RunUpdate);
