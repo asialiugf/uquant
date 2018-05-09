@@ -31,9 +31,6 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
   api = new  FutureApiClient(grpc::CreateChannel(
                                "localhost:50051", grpc::InsecureChannelCredentials()));
 
-  std::thread t(&Base::AssiHubInit,this);
-  t.detach();
-  usleep(1000000); // should wait for thread ready
 }
 
 /*
@@ -268,80 +265,10 @@ void Base::Run()
   }
 
   mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
-  //mainHub.connect("ws://localhost:4000",(void *) 2);  //  data server
   mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   mainHub.run();
   std::cout << "after run \n";
 // 程序何时结束 ？？
-}
-
-void Base::AssiHubInit()
-{
-  assiHub.onConnection([this](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
-    switch((long) ws->getUserData()) {
-    case 0:
-      this->cs[0] = ws;
-      this->ca = ws;
-      break;
-    default:
-      std::cout << "FAILURE: " << ws->getUserData() << " should not connect!" << std::endl;
-      exit(-1);
-    }
-  });
-
-  assiHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
-    assiHub.connect("ws://localhost:3001",(void *) 0); //传入 (void *) 0), onConnection会收到，再保存ws.
-  });
-
-  assiHub.onMessage([this](uWS::WebSocket<uWS::CLIENT> *ws, char *message, size_t length, uWS::OpCode opCode) {
-    char *tmp = new char[length+1];
-    char tmp1[256];
-    memcpy(tmp1, message, length);
-    tmp1[length] = 0;
-    //usleep(1000000);
-    printf("Client receive:%s\n", message);
-    this->m_Qbuf.push(tmp);     //将收到的:数据，传给主线程的get_tick() get_bars()之类的函数。
-    this->cv.notify_all();   //唤醒get_tick() get_bars()
-    //ws->send("-------fro assiHub ===");
-    //usleep(1000000);
-
-  });
-  // 连接到 HubApi
-  assiHub.connect("ws://localhost:3001",(void *) 0); //传入 (void *) 0), onConnection会收到，再保存ws.
-  assiHub.run();
-}
-
-//void Base::getFuTick(char *start_date, char *end_date)
-void Base::getFutureTick(const char *start_date, const char *end_date)
-{
-  // cs[0] 与 DataServer: HubAPI 相联系。
-  if(cs[0] == nullptr) {
-    std::cout<< " assistant Hub may not be initialed !!\n";
-    exit(-1);
-  }
-
-  // 将请求发给 DataServer: HubAPI。
-  // 这里的请求，有很多种，需要定义相关协议。
-  char cmd[512];
-  memset(cmd,'\0',512);
-  int iCode = API_GET_FUTURE_TICKS ;
-  sprintf(cmd,"%4d{\"Sdate\":\"%s\",\"Edate\":\"%s\"}",API_GET_FUTURE_TICKS,start_date,end_date);
-  std::cout << cmd << std::endl;
-  cs[0]->send(cmd);
-
-
-  //  等待 HubApi.cpp Dataserver 返回数据。
-  std::cout<< " go to sleep!! \n";
-  std::unique_lock <std::mutex> l(m_mtx);
-  cv.wait(l); // 这里要改成 timeout时间。
-  std::cout<< " waked!! \n";
-  char * tmp = m_Qbuf.front();
-  m_Qbuf.pop();
-  delete [] tmp;
-}
-
-void Base::getStockBars(const char *period, const char *start_date, const char *end_date)
-{
 }
 
 

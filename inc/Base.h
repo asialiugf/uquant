@@ -69,7 +69,6 @@ struct Base {
   sKbar *bars[50] ;                 // current bars! mainhub.onMessage will set bars[0] bars[1] ... and send it to onBars() !!
   sFuBo *fu ;                      // current future block for strategy !! more fu, refer to M_Fu ......
 
-  uWS::Hub assiHub;   				// assitant Hub linked to data server for getTick,getBar ...
   uWS::Hub mainHub;   				// main     Hub callback for onTick() onBars() ...
   uWS::WebSocket<uWS::CLIENT> *cw;  // (mainHub) client to web server
   uWS::WebSocket<uWS::CLIENT> *cd;  // (mainHub) client to data server
@@ -79,10 +78,6 @@ struct Base {
   uWS::WebSocket<uWS::CLIENT> *ct;  // (mainHub) client to trading server
   uWS::WebSocket<uWS::CLIENT> *ca;  // (assiHub) assitant client to data server for getTick,getBar ...
   std::vector<uWS::WebSocket<uWS::CLIENT>*>  cs;
-  std::queue<char*> m_Qbuf ;
-
-  std::mutex m_mtx; 					// 全局互斥锁.
-  std::condition_variable cv; 		// 全局条件变量.
 
   std::function<void()> onDailyHandler;
   std::function<void()> onWeeklyHandler;
@@ -113,11 +108,7 @@ public:
   // ------------------------------- API ---------------------------------
   void FuInit(const std::map<std::string,std::vector<int>> *M);
   int GetFrequencyIdx(int f);
-  // ------------------------------- API ---------------------------------
-  void getFutureTick(const char *start_date, const char *end_date);
-  void getStockBars(const char *period, const char *start_date, const char *end_date);
-private:
-  void AssiHubInit();
+
 };
 
 } // namespace ---

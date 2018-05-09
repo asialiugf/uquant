@@ -52,16 +52,13 @@ int main()
   std::string en = "ru1809";
   int  frequency = 300;
   uBEE::getFutureBars(BB,ID,st,en,frequency);
+
   gettimeofday(&start,NULL);
-  for(int i=0; i<2; i++) {
-    BB->getFutureTick((const char *)"20170101",(const char *) "20180101");
-  }
   gettimeofday(&end,NULL);
   diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
   diff = diff/10000;
   printf("thedifference is %ld\n",diff);
 
-  std::cout << " end getTick() !!\n";
 
   int aa = 1009;
 
@@ -79,7 +76,9 @@ int main()
 
   //-------------------- onInit -----------------------------------
   BB->onInit([&]() {
+    std::cout << "whyyyyy333333\n" ;
     r = new sRSI(BB,(char*)"ru1809", 5, 14);
+    std::cout << "uuuuuuuuuuadsfafd\n" ;
     e1 = new sEKE(BB,(char*)"ru1809",5, 36, 1, 12, 4);
     e2 = new sEKE(BB,(char*)"ru1809",5, 9*16, 8, 3*16, 16);
     e3 = new sEKE(BB,(char*)"ru1809",5, 9*64, 21, 3*64, 64);
