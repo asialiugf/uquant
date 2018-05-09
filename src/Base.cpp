@@ -28,6 +28,9 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
     bars[i] = nullptr ;
   }
 
+  api = new  FutureApiClient(grpc::CreateChannel(
+                               "localhost:50051", grpc::InsecureChannelCredentials()));
+
   std::thread t(&Base::AssiHubInit,this);
   t.detach();
   usleep(1000000); // should wait for thread ready
@@ -337,9 +340,6 @@ void Base::getFutureTick(const char *start_date, const char *end_date)
   delete [] tmp;
 }
 
-void Base::getFutureBars(const char *period, const char *start_date, const char *end_date)
-{
-}
 void Base::getStockBars(const char *period, const char *start_date, const char *end_date)
 {
 }

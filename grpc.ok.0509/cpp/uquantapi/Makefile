@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-# $@--目标文件，$^--所有的依赖文件，$<--第一个依赖文件。
-
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
 CXX = g++
@@ -38,17 +36,7 @@ PROTOS_PATH = ../../protos
 
 vpath %.proto $(PROTOS_PATH)
 
-API_SERVER := -std=c++11 -O3 -shared -fPIC -I %.pb.cc uapi_server.cc
-
-API_CLIENT := -std=c++11 -O3 -shared -fPIC -I ./ uquantapi.grpc.pb.cc uquantapi.pb.cc uapi_client.cc
-
-all: system-check uapi_server uapi_client uapi_async_client uapi_async_client2 uapi_async_server apiserver apiclient
-
-apiserver:
-	$(CXX) $(API_SERVER) -s -o ../../../../u/lib/libRpcServer.so
-
-apiclient:
-	$(CXX) $(API_CLIENT) -s -o ../../../../u/lib/libApiClient.so
+all: system-check uapi_client uapi_server uapi_async_client uapi_async_client2 uapi_async_server
 
 uapi_client: uquantapi.pb.o uquantapi.grpc.pb.o uapi_client.o
 	$(CXX) $^ $(LDFLAGS) -o $@

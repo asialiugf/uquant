@@ -1,7 +1,11 @@
 CCFLAGS =  -std=c++11 -O3 -fPIC  -luWS -lindicator -lssl -lz -lpthread -lcjson -Wunused-result
 LIBPATH = -L/home/riddle/uws -L ./ -L ../../u/lib -L ../lib/seetalib-1.0.0/lib
 
-ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lsee_talib -lindicator
+ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lsee_talib -lindicator -lApiClient
+
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+           -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
+           -ldl
 
 CTPLIBS:= ../ctp/thostmduserapi.so \
         ../ctp/thosttraderapi.so
@@ -37,13 +41,13 @@ MNFOBJS:= \
 	$(OBJ)Index.o
 
 $(EXE)main.x: $(MAINOBJS)
-	$(CXX) $(CCFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
+	$(CXX) $(CCFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) $(LDFLAGS)
 
 $(EXE)t1.x: $(T1OBJS)
-	$(CXX) $(CCFLAGS) -o $(EXE)t1.x $(T1OBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
+	$(CXX) $(CCFLAGS) -o $(EXE)t1.x $(T1OBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) $(LDFLAGS)
 
 $(EXE)mnf.x: $(MNFOBJS)
-	$(CXX) $(CCFLAGS) -o $(EXE)mnf.x $(MNFOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS)
+	$(CXX) $(CCFLAGS) -o $(EXE)mnf.x $(MNFOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) $(LDFLAGS)
 
 $(OBJ)Main.o: $(SRC)Main.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp

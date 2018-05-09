@@ -28,11 +28,6 @@
 #include "uquantapi.grpc.pb.h"
 #endif
 
-#include "uapi_client.h"
-
-namespace uBEE
-{
-
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
@@ -98,7 +93,7 @@ public:
   }
 
 
-  kBarReply getFutureBars(const std::string& id, const std::string& start,
+  kBarReply getBars(const std::string& id, const std::string& start,
                     const std::string& end,int frequency)
   {
     kBarRequest request;
@@ -110,7 +105,7 @@ public:
     ClientContext context;
 
     // Here we can the stub's newly available method we just added.
-    Status status = stub_->getFutureBars(&context, request, &reply);
+    Status status = stub_->getBars(&context, request, &reply);
     if(status.ok()) {
       return reply;
     } else {
@@ -126,33 +121,40 @@ private:
 };
 
 //-------------------------------------------------------------
-kBarReply FutureApiClient::getFutureBars(const std::string& id, const std::string& start,
-                                   const std::string& end,int frequency)
+class FutureApiClient
 {
-  kBarRequest request;
-  request.set_id(id);
-  request.set_start(start);
-  request.set_end(end);
-  request.set_frequency(frequency);
-  kBarReply reply;
-  ClientContext context;
+public:
+  FutureApiClient(std::shared_ptr<Channel> channel)
+    : stub_(FutureApi::NewStub(channel)) {}
 
-  // Here we can the stub's newly available method we just added.
-  Status status = stub_->getFutureBars(&context, request, &reply);
-  if(status.ok()) {
-    return reply;
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    //return "RPC failed";
+  //---------------
+  kBarReply getBars(const std::string& id, const std::string& start,
+                    const std::string& end,int frequency)
+  {
+    kBarRequest request;
+    request.set_id(id);
+    request.set_start(start);
+    request.set_end(end);
+    request.set_frequency(frequency);
+    kBarReply reply;
+    ClientContext context;
+
+    // Here we can the stub's newly available method we just added.
+    Status status = stub_->getBars(&context, request, &reply);
+    if(status.ok()) {
+      return reply;
+    } else {
+      std::cout << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      //return "RPC failed";
+    }
   }
-}
+  //---------------
 
+private:
+  std::unique_ptr<FutureApi::Stub> stub_;
+};
 //-------------------------------------------------------------
-
-} //namespace
-
-using namespace uBEE;
 
 int main(int argc, char** argv)
 {
@@ -174,7 +176,7 @@ int main(int argc, char** argv)
   std::string start = "ru1809";
   std::string end = "ru1809";
   int  frequency = 300;
-  kBarReply ret = greeter.getFutureBars(ID,start,end,frequency);
+  kBarReply ret = greeter.getBars(ID,start,end,frequency);
   int size = ret.kk_size();
   std::cout << "bars num: " << size << std::endl;
   for(int i=0; i<size; i++) {
@@ -182,18 +184,13 @@ int main(int argc, char** argv)
     std::cout << i+1 << " o: " << psn.o() << " h: " << psn.h() << std::endl;
   }
 
-  FutureApiClient * api;
-  api = new  FutureApiClient(grpc::CreateChannel(
-                               "localhost:50051", grpc::InsecureChannelCredentials()));
-  /*
   FutureApiClient futureapi(grpc::CreateChannel(
                               "localhost:50051", grpc::InsecureChannelCredentials()));
-  */
   ID = "ru1809";
   start = "20180101";
   end = "20180507";
   frequency = 300;
-  ret = api->getFutureBars(ID,start,end,frequency);
+  ret = futureapi.getBars(ID,start,end,frequency);
   size = ret.kk_size();
   std::cout << "bars num: " << size << std::endl;
   for(int i=0; i<size; i++) {

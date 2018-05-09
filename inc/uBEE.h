@@ -16,5 +16,6 @@
 #include <ErrLog.h>
 #include "FuList.h"
 #include "SigSlot.h"
+#include "ApiClient.h"
 
 #endif //UBEE_UBEE_H

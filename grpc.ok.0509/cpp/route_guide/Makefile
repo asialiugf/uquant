@@ -14,19 +14,17 @@
 # limitations under the License.
 #
 
-# $@--目标文件，$^--所有的依赖文件，$<--第一个依赖文件。
-
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
 CXX = g++
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
 CXXFLAGS += -std=c++11
 ifeq ($(SYSTEM),Darwin)
-LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -lgrpc++_reflection\
            -ldl
 else
-LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
            -ldl
 endif
@@ -38,43 +36,22 @@ PROTOS_PATH = ../../protos
 
 vpath %.proto $(PROTOS_PATH)
 
-API_SERVER := -std=c++11 -O3 -shared -fPIC -I %.pb.cc uapi_server.cc
+all: system-check route_guide_client route_guide_server
 
-API_CLIENT := -std=c++11 -O3 -shared -fPIC -I ./ uquantapi.grpc.pb.cc uquantapi.pb.cc uapi_client.cc
-
-all: system-check uapi_server uapi_client uapi_async_client uapi_async_client2 uapi_async_server apiserver apiclient
-
-apiserver:
-	$(CXX) $(API_SERVER) -s -o ../../../../u/lib/libRpcServer.so
-
-apiclient:
-	$(CXX) $(API_CLIENT) -s -o ../../../../u/lib/libApiClient.so
-
-uapi_client: uquantapi.pb.o uquantapi.grpc.pb.o uapi_client.o
+route_guide_client: route_guide.pb.o route_guide.grpc.pb.o route_guide_client.o helper.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-uapi_server: uquantapi.pb.o uquantapi.grpc.pb.o uapi_server.o
+route_guide_server: route_guide.pb.o route_guide.grpc.pb.o route_guide_server.o helper.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-uapi_async_client: uquantapi.pb.o uquantapi.grpc.pb.o uapi_async_client.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-uapi_async_client2: uquantapi.pb.o uquantapi.grpc.pb.o uapi_async_client2.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-uapi_async_server: uquantapi.pb.o uquantapi.grpc.pb.o uapi_async_server.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-.PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
 	$(PROTOC) -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 
-.PRECIOUS: %.pb.cc
 %.pb.cc: %.proto
 	$(PROTOC) -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h uapi_client uapi_server uapi_async_client uapi_async_client2 uapi_async_server
+	rm -f *.o *.pb.cc *.pb.h route_guide_client route_guide_server
 
 
 # The following is to test your system and ensure a smoother experience.

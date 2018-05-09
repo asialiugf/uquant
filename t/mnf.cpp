@@ -45,6 +45,13 @@ int main()
   sMNF *m4;
 
   //-------------------- initialize -----------------------------------
+  //getFutureBars(BB,(const char*)"ru1809",(const char *)"20170101",(const char *) "20180101",600);
+
+  std::string ID = "ru1809";
+  std::string st = "ru1809";
+  std::string en = "ru1809";
+  int  frequency = 300;
+  uBEE::getFutureBars(BB,ID,st,en,frequency);
   gettimeofday(&start,NULL);
   for(int i=0; i<2; i++) {
     BB->getFutureTick((const char *)"20170101",(const char *) "20180101");
