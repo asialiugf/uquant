@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <algorithm>
 #include <vector>
+#include <uuid/uuid.h>
 
 namespace uBEE
 {
@@ -19,6 +20,16 @@ using lSignal::Slot;
 Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
 {
   Mode         = 4;                // default
+  memset(DayB,'\0',9);
+  memset(DayE,'\0',9);
+
+  uuid_t uu;
+  uuid_generate(uu);
+  snprintf(Uuid,33, "%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
+           uu[0],uu[1],uu[2], uu[3], uu[4], uu[5], uu[6], uu[7],
+           uu[8],uu[9],uu[10],uu[11],uu[12],uu[13],uu[14],uu[15]);
+  Uuid[33] = '\0';
+
   data         = &DT;
   tick         = &TK;
   InstrumentID = data->InstrumentID;
@@ -306,6 +317,7 @@ int Base::BckMsgInit(BckMsg *bck_msg)
   bck_msg->iType = 0;
   memcpy(bck_msg->DayB,DayB,9);
   memcpy(bck_msg->DayE,DayE,9);
+  memcpy(bck_msg->Uuid,Uuid,33);
 
   int i = 0;
   for(auto iter = MFuBo.begin(); iter != MFuBo.end(); ++iter) {
