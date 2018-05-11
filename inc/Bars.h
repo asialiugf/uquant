@@ -95,18 +95,18 @@ namespace uBEE
 #define  BAR_1J      29
 #define  BAR_1Y      30
 
-  //标准周期
-  //  0   1   2   3   4   5    6    7    8    9    10    11    12    13    14    15     16
-  //  0S  1S  2S  3S  5S  10S  15S  20S  30S  1F   2F    3F    5F    10F   15F   20F    30F
-  //  0,  1,  2,  3,  5,  10,  15,  20,  30,  60,  120,  180,  300,  600,  900,  1200,  1800
-  //  0S是tick。
-  //  17    18    19     20     21      22   23   24   25   26   27   28   29  30
-  //  1H    2H    3H     4H     5H      6H   8H   10   12   1D   1W   1M   1J  1Y
-  //  3600, 7200, 10800, 14400, 18000,  0,   0,   0,   0,   0,   0,   0,   0,  0
+//标准周期
+//  0   1   2   3   4   5    6    7    8    9    10    11    12    13    14    15     16
+//  0S  1S  2S  3S  5S  10S  15S  20S  30S  1F   2F    3F    5F    10F   15F   20F    30F
+//  0,  1,  2,  3,  5,  10,  15,  20,  30,  60,  120,  180,  300,  600,  900,  1200,  1800
+//  0S是tick。
+//  17    18    19     20     21      22   23   24   25   26   27   28   29  30
+//  1H    2H    3H     4H     5H      6H   8H   10   12   1D   1W   1M   1J  1Y
+//  3600, 7200, 10800, 14400, 18000,  0,   0,   0,   0,   0,   0,   0,   0,  0
 
-  // 用户自定义 交易周期 不能超过20个 不能和已有的周期重复！
-  //                    31  32   33   34   35
-  // const int fr[5] = {19,14401,9900,350,6600};
+// 用户自定义 交易周期 不能超过20个 不能和已有的周期重复！
+//                    31  32   33   34   35
+// const int fr[5] = {19,14401,9900,350,6600};
 
 // -- 前面加上 100 101 ... 是为了排序需要.
 // M_FF是为 HubCtp HubSim根据tick生成kbar用的，如果不需要，可以将后面的值改为-1即可。
@@ -303,6 +303,7 @@ public:
 struct FuBo {
   std::shared_ptr<uBEE::DBPool> dbpool;
   uWS::Group<uWS::SERVER> * SG;
+  uWS::WebSocket<uWS::SERVER> *ws ;         // HubBck 需要。
   int          iChange ;                    // Tick changed "20:59:??" to "21:00:00"
   char         InstrumentID[31];
   char         ActionDay[9];
@@ -319,7 +320,7 @@ public:
 
 // -------------------- for sending -----------------
 
-struct sTick{                  // tick for send !!
+struct sTick {                 // tick for send !!
   int     iType ;                 // type :  0:tick  1 2 3 ... for other ....
   char    InstrumentID[31];
   char    ActionDay[9];
@@ -340,7 +341,7 @@ struct sTick{                  // tick for send !!
   int           Volume;                 ///数量
 };
 
-struct sKbar{              // Kbar for send !!
+struct sKbar {             // Kbar for send !!
   int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
   int     iF;              // 周期  600 300 ...：:w
   char    cB[9];           // begin time BAR K柱 的开始时间
@@ -353,7 +354,7 @@ struct sKbar{              // Kbar for send !!
   int     vsum ;           // keep volume sum
 };
 
-struct sData{
+struct sData {
   int     iType ;                 // type :  0:tick  1 2 3 ... for other ....  1:nomal 2:update
   char    InstrumentID[31];
   char    ActionDay[9];
@@ -379,13 +380,13 @@ static const int oLen = hLen + bLen ;
 
 int MakeTime(char *caT, int T) ;
 
-int SendTick  (uBEE::FuBo *fubo, TICK *tick);
-int SaveTick  (uBEE::FuBo *fubo, TICK *tick);
+int SendTick(uBEE::FuBo *fubo, TICK *tick);
+int SaveTick(uBEE::FuBo *fubo, TICK *tick);
 int HandleTick(uBEE::FuBo *fubo, TICK *tick,            int flag);
-int MarkBar   (uBEE::FuBo *fubo, TICK *tick,int period);
-int SendBar   (uBEE::FuBo *fubo,            int period, int flag);
-int SaveBar   (uBEE::FuBo *fubo, sKbar *KK ,int period);
-int DealBar   (uBEE::FuBo *fubo, TICK *tick,int period, int flag);
+int MarkBar(uBEE::FuBo *fubo, TICK *tick,int period);
+int SendBar(uBEE::FuBo *fubo,            int period, int flag);
+int SaveBar(uBEE::FuBo *fubo, sKbar *KK ,int period);
+int DealBar(uBEE::FuBo *fubo, TICK *tick,int period, int flag);
 
 int Display(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
 int DispBar(uBEE::FuBo *fubo, TICK *tick,int period,const char*msg);
