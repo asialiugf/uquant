@@ -20,6 +20,7 @@ int main()
 
   std::map< std::string, std::vector<int> > fuMap ;
   fuMap["xu1801"] = {0,60,300,3600};
+  fuMap["tu1801"] = {0,60,300,3600};
   fuMap["ru1805"] = {5,60,300,3600};
   fuMap["ru1809"] = {5,60};
   fuMap["xu1807"] = {60,19,300,3600};
@@ -87,7 +88,7 @@ int main()
     m2 = new sMNF(BB,e2,(char*)"ru1809",5, 9*16);
     m3 = new sMNF(BB,e3,(char*)"ru1809",5, 9*64);
     m4 = new sMNF(BB,e4,(char*)"ru1809",5, 9*64*4);
-    std::cout << "whyyyyy333333\n" ;
+    std::cout << "onInit end !! whyyyyy333333\n" ;
   });
   //-------------------- onTick -----------------------------------
   BB->onTick([&](sTick *tick) {

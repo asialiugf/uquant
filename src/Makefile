@@ -1,6 +1,6 @@
 CPP_SHARED := -std=c++11 -O3 -shared -fPIC -I ../inc -I /usr/include -I /usr/local/include -I /usr/include/postgresql \
 Base.cpp Bars.cpp File.cpp Json.cpp Title.cpp FuList.cpp ErrLog.cpp Daemon.cpp HubApi.cpp HubCtp.cpp HubSim.cpp HubBck.cpp MdCtp.cpp MdSpi.cpp MkSim.cpp Global.cpp TdFuBo.cpp \
-Psqlpool.cpp PsqlFunc.cpp ApiClient.cpp
+Psqlpool.cpp PsqlFunc.cpp ApiClient.cpp BitMap.cpp
 
 LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
@@ -19,7 +19,7 @@ CFLAGS =  -std=c++11 -O3 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-resul
 LIBPATH = -L/home/riddle/uws -L ./ -L ../../u/lib
 LINK =  $(CC)
 
-ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lApiClient
+ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lApiClient -luuid 
 
 CTPLIBS:= ../ctp/thostmduserapi.so \
         ../ctp/thosttraderapi.so

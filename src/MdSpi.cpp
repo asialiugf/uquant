@@ -31,7 +31,7 @@ char *ppInstrumentID[FUTURE_NUMBER];                             // 期货ID
 int iInstrumentID;                                      // 订阅的期货数量
 int iRequestID;
 
-std::map<std::string,uBEE::FuBo>    M_CtpFuBo;         // 每个期货一个 FuBo，future block 构成一个MAP
+std::map<std::string,uBEE::FuBo *>    M_CtpFuBo;         // 每个期货一个 FuBo，future block 构成一个MAP
 
 std::shared_ptr<uBEE::DBPool> dbpool;
 //uBEE::TradingTime             *tt;
@@ -122,7 +122,7 @@ void CMdSpi::Init()
     // !!! map 做为成员变量有问题，所以改成了全局变量。
 
     uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb, sg);
-    M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo>(fl->pc_futures[i], *fubo));
+    M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo*>(fl->pc_futures[i], fubo));
 
   }
   //exit(0); // charmi
@@ -233,12 +233,12 @@ void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
   }
   */
 
-  map<std::string,uBEE::FuBo>::iterator iter;
+  map<std::string,uBEE::FuBo*>::iterator iter;
   iter=M_CtpFuBo.find(tick->InstrumentID);
   if(iter==M_CtpFuBo.end())
     std::cout<<"we do not find :"<< tick->InstrumentID <<std::endl;
   else {
-    HandleTick(&(iter->second),tick,SEND_SAVE_ALL);
+    HandleTick(iter->second,tick,SEND_SAVE_ALL);
   }
 }
 

@@ -17,8 +17,8 @@ namespace uBEE
 #define LOG_FUNC()    do { cout << __FUNCTION__ << endl; } while (0)
 //---
 uWS::Group<uWS::SERVER> * SimSG;
-std::map<std::string,uBEE::FuSim>    M_FuSim;         // 每个期货一个 FuSim  构成一个MAP
-std::map<std::string,uBEE::FuBo>     M_SimFuBo;         // 每个期货一个 FuBlock，构成一个MAP
+std::map<std::string,uBEE::FuSim*>    M_FuSim;         // 每个期货一个 FuSim  构成一个MAP
+std::map<std::string,uBEE::FuBo*>     M_SimFuBo;         // 每个期货一个 FuBlock，构成一个MAP
 std::vector<std::string>             V_Future(10);
 std::map<std::string,std::string>    M_SimFuFile;         // 每个期货一个 FuBlock，构成一个MAP
 //barSG  * KBuf;
@@ -167,6 +167,7 @@ int FuSim::RunTickBarsF()
   int ss;
   string temp;
   fstream file;
+  TICK  TickTemp;
   file.open(File,ios::in);
   while(getline(file,temp)) {
 
@@ -182,6 +183,18 @@ int FuSim::RunTickBarsF()
            &Tick.BidPrice1, &Tick.BidVolume1,
            &Tick.OpenInterest, &Tick.Volume);
     Tick.UpdateMillisec = Tick.UpdateMillisec/1000;
+    
+    //int64_t lp1 = (int64_t)Tick.LastPrice * 1000000;
+    //int64_t lp2 = (int64_t)TickTemp.LastPrice * 1000000;
+    int64_t lp1 = (int64_t)(Tick.Volume) ;
+    int64_t lp2 = (int64_t)(TickTemp.Volume);
+    int64_t xordat =  lp1 ^ lp2;
+    int8_t HeadZeros = __builtin_clzll(xordat);
+    int8_t TailZeros = __builtin_ffsll(xordat);
+    std::cout <<"Volume1:"<<Tick.Volume << "Volume2:"<<TickTemp.Volume << "lp1:"<< lp1 << " lp2:" << lp2 ;
+    std::cout << " xordat:" << xordat <<  " HeadZeros: " << (int)HeadZeros << "  TailZeros: " << (int)TailZeros << std::endl;
+
+    memcpy(&TickTemp,&Tick,sizeof(TICK));
 
     HandleTick(fubo,&Tick,SEND_ALL);
     usleep(50);
@@ -260,7 +273,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
 
     std::cout << "MkSim(): new FuBo Future Block :"<< p << std::endl;
     uBEE::FuBo *fubo = new uBEE::FuBo(p,tb,SimSG);
-    M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo>(p, *fubo));
+    M_SimFuBo.insert(std::pair<std::string,uBEE::FuBo *>(p, fubo));
 
     std::cout << "MkSim(): new FuSim Future Simulation :"<< p << std::endl;
     // --------- will call fusim->MkTick() -------------
@@ -271,13 +284,13 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       fusim->SetBarF("../Sim/bars/ru1809_00_01_00.60.9i"); //设置要处理的OHLC文件.
     }
     // ------ 临时加 end -----
-    M_FuSim.insert(std::pair<std::string,uBEE::FuSim>(p, *fusim));
+    M_FuSim.insert(std::pair<std::string,uBEE::FuSim*>(p, fusim));
   }
 
   // ----------------  test ----------------------------------------------begin
   for(auto it = M_SimFuBo.begin(); it != M_SimFuBo.end(); ++it) {
     uBEE::ErrLog(1000,"rrrrrrrrrr",1,0,0);
-    uBEE::FuBo *fubo = &(it->second);
+    uBEE::FuBo *fubo = it->second;
 
     for(int i=0; i<50; ++i) {
       if(fubo->pBaBo[i] == nullptr) {
@@ -307,15 +320,15 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   //----------- bar test  from bar file ---------------------------------------
 
   for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
-    uBEE::FuSim *fusim = &(it->second) ;
-    std::map<std::string,uBEE::FuBo>::iterator iter;
-    iter = M_SimFuBo.find(it->first);
+    uBEE::FuSim *fusim = it->second ;
+    //std::map<std::string,uBEE::FuBo*>::iterator iter;
+    auto iter = M_SimFuBo.find(it->first);
     if(iter == M_SimFuBo.end()) {
       sprintf(ca_errmsg,"MkSim not find: %s",it->first.c_str()) ;
       uBEE::ErrLog(1000,ca_errmsg,1,0,0) ;
       continue ;
     }
-    uBEE::FuBo *fubo = &(iter->second);
+    uBEE::FuBo *fubo = iter->second;
     if(memcmp(it->first.c_str(),"ru1809",6)==0) {
       //std::cout <<"enter into send :fr:60:  "<< it->first << std::endl;
       //fusim->RunBarsF(60);
@@ -340,9 +353,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   while(1) {
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
       //char * fu = it->first ;
-      uBEE::FuSim *fusim = &(it->second) ;
+      uBEE::FuSim *fusim = it->second ;
       // 从 M_SimFuBo 这个map中找到相应的 fubo， 然后将其传给 DealBars() ;
-      std::map<std::string,uBEE::FuBo>::iterator iter;
+      std::map<std::string,uBEE::FuBo *>::iterator iter;
       iter = M_SimFuBo.find(it->first);
       if(iter == M_SimFuBo.end()) {
         sprintf(ca_errmsg,"MkSim not find: %s",it->first.c_str()) ;
@@ -350,7 +363,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue ;
       }
 
-      uBEE::FuBo *fubo = &(iter->second);
+      uBEE::FuBo *fubo = iter->second;
 
       TICK *tick = fusim->MkTickF();
 

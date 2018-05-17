@@ -135,6 +135,7 @@ void Base::onMessageInit()
 
     map<std::string,uBEE::sFuBo *>::iterator it;
 
+    // Bars.h sTick/sData ==> iType (*((int*)data)) ;
     switch(*((int*)data)) {
     case T_TICK:
       memcpy((char *)this->tick,data,length);
