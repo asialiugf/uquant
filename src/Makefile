@@ -19,7 +19,7 @@ CFLAGS =  -std=c++11 -O3 -fPIC  -luWS -lssl -lz -lpthread -lcjson -Wunused-resul
 LIBPATH = -L/home/riddle/uws -L ./ -L ../../u/lib
 LINK =  $(CC)
 
-ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson -lpq -lApiClient -luuid 
+ALLLIBS = -luBEE -luWS -lssl -lz -lpthread -lcjson  -lApiClient -luuid 
 
 CTPLIBS:= ../ctp/thostmduserapi.so \
         ../ctp/thosttraderapi.so
@@ -32,8 +32,8 @@ OBJ = ../../u/obj/
 
 INCS = -I ../inc \
        -I /usr/include \
-       -I /usr/local/include \
-	   -I /usr/include/postgresql
+       -I /usr/local/include
+#	   -I /usr/include/postgresql
 
 
 exes: $(EXE)dserver.x \

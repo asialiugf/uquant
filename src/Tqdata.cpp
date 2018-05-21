@@ -1,7 +1,7 @@
 #include <uWS/uWS.h>
 #include "uBEE.h"
-#include "Psqlpool.h"
-#include "PsqlFunc.h"
+//#include "Psqlpool.h"
+//#include "PsqlFunc.h"
 #include <iostream>
 #include <sys/time.h>
 
