@@ -4,8 +4,8 @@
 #include "MdSpi.h"
 #include "Bars.h"
 #include "Global.h"
-#include "Psqlpool.h"
-#include "PsqlFunc.h"
+//#include "Psqlpool.h"
+//#include "PsqlFunc.h"
 #include <uWS/uWS.h>
 #include <string.h>
 #include <iostream>
@@ -33,7 +33,7 @@ int iRequestID;
 
 std::map<std::string,uBEE::FuBo *>    M_CtpFuBo;         // 每个期货一个 FuBo，future block 构成一个MAP
 
-std::shared_ptr<uBEE::DBPool> dbpool;
+//std::shared_ptr<uBEE::DBPool> dbpool;
 //uBEE::TradingTime             *tt;
 uBEE::FuList                  *fl;
 //uBEE::TmBo        *tmbo;

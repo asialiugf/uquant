@@ -1,7 +1,7 @@
 #include "../ctp/ThostFtdcMdApi.h"
 #include "FuList.h"
 #include "Bars.h"
-#include "Psqlpool.h"
+//#include "Psqlpool.h"
 #include <uWS/uWS.h>
 
 
@@ -15,7 +15,7 @@ class CMdSpi : public CThostFtdcMdSpi
   uBEE::FuList *fl;
   // map做为成员变量，初始化 没有搞定，所以改成全局变量了。
   //std::map<std::string,uBEE::FuBlock *> FuBlockMap;
-  std::shared_ptr<uBEE::DBPool> dbpool;
+  //std::shared_ptr<uBEE::DBPool> dbpool;
   int x ;
 public:
   CMdSpi();

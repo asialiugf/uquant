@@ -2,8 +2,8 @@
 #define UBEE_BARS_H
 
 #include "../ctp/ThostFtdcMdApi.h"
-#include "Psqlpool.h"
-#include "PsqlFunc.h"
+//#include "Psqlpool.h"
+//#include "PsqlFunc.h"
 #include <uWS/uWS.h>
 #include <thread>
 #include <mutex>
@@ -301,7 +301,7 @@ public:
 } ;
 
 struct FuBo {
-  std::shared_ptr<uBEE::DBPool> dbpool;
+  //std::shared_ptr<uBEE::DBPool> dbpool;
   uWS::Group<uWS::SERVER> * SG;
   uWS::WebSocket<uWS::SERVER> *ws ;         // HubBck 需要。
   int          iChange ;                    // Tick changed "20:59:??" to "21:00:00"
