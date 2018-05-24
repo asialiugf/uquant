@@ -44,6 +44,7 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
 
 }
 
+
 /*
   策略主进程 要调用 Base::FuInit()，针对每个需要处理的合约，初始化，并放在一个map中，M_Fu.insert()。
   M_Fu 是 Base的成员变量。
