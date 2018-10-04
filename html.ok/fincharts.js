@@ -382,6 +382,7 @@
     }
 
     /* G definProperties begin         --------------------------*/
+    /* Object对象，是所有JavaScript对象的超类(基类)。Object.prototype(Obecjt的原型)定义了Js对象的基本方法和属性。 */
     Object.defineProperties(G, {
       "disLast": {
         set: function(x) {
