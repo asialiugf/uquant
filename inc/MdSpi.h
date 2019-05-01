@@ -10,7 +10,6 @@ namespace uBEE
 
 class CMdSpi : public CThostFtdcMdSpi
 {
-  char *m_ppInstrumentID[];
   uWS::Group<uWS::SERVER> * m_SG;
   uBEE::FuList *fl;
   // map做为成员变量，初始化 没有搞定，所以改成全局变量了。
@@ -58,5 +57,7 @@ private:
   void ReqUserLogin();
   void SubscribeMarketData();
   bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
+public:
+  char *m_ppInstrumentID[];
 };
 }

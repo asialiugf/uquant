@@ -78,7 +78,7 @@ int CountLines(const char *filename)
   if(ReadFile.fail()) { //文件打开失败:返回0
     sprintf(ca_errmsg,"CountLines(): open file error!! : %s",filename) ;
     uBEE::ErrLog(1000,ca_errmsg,1,0,0);
-    return 0;
+    return -1;
   } else { //文件存在
     while(getline(ReadFile,tmp,'\n')) {
       n++;
