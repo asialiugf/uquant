@@ -875,6 +875,7 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick)
   1. 调用 MarkBar() 标记那些已经结束的 bar !
   2. 将这些 bar 先送给 策略进程进行处理。
   3. 调用 DealBar() 处理相应的bar, 新生成 bar
+  4. 调用 SG->broadcast() 将bars ticks 传给 策略程序  ~/uquant/t/main.cpp 
 */
 int HandleTick(uBEE::FuBo *fubo, TICK *tick , int flag)
 {
