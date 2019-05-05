@@ -8,8 +8,7 @@ LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
            -ldl
 
 CTPLIBS:= ../ctp/thostmduserapi.so \
-        ../ctp/thosttraderapi.so \
-        ../../u/lib/libsee_talib.so
+        ../ctp/thosttraderapi.so
 
 EXE = ../../u/exe/
 
@@ -25,19 +24,21 @@ INCS = -I ../inc -I ./indicator -I ../indicator \
 
 default:  exes
 
-#exes: $(EXE)t1.x
-exes: $(EXE)main.x \
+exes: $(EXE)t1.x \
+	$(EXE)main.x \
 	$(EXE)mnf.x
 
 MAINOBJS:= \
-	$(OBJ)Main.o
-#	$(OBJ)Index.o
+	$(OBJ)Main.o \
+	$(OBJ)Index.o
 
 T1OBJS:= \
-	$(OBJ)t1.o
+	$(OBJ)t1.o \
+	$(OBJ)Index.o
 
 MNFOBJS:= \
-	$(OBJ)mnf.o
+	$(OBJ)mnf.o \
+	$(OBJ)Index.o
 
 $(EXE)main.x: $(MAINOBJS)
 	$(CXX) $(CCFLAGS) -o $(EXE)main.x $(MAINOBJS) $(LIBPATH) $(ALLLIBS) $(CTPLIBS) $(LDFLAGS)
@@ -51,8 +52,8 @@ $(EXE)mnf.x: $(MNFOBJS)
 $(OBJ)Main.o: $(SRC)Main.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Main.o  $(SRC)Main.cpp
 
-#$(OBJ)Index.o: $(SRC)Index.cpp
-#	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Index.o  $(SRC)Index.cpp
+$(OBJ)Index.o: $(SRC)Index.cpp
+	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)Index.o  $(SRC)Index.cpp
 
 $(OBJ)t1.o: $(SRC)t1.cpp
 	$(CXX) -c $(CCFLAGS) $(INCS) -o $(OBJ)t1.o  $(SRC)t1.cpp

@@ -67,16 +67,21 @@ int main(int argc, char **argv)
   sleep(1);
   std::cout << "after fork api !!\n" ;
 
+  // for back test!!! 回测 
   if(iFunc == 2 || iFunc == 6 || iFunc == 7 || iFunc == 8) {
     for(int i=0; i<5; i++) {
       rtn = ForkBck();
       sleep(1);
     }
   }
+
+  // for simulation !!! 仿真
   if(iFunc == 4 || iFunc == 5 || iFunc == 7 || iFunc == 8) {
     rtn = ForkSim();
     sleep(1);
   }
+
+  // for CTP 实情
   if(iFunc == 3 || iFunc == 5 || iFunc == 6 || iFunc == 8) {
     rtn = ForkCtp();
     sleep(1);
