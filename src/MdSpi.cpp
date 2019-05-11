@@ -121,7 +121,7 @@ void CMdSpi::Init()
     //uBEE::createTickTable(dbpool,fl->pc_futures[i]);
     // !!! map 做为成员变量有问题，所以改成了全局变量。
 
-    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb, sg);
+    uBEE::FuBo *fubo = new uBEE::FuBo(fl->pc_futures[i],tb, sg);  // every future has a fubo: future block !
     M_CtpFuBo.insert(std::pair<std::string,uBEE::FuBo*>(fl->pc_futures[i], fubo));
 
   }

@@ -56,14 +56,12 @@ namespace uBEE
 /*
    注意：
     下面的定义，与数组下标是严格一致的。
-    block->bar_block[0]  = block->bar_block[BAR_1S]
-    block->bar_block[13]  = block->bar_block[BAR_15F]
-    block->bar_block[0]  = block->bar_block[BAR_1S]
-    block->bar_block[13]  = block->bar_block[BAR_15F]
+    block->bar_block[0]  = block->bar_block[BAR_TICK]
+    block->bar_block[13]  = block->bar_block[BAR_10F]
     各种函数的 period 也用的是下面的定义。
 
 */
-#define  BAR_TICK     0
+#define  BAR_TICK    0
 #define  BAR_1S      1
 #define  BAR_2S      2
 #define  BAR_3S      3
@@ -144,7 +142,7 @@ static const std::map<std::string,int> M_FF = {
   {"128_1M",  -1   },  // 28
   {"129_1J",  -1   },  // 29
   {"130_1Y",  -1   },  // 30
-  //---------- for custom define ----------------
+  //---------- for custom define 自定义周期---------------
   {"131_cu",  -1   },
   {"132_cu",  -1   },
   {"133_cu",  -1   },
@@ -247,11 +245,12 @@ public:
 };
 
 struct stTimeType {
-  int   	   iType;  /* 不同的交易时间类型 */
-  int          iSegNum; /* 多少个segment */
+  int        iType;  /* 不同的交易时间类型 */
+  int        iSegNum; /* 多少个segment */
   Segment    aSgms[SGM_NUM] ;
 };
 
+// time block ----------
 struct TmBo {
   stTimeType TT[7] ;   // 有7种交易时间类型。参见 M_TimeType
 public:
@@ -263,10 +262,10 @@ private:
 // ----- End ----------- 时间结构定义 ----------------------------------------
 
 struct stBar {
-  int     iX;              // 索引号  0:1S  1:2S 2:3S 4:5S ...   100:tick=0;
+  int     iX;              // 索引号  0:TICK  1:2S 2:3S 4:5S ...   100:tick=0;
   int     iF;              // 周期  600 300 ...：:w
-  char    cB[9];   		//begin time BAR K柱 的开始时间
-  char    cE[9];   		//end time
+  char    cB[9];   	   // begin time BAR K柱 的开始时间
+  char    cE[9];   	   // end time
   double  o ;             // open
   double  h ;             // high
   double  l ;             // low
@@ -279,7 +278,7 @@ struct stBar {
 
 struct BaBo {
   stBar         bar1 ;
-  stBar         *b1 ;
+  stBar        *b1 ;
   char          curB[9];            //记录当前tick所在的段
   char          curE[9];
   int           curiB ;             //记录当前tick所在的段
@@ -292,9 +291,9 @@ struct BaBo {
   int           iM;                 // iPeriodM = 1;
   int           iS;                 // iPeriodS = 37;  需要初始化！！
   char          cF[10] ;             // frequency ; "1S" "2S" ...
-  char          ca_table[128];                 /* database table name */
+  char          ca_table[128];       /* database table name */
   int           iSegNum ;          // segment 数量
-  Segment     *seg[100] ;        // segment array
+  Segment      *seg[100] ;        // segment array
 public:
   BaBo(const char *pF, int fr, stTimeType  *pTimeType);
   int MakeTime(char *caTime, int T) ;

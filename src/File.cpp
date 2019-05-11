@@ -15,6 +15,7 @@ int SaveLine(const char *FileName, const char *pcLine)
   int fd ;
   int retry;
 
+  printf("%s\n",FileName);
   retry=0;
   while((fd=open(FileName,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
     sleep(1);
@@ -45,6 +46,7 @@ int SaveBin(const char * FileName, const char *buf, size_t len)
   int fd ;
   int retry;
 
+  printf("SaveBin: ----  %s\n",FileName);
   retry=0;
   while((fd=open(FileName,O_WRONLY | O_CREAT | O_APPEND,0660)) == -1) {
     sleep(1);

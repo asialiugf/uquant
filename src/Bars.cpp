@@ -454,6 +454,8 @@ BaBo::BaBo(const char * pF, int iFr, stTimeType  *pTimeType)
 
 /*
   Future Block !
+  char *caFuture : future name
+  uBEE::TmBo *tmbo : 时间块
 */
 
 FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg)
