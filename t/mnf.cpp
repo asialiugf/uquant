@@ -21,15 +21,15 @@ int main()
   std::map< std::string, std::vector<int> > fuMap ;
   fuMap["xu1801"] = {0,60,300,3600};
   fuMap["tu1801"] = {0,60,300,3600};
-  fuMap["ru1805"] = {5,60,300,3600};
+  fuMap["ru1805"] = {0,5,60,300,3600};
   fuMap["ru1809"] = {5,60};
   fuMap["xu1807"] = {60,19,300,3600};
   fuMap["zz1805"] = {5,15,30,60,300,3600,14401};
-  //fuMap["ag1809"] = {5,15,30,60,300,3600,14401};
+  //fuMap["ag1805"] = {5,15,30,60,300,3600,14401};
 
   //-------------------- 变量定义 -----------------------------------
   uBEE::Base *BB = new uBEE::Base();
-  BB->Mode = 2;
+  BB->Mode = 4;
   BB->FuInit(&fuMap);
   //-------------------- 变量定义 -----------------------------------
 
@@ -46,11 +46,11 @@ int main()
   sMNF *m4;
 
   //-------------------- initialize -----------------------------------
-  //getFutureBars(BB,(const char*)"ru1809",(const char *)"20170101",(const char *) "20180101",600);
+  //getFutureBars(BB,(const char*)"ru1805",(const char *)"20170101",(const char *) "20180101",600);
 
-  std::string ID = "ru1809";
-  std::string st = "ru1809";
-  std::string en = "ru1809";
+  std::string ID = "ru1805";
+  std::string st = "ru1805";
+  std::string en = "ru1805";
   int  frequency = 300;
   uBEE::getFutureBars(BB,ID,st,en,frequency);
 
@@ -78,16 +78,16 @@ int main()
   //-------------------- onInit -----------------------------------
   BB->onInit([&]() {
     std::cout << "whyyyyy333333\n" ;
-    r = new sRSI(BB,(char*)"ru1809", 5, 14);
+    r = new sRSI(BB,(char*)"ru1805", 5, 14);
     std::cout << "uuuuuuuuuuadsfafd\n" ;
-    e1 = new sEKE(BB,(char*)"ru1809",5, 36, 1, 12, 4);
-    e2 = new sEKE(BB,(char*)"ru1809",5, 9*16, 8, 3*16, 16);
-    e3 = new sEKE(BB,(char*)"ru1809",5, 9*64, 21, 3*64, 64);
-    e4 = new sEKE(BB,(char*)"ru1809",5, 9*64*4, 34, 3*64*4, 64*4);
-    m1 = new sMNF(BB,e1,(char*)"ru1809",5, 36);
-    m2 = new sMNF(BB,e2,(char*)"ru1809",5, 9*16);
-    m3 = new sMNF(BB,e3,(char*)"ru1809",5, 9*64);
-    m4 = new sMNF(BB,e4,(char*)"ru1809",5, 9*64*4);
+    e1 = new sEKE(BB,(char*)"ru1805",5, 36, 1, 12, 4);
+    e2 = new sEKE(BB,(char*)"ru1805",5, 9*16, 8, 3*16, 16);
+    e3 = new sEKE(BB,(char*)"ru1805",5, 9*64, 21, 3*64, 64);
+    e4 = new sEKE(BB,(char*)"ru1805",5, 9*64*4, 34, 3*64*4, 64*4);
+    m1 = new sMNF(BB,e1,(char*)"ru1805",5, 36);
+    m2 = new sMNF(BB,e2,(char*)"ru1805",5, 9*16);
+    m3 = new sMNF(BB,e3,(char*)"ru1805",5, 9*64);
+    m4 = new sMNF(BB,e4,(char*)"ru1805",5, 9*64*4);
     std::cout << "onInit end !! whyyyyy333333\n" ;
   });
   //-------------------- onTick -----------------------------------

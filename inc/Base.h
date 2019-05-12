@@ -52,13 +52,12 @@ public:
 */
 
 struct Base {
-  int Mode;
+  int Mode;                       // 1:null 2: back test, 3: ctp , 4: simulation
   FutureApiClient                * api;
   std::map<std::string,sFuBo *>    MFuBo;    // map <"ru1805",struct sFuBo> 记录策略要用到的 合约,和用户在策略主进程中定义的
   char    DayB[9];                // 测试起始日期
   char    DayE[9];                // 测试结束日期
-  char    Uuid[33];               
-										   // std::map< std::string, std::vector<int> > fuMap ; 一致，通过 BB->FuInit(&fuMap); 来初始化。
+  char    Uuid[33];               // std::map< std::string, std::vector<int> > fuMap ; 一致，通过 BB->FuInit(&fuMap); 来初始化。
 
   // -------- 下面的变量只记录当前收到的 future的信息 --------------------
   // 如果是多合约策略，要在其它的地方保存更完整的每个合约的基础信息 ------ 

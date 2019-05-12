@@ -36,6 +36,15 @@ public:
 };
 
 //--------------------------------------------------------------------------
+/*
+  M_FuRate  M_FuRate 定义每个期货品种的 最小变动价格等
+  double          mMPF ;             // 最小变动价位  Tick Size, Minimum Price Fluctuation  比如橡胶是5元
+  double          mLot ;             // 每手收益 比如 一手橡胶 是50元
+  double          mOP ;              // money for open  position 开仓手续费
+  double          mCP ;              // money for close position 平仓手续费
+  double          LP ;               // long position 多头头寸
+  double          SP ;               // short position 空头头寸
+*/
 
 static const std::map<std::string,std::string> M_FuRate = {
   //  czce 郑商所 -------801 4位------------
@@ -116,9 +125,12 @@ static const std::map<std::string,std::string> M_FuRate = {
 // bars[1] ==> ip[x] = 60;
 // ip[n] noused will be set to  -1 ;
 // refer to FuInit() ! | index 0 for tick. index 1----30 basic periods.  index 31-49 for custom define .
+/*
+  strategy future block !!!!!
+*/
 struct sFuBo {
   char            InstrumentID[31];
-  char            ID2[3] ;
+  char            ID2[3] ;           // "zz zn cu ..."
   int             iP[50] ;           //period
   sOHLC          *pBars[50];         //用于存储 kbar数据
   Signal<void()>  Update[50];        // signal slot 这是一个信号

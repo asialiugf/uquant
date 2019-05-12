@@ -17,7 +17,7 @@ using lSignal::Connection;
 using lSignal::Signal;
 using lSignal::Slot;
 
-Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data APIs.
+Base::Base():cs(100,nullptr)       // constructor  new thread for getting data APIs.
 {
   Mode         = 4;                // default
   memset(DayB,'\0',9);
@@ -48,6 +48,14 @@ Base::Base():cs(100,nullptr)       // constructor  new thread fot getting data A
 /*
   策略主进程 要调用 Base::FuInit()，针对每个需要处理的合约，初始化，并放在一个map中，M_Fu.insert()。
   M_Fu 是 Base的成员变量。
+  input: || const std::map<std::string,std::vector<int>> *M  ||
+  std::map< std::string, std::vector<int> > fuMap ; // 定义在每个策略主程序中 mnf.cpp
+  fuMap["xu1801"] = {0,60,300,3600};
+  fuMap["tu1801"] = {0,60,300,3600};
+  fuMap["ru1805"] = {5,60,300,3600};
+  fuMap["ru1809"] = {5,60};
+  fuMap["xu1807"] = {60,19,300,3600};
+  fuMap["zz1805"] = {5,15,30,60,300,3600,14401};
 */
 void Base::FuInit(const std::map<std::string,std::vector<int>> *M)
 {
@@ -209,9 +217,8 @@ void Base::Run()
 
   this->onInitHandler();
 
-  std::cout << " exit here!!\n";
-
   mainHub.onConnection([this](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
+    std::cout << "ppppppppppppp:" << (long) ws->getUserData() << std::endl;
     switch((long) ws->getUserData()) {
     case 1:
       this->cs[1] = ws;
@@ -258,11 +265,15 @@ void Base::Run()
       std::cout << "FAILURE: " << ws->getUserData() << " should not connect!" << std::endl;
       exit(-1);
     }
+    std::cout << "  befor send !!!================================================================\n";
     ws->send("hhhhhhhaaaaaaaaaa!!");
+    std::cout << "  after send !!!================================================================\n";
   });
 
+  std::cout << " Base::Run   -------------- after onConnnection !!!!!!!!!!!!!!!!!\n";
   // 客户端打印接收到的消息
   Base::onMessageInit();
+  std::cout << " Base::Run   -------------- after onConnnection 333333333333333333333\n";
 
   mainHub.onDisconnection([this](uWS::WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
     auto result = find(this->cs.begin(), this->cs.end(), ws);     //查找 ws
@@ -285,6 +296,7 @@ void Base::Run()
     }
   });
 
+  std::cout << " Base::Run   -------------- after onConnnection 44444444444444444444\n";
 
   switch(Mode) {
   case 1:
@@ -303,8 +315,10 @@ void Base::Run()
     break;
   }
 
-  mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
-  mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
+  std::cout << " Base::Run   -------------- after onConnnection 55555555555555555555555555\n";
+
+  //mainHub.connect("ws://localhost:3000",(void *) 1);  //  web server
+  //mainHub.connect("ws://localhost:5000",(void *) 3);  //  trading server
   mainHub.run();
   std::cout << "after run \n";
 // 程序何时结束 ？？

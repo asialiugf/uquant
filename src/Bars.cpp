@@ -33,8 +33,13 @@ Segment::Segment()
   barEx=-1;  //记录 结束barE所在的 seg[]的 index .
 }
 
-
 // ---------------------------------------------------------
+/*
+ init Time Block.
+ TT:member 成员变量  
+ M_TimeType: defined in Bars.h , there are 7 types of trading time.
+ 从 M_TimeType 取内容，初始化 TT这个数组，TT的每个时间类型，都包括了time segments.
+*/
 TmBo::TmBo()
 {
   uBEE::ErrLog(1000," enter into TmBo()!",1,0,0);
@@ -781,7 +786,8 @@ int MakeTime(char *caT, int T)
   m =(T - h*3600) / 60;
   s = T % 60;
   see_memzero(caT,9);
-  snprintf(caT,8,"%02d:%02d:%02d",h,m,s);
+  snprintf(caT,9,"%02d:%02d:%02d",h,m,s);
+  std::cout << "---------------------------------------------" << caT << std::endl;
   return 0;
 }
 
