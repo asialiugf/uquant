@@ -115,21 +115,18 @@ int TmBo::Init(stTimeType TT[])
 {
 }
 
-
+/*
 int BaBo::MakeTime(char *caT, int T)
 {
   int h,m,s;
-  char cTmp[9];
   h = T / 3600;
   m =(T - h*3600) / 60;
   s = T % 60;
-  //see_memzero(cTmp,9);
   see_memzero(caT,9);
-  //snprintf(cTmp,8,"%02d:%02d:%02d",h,m,s);
   snprintf(caT,8,"%02d:%02d:%02d",h,m,s);
-  //memcpy(caT, cTmp, 9);
   return 0;
 }
+*/
 
 /*
   // 初始化 bar block(BaBo) !!! ，每个 future block (FuBo) 有 50个 BaBo ;
@@ -780,15 +777,14 @@ rrr:
 int MakeTime(char *caT, int T)
 {
   int h,m,s;
-  char cTmp[9];
   h = T / 3600;
   m =(T - h*3600) / 60;
   s = T % 60;
-  see_memzero(cTmp,9);
-  sprintf(cTmp,"%02d:%02d:%02d",h,m,s);
-  memcpy(caT, cTmp, 9);
+  see_memzero(caT,9);
+  snprintf(caT,8,"%02d:%02d:%02d",h,m,s);
   return 0;
 }
+
 
 
 int SendTick(uBEE::FuBo *fubo, TICK *tick)

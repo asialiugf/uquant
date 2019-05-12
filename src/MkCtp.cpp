@@ -18,7 +18,7 @@ CThostFtdcMdApi* pUserApi; // UserApi对象
 uWS::Group<uWS::SERVER> * sg;
 //--- define for MdSpi.cpp -------end--
 
-void MdCtp(uWS::Group<uWS::SERVER> * new_sg)
+void MkCtp(uWS::Group<uWS::SERVER> * new_sg)
 {
   sg = new_sg;
 

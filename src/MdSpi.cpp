@@ -17,11 +17,11 @@ namespace uBEE
 {
 using namespace std;
 
-//------- from MdCtp.cpp ----------------begin ----------
+//------- from MkCtp.cpp ----------------begin ----------
 extern CThostFtdcMdApi* pUserApi;
 extern uWS::Group<uWS::SERVER> * sg;
 //extern uBEE::TmBo         *tmbo;
-//------- from MdCtp.cpp ---------------- end ----------
+//------- from MkCtp.cpp ---------------- end ----------
 
 TThostFtdcBrokerIDType  BROKER_ID = "9999";         // 经纪公司代码
 TThostFtdcInvestorIDType INVESTOR_ID = "059979";        // 投资者代码
@@ -213,12 +213,12 @@ void CMdSpi::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificIn
 
 void CMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *tick)
 {
+  /*
   time_t t = time(0);
   char currentTime[25];
   strftime(currentTime, sizeof(currentTime), "%Y/%m/%d %X",localtime(&t));
 
 
-  /*
   map<std::string,uBEE::FuBlock>::iterator it;
   it=FuBlockMap.find(tick->InstrumentID);
   if(it==FuBlockMap.end())

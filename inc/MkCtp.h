@@ -4,6 +4,6 @@
 
 namespace uBEE
 {
-void MdCtp(uWS::Group<uWS::SERVER> * new_sg);
+void MkCtp(uWS::Group<uWS::SERVER> * new_sg);
 } // end namespace
 #endif

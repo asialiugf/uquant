@@ -1,6 +1,6 @@
 #include "Global.h"
 #include "uBEE.h"
-#include "MdCtp.h"
+#include "MkCtp.h"
 #include "MkSim.h"
 #include "Bars.h"
 #include <thread>
@@ -168,7 +168,7 @@ int ForkCtp()
     sleep(2);
 
     std::thread t([&hub] {
-      uBEE::MdCtp(hub.sg);
+      uBEE::MkCtp(hub.sg);
     });  /* thread t */
     t.detach();
     hub.Start();

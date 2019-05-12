@@ -209,6 +209,8 @@ void Base::Run()
 
   this->onInitHandler();
 
+  std::cout << " exit here!!\n";
+
   mainHub.onConnection([this](uWS::WebSocket<uWS::CLIENT> *ws, uWS::HttpRequest req) {
     switch((long) ws->getUserData()) {
     case 1:

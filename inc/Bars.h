@@ -296,7 +296,7 @@ struct BaBo {
   Segment      *seg[100] ;        // segment array
 public:
   BaBo(const char *pF, int fr, stTimeType  *pTimeType);
-  int MakeTime(char *caTime, int T) ;
+  //int MakeTime(char *caTime, int T) ;
 } ;
 
 struct FuBo {

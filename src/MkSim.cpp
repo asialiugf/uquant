@@ -94,17 +94,17 @@ TICK * FuSim::MkTickF()             // make tick from tick file
   }
   if(iCurLine <= iLineNum) {
     std::string TickLine =  ReadLine(File,iCurLine,iLineNum) ;
-    //std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum <<" " << TickLine << std::endl;
+    std::cout << " iCurLine:" << iCurLine << " iLineNum:" << iLineNum <<" " << TickLine << std::endl;
     if(TickLine.empty()) {
       return nullptr ;
     }
 
     //snprintf(Tick.InstrumentID,31,"%s",Future) ;  // 在构造函数中初始化！
-    sscanf(TickLine.c_str(), "A:%s %s %d S:%d T:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
-           Tick.ActionDay,
+    sscanf(TickLine.c_str(), "T:%s %s %d S:%d A:%s H:%lf L:%lf LP:%lf AP:%lf AV:%d BP:%lf BV:%d OI:%lf V:%d",
+           Tick.TradingDay,
            Tick.UpdateTime,
            &Tick.UpdateMillisec, &ss,
-           Tick.TradingDay,
+           Tick.ActionDay,
            &Tick.HighestPrice,
            &Tick.LowestPrice,
            &Tick.LastPrice,
@@ -112,6 +112,8 @@ TICK * FuSim::MkTickF()             // make tick from tick file
            &Tick.BidPrice1, &Tick.BidVolume1,
            &Tick.OpenInterest, &Tick.Volume);
     Tick.UpdateMillisec = Tick.UpdateMillisec/1000;
+
+    std::cout << "MkTick:" << Tick.HighestPrice << " LP:" << Tick.LowestPrice << " LastPrice:" << Tick.LastPrice << std::endl;
 
     iCurLine++ ;
   }
@@ -254,13 +256,13 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("zn1805","../Sim/tick/zn1805.20180328.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180404.tick.txt"));
-  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180326.tick.txt"));
+  //M_SimFuFile.insert(std::pair<std::string,std::string>("ru1809","../Sim/tick/ru1809.20180326.tick.txt"));
+  M_SimFuFile.insert(std::pair<std::string,std::string>("ru1805","../Sim/tick/ru1805.20180330.tick.txt"));
   // M_SimFuFile.insert(std::pair<std::string,std::string>("ag1808","../Sim/tick/ag1808.20180327.tick.txt"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("bu1606","../Sim/tick/bu1606.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("cu1603","../Sim/tick/cu1603.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("m1605","../Sim/tick/m1605.tick.ss"));
   //M_SimFuFile.insert(std::pair<std::string,std::string>("MA605","../Sim/tick/MA605.tick.ss"));
-
 
   // ------------------------------初始化 FuSim ， 每个 future  一个 FuSim ... 保存在  M_FuSim 这个map中。
   for(auto iter = M_SimFuFile.begin(); iter != M_SimFuFile.end(); ++iter) {
@@ -287,6 +289,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     M_FuSim.insert(std::pair<std::string,uBEE::FuSim*>(p, fusim));
   }
 
+  /*
   // ----------------  test ----------------------------------------------begin
   for(auto it = M_SimFuBo.begin(); it != M_SimFuBo.end(); ++it) {
     uBEE::ErrLog(1000,"rrrrrrrrrr",1,0,0);
@@ -332,7 +335,7 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
     if(memcmp(it->first.c_str(),"ru1809",6)==0) {
       //std::cout <<"enter into send :fr:60:  "<< it->first << std::endl;
       //fusim->RunBarsF(60);
-      ///*
+      ///
       struct  timeval start;
       struct  timeval end1;
       unsigned  long diff;
@@ -341,14 +344,14 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
       gettimeofday(&end1,NULL);
       diff = 1000000 * (end1.tv_sec-start.tv_sec)+ end1.tv_usec-start.tv_usec;
       printf("thedifference is %ld\n",diff);
-      //*/
+      ///
 
     }
   }
   usleep(20000000);
   exit(0);
 
-
+  */
   //----------- bar test  from tick file ---------------------------------------
   while(1) {
     for(auto it = M_FuSim.begin(); it != M_FuSim.end(); ++it) {
@@ -373,7 +376,9 @@ void MkSim(uWS::Group<uWS::SERVER> * new_sg)
         continue;
       }
 
-      HandleTick(fubo,tick,SEND_ALL);
+      std::cout << "tick:" << tick->HighestPrice << " LP:" << tick->LowestPrice << " LastPrice:" << tick->LastPrice << std::endl;
+
+      HandleTick(fubo,tick,SEND_SAVE_ALL);
       //usleep(100000);
     }
   }
