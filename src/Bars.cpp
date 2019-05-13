@@ -787,7 +787,6 @@ int MakeTime(char *caT, int T)
   s = T % 60;
   see_memzero(caT,9);
   snprintf(caT,9,"%02d:%02d:%02d",h,m,s);
-  std::cout << "---------------------------------------------" << caT << std::endl;
   return 0;
 }
 
@@ -912,7 +911,6 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick , int flag)
   nData->iN = x ;
   if(flag == SEND_ALL || flag == SEND_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
     if(x>0) {
-      std::cout << "send::" << x << std::endl;
       fubo->SG->broadcast((const char*)nData, hLen+bLen*x, uWS::OpCode::BINARY);
     }
   }
