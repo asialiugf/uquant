@@ -25,11 +25,12 @@ int main()
   fuMap["ru1809"] = {5,60};
   fuMap["xu1807"] = {60,19,300,3600};
   fuMap["zz1805"] = {5,15,30,60,300,3600,14401};
-  //fuMap["ag1805"] = {5,15,30,60,300,3600,14401};
+  fuMap["ag1912"] = {0,5,15,30,60,300,3600,14401};
 
   //-------------------- 变量定义 -----------------------------------
   uBEE::Base *BB = new uBEE::Base();
-  BB->Mode = 4;
+  //BB->Mode = 4;
+  BB->Mode = 3;
   BB->FuInit(&fuMap);
   //-------------------- 变量定义 -----------------------------------
 
@@ -48,9 +49,9 @@ int main()
   //-------------------- initialize -----------------------------------
   //getFutureBars(BB,(const char*)"ru1805",(const char *)"20170101",(const char *) "20180101",600);
 
-  std::string ID = "ru1805";
-  std::string st = "ru1805";
-  std::string en = "ru1805";
+  std::string ID = "ag1912";
+  std::string st = "20170101";
+  std::string en = "20190501";
   int  frequency = 300;
   uBEE::getFutureBars(BB,ID,st,en,frequency);
 
@@ -77,22 +78,23 @@ int main()
 
   //-------------------- onInit -----------------------------------
   BB->onInit([&]() {
-    std::cout << "whyyyyy333333\n" ;
-    r = new sRSI(BB,(char*)"ru1805", 5, 14);
+    std::cout << "BB->onInit() \n" ;
+    r = new sRSI(BB,(char*)"ag1912", 5, 14);
     std::cout << "uuuuuuuuuuadsfafd\n" ;
-    e1 = new sEKE(BB,(char*)"ru1805",5, 36, 1, 12, 4);
-    e2 = new sEKE(BB,(char*)"ru1805",5, 9*16, 8, 3*16, 16);
-    e3 = new sEKE(BB,(char*)"ru1805",5, 9*64, 21, 3*64, 64);
-    e4 = new sEKE(BB,(char*)"ru1805",5, 9*64*4, 34, 3*64*4, 64*4);
-    m1 = new sMNF(BB,e1,(char*)"ru1805",5, 36);
-    m2 = new sMNF(BB,e2,(char*)"ru1805",5, 9*16);
-    m3 = new sMNF(BB,e3,(char*)"ru1805",5, 9*64);
-    m4 = new sMNF(BB,e4,(char*)"ru1805",5, 9*64*4);
+    e1 = new sEKE(BB,(char*)"ag1912",5, 36, 1, 12, 4);
+    e2 = new sEKE(BB,(char*)"ag1912",5, 9*16, 8, 3*16, 16);
+    e3 = new sEKE(BB,(char*)"ag1912",5, 9*64, 21, 3*64, 64);
+    e4 = new sEKE(BB,(char*)"ag1912",5, 9*64*4, 34, 3*64*4, 64*4);
+    m1 = new sMNF(BB,e1,(char*)"ag1912",5, 36);
+    m2 = new sMNF(BB,e2,(char*)"ag1912",5, 9*16);
+    m3 = new sMNF(BB,e3,(char*)"ag1912",5, 9*64);
+    m4 = new sMNF(BB,e4,(char*)"ag1912",5, 9*64*4);
     std::cout << "onInit end !! whyyyyy333333\n" ;
   });
   //-------------------- onTick -----------------------------------
   BB->onTick([&](sTick *tick) {
     std::cout << "tick mnf4::" <<  m4->MNF[m4->x] << std::endl;
+    std::cout << tick->LastPrice << std::endl;
   });
 
   //-------------------- onBars -----------------------------------

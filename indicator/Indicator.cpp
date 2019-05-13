@@ -63,6 +63,9 @@ sRSI::sRSI(uBEE::Base *BB,char *ID, int frequency, int n):
   it = BB->MFuBo.find(ID);
   if(it != BB->MFuBo.end()) {
     fu = it->second ;
+  } else {
+    std::cout << " sRSI::sRSI() error !  " << ID << " is not exist!!" <<std::endl;
+    exit (0);
   }
   int idx = GetFrequencyIdx(frequency);
 
