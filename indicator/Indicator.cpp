@@ -19,7 +19,7 @@ using lSignal::Connection;
 using lSignal::Signal;
 using lSignal::Slot;
 
-
+/* D_OHLC 要废除！*/
 D_OHLC::D_OHLC():
   O(100000,SEE_NULL),
   H(100000,SEE_NULL),
@@ -34,7 +34,7 @@ D_OHLC::D_OHLC():
 /*
  x: index !
 */
-int D_OHLC::Insert(sKbar *bar)
+int D_OHLC::Insert(sKbar *bar)  /* 已废除！ */
 {
   x++;
   O[x] = bar->o ;
@@ -46,7 +46,9 @@ int D_OHLC::Insert(sKbar *bar)
   memcpy(cE,bar->cE,9);
   return 0;
 }
-//---------------sRSI----------------------------------------------
+
+/* 以s开头的是最新的 比如 sRSI()  2019 0602 */
+//---------------sRSI-------------2019 0602 ---------------------------------
 sRSI::sRSI(uBEE::Base *BB,char *ID, int frequency, int n):
   _max(100000,SEE_NULL),
   _abs(100000,SEE_NULL),
