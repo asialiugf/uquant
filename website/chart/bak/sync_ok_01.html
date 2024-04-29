@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lightweight Charts Crosshair Syncing Example</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    #chartContainer1,
+    #chartContainer2 {
+      width: 100%;
+      height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="chartContainer1"></div>
+  <div id="chartContainer2"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const chart1 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 300,
+      });
+
+      const chart2 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 300,
+      });
+
+      const series1 = chart1.addLineSeries();
+      const series2 = chart2.addLineSeries();
+
+
+
+      function generateData(startValue, startDate) {
+        const res = [];
+        const time = startDate ?? (new Date(Date.UTC(2018, 0, 1, 0, 0, 0, 0)));
+        for (let i = 0; i < 500; ++i) {
+          res.push({
+            time: time.getTime() / 1000,
+            value: i + startValue,
+          });
+
+          time.setUTCDate(time.getUTCDate() + 1);
+        }
+        return res;
+      }
+
+      const priceScale1 = chart1.priceScale('right');
+      // const width = priceScale.width(); // Get the current width
+      priceScale1.applyOptions({
+        // Set minimum width. Please note it will expand based on the contents
+        minimumWidth: 100,
+      });
+
+      const priceScale2 = chart2.priceScale('right');
+      // const width = priceScale.width(); // Get the current width
+      priceScale2.applyOptions({
+        // Set minimum width. Please note it will expand based on the contents
+        minimumWidth: 100,
+      });
+
+      const data = [
+        { time: '2021-01-01', value: 100 },
+        { time: '2021-01-02', value: 200 },
+        { time: '2021-01-03', value: 150 },
+        { time: '2021-01-04', value: 300 },
+        { time: '2021-01-05', value: 250 },
+      ];
+
+      const data2 = [
+        { time: '2022-01-01', value: 100 },
+        { time: '2022-01-02', value: 200 },
+        { time: '2022-01-03', value: 150 },
+        { time: '2022-01-04', value: 300 },
+        { time: '2022-01-05', value: 250 },
+        { time: '2022-01-06', value: 100 },
+        { time: '2022-01-07', value: 200 },
+        { time: '2022-01-08', value: 150 },
+        { time: '2022-01-09', value: 300 },
+        { time: '2022-01-10', value: 250 },
+      ];
+
+      // series1.setData(generateData(1200));
+      // series2.setData(generateData(100));
+      series1.setData(data);
+      series2.setData(data2);
+
+      //   const crosshair1 = chart1.addCrosshair();
+      //   const crosshair2 = chart2.addCrosshair();
+
+      chart1.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart2.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      chart2.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart1.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      function getCrosshairDataPoint(series, param) {
+        if (!param.time) {
+          return null;
+        }
+        const dataPoint = param.seriesData.get(series);
+        return dataPoint || null;
+      }
+
+      function syncCrosshair(chart, series, dataPoint) {
+        if (dataPoint) {
+          chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
+          return;
+        }
+        chart.clearCrosshairPosition();
+      }
+      chart1.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(series1, param);
+        syncCrosshair(chart2, series2, dataPoint);
+      });
+      chart2.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(series2, param);
+        syncCrosshair(chart1, series1, dataPoint);
+      });
+
+
+    });
+
+
+
+
+  </script>
+</body>
+
+</html>

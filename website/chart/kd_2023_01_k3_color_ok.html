@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lightweight Charts Crosshair Syncing Example</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+  </style>
+</head>
+
+<body>
+  <div id="chartContainer1"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const chart1 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 500,
+        layout: {
+          background: { color: '#050505' },
+          textColor: 'rgba(99, 99, 0, 0.9)',
+        },
+        grid: {
+          vertLines: { color: '#222' },
+          horzLines: { color: '#222' },
+        },
+        // localization: {
+        //   timeFormatter: businessDayOrTimestamp => {
+        //     //  return Date(businessDayOrTimestamp); //or whatever JS formatting you want here
+        //     const date = new Date(businessDayOrTimestamp * 1000) // 时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        //     let Y = `${date.getFullYear()}-`
+        //     let M = `${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-`
+        //     let D = `${date.getDate()} `
+        //     const h = `${date.getHours()}:`
+        //     const m = `${date.getMinutes()}`
+        //     // s = date.getSeconds()
+        //     return Y + M + D + h + m
+        //   },
+        // },
+        timeScale: {
+          visible: true,    /* 有效 */
+          timeVisible: true,  /* 显示小时分钟 9:35 */
+          secondsVisible: false,
+          borderColor: 'rgba(255, 0, 0, 0.8)',    /* 有效 */
+          textColor: 'rgba(0, 255, 0, 0.9)',    /* 有效 */
+        },
+
+        localization: {
+          dateFormat: 'yyyy-MM-dd',
+        },
+
+      });
+
+
+      const chart2 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 200,
+        layout: {
+          background: { color: '#050505' },
+          textColor: 'rgba(99, 99, 0, 0.9)',
+        },
+
+        grid: {
+          vertLines: {
+            visible: false,    /* 有效 */
+            color: 'rgba(255, 0, 0, 0.9)',    /* 有效 */
+          },
+          horzLines: {
+            visible: false,      /* 有效 */
+            color: '#e699eE',    /* 有效 */
+          },
+        },
+        timeScale: {
+          visible: true,
+          timeVisible: true,
+          secondsVisible: false,
+          borderColor: 'rgba(255, 0, 0, 0.8)',    /* 有效 */
+          textColor: 'rgba(0, 0, 0, 0.9)',
+        },
+
+      });
+
+      const chart3 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 200,
+        layout: {
+          background: { color: '#050505' },
+          textColor: 'rgba(99, 99, 0, 0.9)',
+        },
+        grid: {
+          vertLines: {
+            visible: false,
+            color: '#D600DE',
+          },
+          horzLines: {
+            visible: false,
+            color: '#e699eE',
+          },
+        },
+        timeScale: {
+          visible: true,
+          timeVisible: true,
+          secondsVisible: false,
+          borderColor: 'rgba(197, 203, 206, 0.8)',
+          textColor: 'rgba(0, 0, 0, 0.9)',
+        },
+      });
+
+
+
+      // 调整右边价格刻度显示宽度  ===========================================================================
+      //   https://stackoverflow.com/questions/74007881/lightweight-chart-js-price-scale-issue
+      //   当用户调整价格比例（通过与其交互来移动或调整其缩放）时，价格比例上的autoScale选项将设置为false。
+      //  为了使priceScale在设置新数据时自动调整，您需要将此选项设置回true。您可以通过调用IPriceScaleApiapplyOptions实例上的方法来执行此操作。
+      //  下面这个方法调用,可以放在websocket里,当有新的数据来的时候,重新设置为true.
+      chart1.priceScale('right').applyOptions({
+        autoScale: true,
+      });
+
+
+      // 写法一:
+      chart1.priceScale('right').applyOptions({
+        scaleMargins: {
+          top: 0.005,    // 设置顶部margin
+          bottom: 0.005,
+        },
+        borderColor: '#BB2B43',
+        minimumWidth: 100,   // 调整右边价格刻度显示宽度
+      });
+
+      // 写法二:
+      const priceScale2 = chart2.priceScale('right');    // const width = priceScale.width(); // Get the current width
+      priceScale2.applyOptions({
+        scaleMargins: {
+          top: 0.001,    // 设置顶部margin
+          bottom: 0.001,
+        },
+        minimumWidth: 100,
+        borderColor: '#BB2B43',
+      });
+
+      const priceScale3 = chart3.priceScale('right');
+      priceScale3.applyOptions({
+        scaleMargins: {
+          top: 0.001,    // 设置顶部margin
+          bottom: 0.001,
+        },
+        minimumWidth: 100,
+        borderColor: '#BB2B43',
+      });
+      // 调整右边价格刻度显示宽度  ===========================================================================
+
+
+      //  一个主图，两个副图 同步 =================================================================================
+      chart1.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart2.timeScale().setVisibleLogicalRange(timeRange);
+        chart3.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      chart2.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart1.timeScale().setVisibleLogicalRange(timeRange);
+        chart3.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      chart3.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart1.timeScale().setVisibleLogicalRange(timeRange);
+        chart2.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      //  一个主图，两个副图 同步 =================================================================================
+      let optionobj = {
+        lineWidth: 0.5, autoscaleInfoProvider: () => {
+          return null;   // 主图指标只根据kbar的high，low来调整价格刻度，这里设置为null表示，超出的部分不被显示。
+        }, priceLineVisible: false, crosshairMarkerRadius: 8,
+      };
+
+      const candleSeries = chart1.addCandlestickSeries();
+      const m5 = chart1.addLineSeries({ color: 'rgba(255, 255, 255, 1)', ...optionobj });  // 白色
+      const m13 = chart1.addLineSeries({ color: 'rgba(255, 255, 0, 1)', ...optionobj });  //黄色
+      const m21 = chart1.addLineSeries({ color: 'rgba(255, 0, 255, 1)', ...optionobj }); // 粉色
+      const m34 = chart1.addLineSeries({ color: 'rgba(0, 255, 0, 1)', ...optionobj });  // 绿色
+      const m55 = chart1.addLineSeries({ color: 'rgba(150, 150, 150, 1)', ...optionobj }); // 灰色
+      const m89 = chart1.addLineSeries({ color: 'rgba(255, 0, 0, 1)', ...optionobj }); // 红色
+      const m144 = chart1.addLineSeries({
+        lineWidth: 2.5, priceLineVisible: false, color: 'rgba(250, 140, 53, 1)', autoscaleInfoProvider: function () {
+          // LWC will ignore the scaling of this series
+          return null;
+        },
+      }); // 橙色
+      const m233 = chart1.addLineSeries({ color: 'rgba(255, 255, 0, 1)', ...optionobj });  // 黄色
+      const m377 = chart1.addLineSeries({ color: 'rgba(200, 0, 200, 1)', ...optionobj });  // 深粉色
+      const m610 = chart1.addLineSeries({ color: 'rgba(0, 255, 255, 1)', ...optionobj });   //  靛蓝
+      const m987 = chart1.addLineSeries({ color: 'rgba(255, 255, 0, 1)', ...optionobj });  // 黄色
+      const m1597 = chart1.addLineSeries({ color: 'rgba(255, 0, 255, 1)', ...optionobj }); // 粉色
+
+
+      //  const series2 = chart2.addLineSeries({ lineWidth: 0.5, });
+      const x2 = chart2.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(250, 0, 0, 0.9)', });
+      const dea2 = chart2.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(250, 0, 0, 0.9)', });
+      const x3 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(0, 250, 0, 0.9)', });
+      const dea3 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(0, 250, 0, 0.9)', });
+      const x4 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(0, 0, 250, 0.9)', });
+      const dea4 = chart2.addLineSeries({ lineWidth: 2.5, priceLineVisible: false, color: 'rgba(0, 0, 250 , 0.9)', });
+      const x5 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(250,  0, 250 , 0.9)', });
+      const dea5 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(250, 0 , 250 , 0.9)', });
+      const x6 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(250, 250, 0, 0.9)', });
+      const dea6 = chart2.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(250, 250, 0, 0.9)', });
+
+
+
+      //  const series3 = chart3.addLineSeries({ lineWidth: 0.5, });
+      const K2 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(250, 0, 0, 1)', });
+      const D2 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(250, 0, 0, 1)', });
+      const K22 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(255, 0, 0, 1)', });
+      const K23 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(255, 0, 0, 1)', });
+
+      const K3 = chart3.addLineSeries({ lineWidth: 0.8, priceLineVisible: false, color: 'rgba(0, 255, 0, 1)', });
+      const D3 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(0, 255, 0 , 1)', });
+      const K33 = chart3.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(0, 255, 0 , 1)', });
+      const D33 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(0, 255 , 0 , 1)', });
+
+      const K4 = chart3.addLineSeries({ lineWidth: 0.8, priceLineVisible: false, color: 'rgba(0, 100, 255, 1)', });
+      const D4 = chart3.addLineSeries({ lineWidth: 0.4, priceLineVisible: false, color: 'rgba(0, 100, 255, 1)', });
+      const K43 = chart3.addLineSeries({ lineWidth: 0.8, priceLineVisible: false, color: 'rgba(0,  100, 255 , 1)', });
+      const D43 = chart3.addLineSeries({ lineWidth: 0.4, priceLineVisible: false, color: 'rgba(0, 100 , 255 , 1)', });
+
+      const K5 = chart3.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(255, 0, 255, 1)', });
+      const D5 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(255, 0, 255, 1)', });
+      const K53 = chart3.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(255,  0, 255 , 1)', });
+      const D53 = chart3.addLineSeries({ lineWidth: 0.2, priceLineVisible: false, color: 'rgba(255, 0 , 255 , 1)', });
+
+
+      // const RSV2 = chart4.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(250,  0, 250 , 0.9)', });
+      // const RSV3 = chart4.addLineSeries({ lineWidth: 0.5, priceLineVisible: false, color: 'rgba(250, 0 , 250 , 0.9)', });
+
+
+      // 设置Kbar颜色
+      candleSeries.applyOptions({
+        wickUpColor: 'rgb(200, 0, 0)',
+        upColor: 'rgb(200, 0, 0)',
+        wickDownColor: 'rgb(0, 250, 250)',
+        downColor: 'rgb(0, 250, 250)',
+        borderVisible: false,
+      });
+
+      // series1.applyOptions({
+      //   color: 'rgba(250, 0, 0, 0.9)',
+      //   priceLineVisible: false,  // 不显示水平的价格线
+      // });
+      // series2.applyOptions({
+      //   color: 'rgba(0, 0, 250, 0.9)',
+      //   priceLineVisible: false,  // 不显示水平的价格线
+      // });
+      // series3.applyOptions({
+      //   color: 'rgba(250, 0, 0, 0.9)',
+      //   priceLineVisible: false,  // 不显示水平的价格线
+      // });
+
+
+
+      // add volume -----begin ------------------------------------------------------------------------------
+
+      const volumeSeries = chart1.addHistogramSeries({
+        color: '#26a69a',
+        priceFormat: {
+          type: 'volume',
+        },
+        priceScaleId: '', // set as an overlay by setting a blank priceScaleId
+        // set the positioning of the volume series
+        scaleMargins: {
+          top: 0.7, // highest point of the series will be 70% away from the top
+          bottom: 0,
+        },
+      });
+      volumeSeries.priceScale().applyOptions({
+        scaleMargins: {
+          top: 0.7, // highest point of the series will be 70% away from the top
+          bottom: 0,
+        },
+      });
+
+      // setting the data for the volume series.
+      // note: we are defining each bars color as part of the data
+
+      // add volume -----end -------------------------------------------------------------------------
+
+
+
+      // add websocket -----begin  ===========================================================================
+
+      let shares = [
+        'NFLX',
+        'TSLA',
+        'AMZN',
+        'GOOG',
+        'NVDA'
+      ];
+
+
+      var markers = [];
+      var xx = 0;
+      var idx = 0;
+
+      function establishConnections() {
+
+        function mod(n, m) {
+          return ((n % m) + m) % m;
+        }
+
+        let count = 0;
+
+        /* Current value of our share */
+        let value;
+
+        let socket = new WebSocket('ws://localhost:9001');
+        let shareOfInterest = shares[parseInt(Math.random() * shares.length)];
+        socket.onopen = () => {
+          socket.send(JSON.stringify({ action: 'sub', share: shareOfInterest }));
+        };
+
+        socket.onmessage = (e) => {
+          //  let obj = JSON.parse(e.data);
+          //  mergeTickToBar1(dd, mm, yy, hh, ff);
+          //   console.log(obj);
+
+          // 为什么传过来的是blot?
+          var reader = new FileReader();
+          reader.readAsText(e.data, 'utf-8');
+          reader.onload = function (e) {
+            //  console.log(reader.result);
+            let obj = JSON.parse(reader.result);
+            mergeTickToBar1(obj);
+            //  console.log(obj);
+          }
+
+
+        }
+
+        socket.onclose = () => {
+          console.log("We did not expect any client to disconnect, exiting!");
+          // process.exit();
+        }
+      }
+
+      establishConnections();
+
+      function mergeTickToBar1(obj) {
+        currentBar.open = obj.open;
+        currentBar.high = obj.high;
+        currentBar.low = obj.low;
+        currentBar.close = obj.close;
+
+        //  currentBar.time = new Date(obj.time * 1000).valueOf() / 1000;
+        currentBar.time = new Date(obj.time).valueOf() / 1000;
+        // currentBar.time = obj.time;
+        //  console.log("timeis :" + currentBar.time);
+        candleSeries.update(currentBar);
+
+
+        // ============ MA ===========================
+        madata.time = new Date(obj.time).valueOf() / 1000;
+        if (obj.m5 > 0) {
+          madata.value = obj.m5;
+          m5.update(madata);
+        }
+
+        if (obj.m13 > 0) {
+          madata.value = obj.m13;
+          m13.update(madata);
+        }
+        if (obj.m21 > 0) {
+          madata.value = obj.m21;
+          m21.update(madata);
+        }
+        if (obj.m34 > 0) {
+          madata.value = obj.m34;
+          m34.update(madata);
+        }
+        if (obj.m55 > 0) {
+          madata.value = obj.m55;
+          m55.update(madata);
+        }
+        if (obj.m89 > 0) {
+          madata.value = obj.m89;
+          m89.update(madata);
+        }
+        if (obj.m144 > 0) {
+          madata.value = obj.m144;
+          m144.update(madata);
+        }
+        if (obj.m233 > 0) {
+          madata.value = obj.m233;
+          m233.update(madata);
+        }
+        if (obj.m377 > 0) {
+          madata.value = obj.m377;
+          m377.update(madata);
+        }
+        if (obj.m610 > 0) {
+          madata.value = obj.m610;
+          m610.update(madata);
+        }
+        if (obj.m987 > 0) {
+          madata.value = obj.m987;
+          m987.update(madata);
+        }
+        if (obj.m1597 > 0) {
+          madata.value = obj.m1597;
+          m1597.update(madata);
+        }
+
+        // ============ MACD ===========================
+
+        madata.value = obj.X2;
+        x2.update(madata);
+
+
+        madata.value = obj.DEA2;
+        dea2.update(madata);
+
+        madata.value = obj.X3;
+        x3.update(madata);
+
+        madata.value = obj.DEA3;
+        dea3.update(madata);
+
+        madata.value = obj.X4;
+        // if (obj.X4 > obj.DEA4) {
+        //   // x2.applyOptions({ lineWidth: 2.2 });
+        //   madata.color = '#ff0000';
+        // } else {
+        //   //  x2.applyOptions({ lineWidth: 0.2 });
+        //   madata.color = '#0036ff';
+        // }
+        x4.update(madata);
+
+        madata.value = obj.DEA4;
+        dea4.update(madata);
+
+        madata.value = obj.X5;
+        x5.update(madata);
+
+        madata.value = obj.DEA5;
+        dea5.update(madata);
+
+        madata.value = obj.X6;
+        x6.update(madata);
+
+        madata.value = obj.DEA6;
+        dea6.update(madata);
+
+        // ============ KD ===========================
+        madata.value = obj.K2;
+        K2.update(madata);
+        madata.value = obj.D2;
+        D2.update(madata);
+
+        madata.value = obj.K22;
+        K22.update(madata);
+        madata.value = obj.K23;
+        K23.update(madata);
+
+        madata.value = obj.K3;
+        K3.update(madata);
+        madata.value = obj.D3;
+        D3.update(madata);
+
+        // ================================ 实现上涨下跌不同颜色 ===============================================
+        // if (idx > 1) {
+        //   let originalData = K3.dataByIndex(idx - 1);  // 只能给出具体的index值，不能ref(1) 不科学
+        //   //  console.log("xxxxxxx", originalData);
+        //   k3data.value = obj.K3;
+        //   k3data.time = madata.time;
+
+        //   if (originalData.value < obj.K3) {
+        //     k3data.color = '#00AABB';
+        //   } else {
+        //     k3data.color = '#003300';
+        //   }
+        //   K3.update(k3data);
+        // } else {
+        //   k3data.value = obj.K3;
+        //   k3data.time = madata.time;
+        //   k3data.color = '#000000';
+        //   K3.update(k3data);
+        // }
+        // idx += 1; // 需要计数
+        // ================================ 实现上涨下跌不同颜色 ===============================================
+
+        madata.value = obj.K33;
+        K33.update(madata);
+        madata.value = obj.D33;
+        D33.update(madata);
+
+        madata.value = obj.K4;
+        K4.update(madata);
+        madata.value = obj.D4;
+        D4.update(madata);
+
+        madata.value = obj.K43;
+        K43.update(madata);
+        madata.value = obj.D43;
+        D43.update(madata);
+
+        madata.value = obj.K5;
+        K5.update(madata);
+        madata.value = obj.D5;
+        D5.update(madata);
+
+        madata.value = obj.K53;
+        K53.update(madata);
+        madata.value = obj.D53;
+        D53.update(madata);
+
+        //============= RSV === 
+        // madata.value = obj.RSV2;
+        // RSV2.update(madata);
+        // madata.value = obj.RSV3;
+        // RSV3.update(madata);
+
+        // ============ KD end ===========================
+
+        // volumeBar.time = new Date(obj.time * 1000).valueOf() / 1000;
+        volumeBar.time = new Date(obj.time).valueOf() / 1000;
+        // volumeBar.time = obj.time;
+        volumeBar.value = obj.open;
+        volumeBar.color = '#aa369a';
+
+        //    volumeSeries.update(volumeBar);
+
+
+        // 方式一：
+        // obj.time: "1699611300"
+        // series1Bar.time = new Date(obj.time * 1000).valueOf() / 1000;
+
+        // 方式二：
+        // obj.time: "2023-11-10T10:45:00.000Z"
+        series1Bar.time = new Date(obj.time).valueOf() / 1000;
+        series1Bar.value = obj.close;
+
+        //  series1.update(series1Bar);
+        //  series2.update(series1Bar);
+        // series3.update(series1Bar);
+
+        // ------ mark 显示买卖信号 ----- begin -------------------------------------------------------------------
+        // var datesForMarkers = [data[data.length - 39], data[data.length - 19]];
+        // var indexOfMinPrice = 0;
+        // for (var i = 1; i < datesForMarkers.length; i++) {
+        //   if (datesForMarkers[i].high < datesForMarkers[indexOfMinPrice].high) {
+        //     indexOfMinPrice = i;
+        //   }
+        // }
+
+        // var markers = [{ time: data[data.length - 48].time, position: 'aboveBar', color: '#f68410', shape: 'circle', text: 'D' }];
+        // for (var i = 0; i < datesForMarkers.length; i++) {
+        //   if (i !== indexOfMinPrice) {
+        //     markers.push({ time: datesForMarkers[i].time, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ ' + Math.floor(datesForMarkers[i].high + 2) });
+        //   } else {
+        //     markers.push({ time: datesForMarkers[i].time, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ ' + Math.floor(datesForMarkers[i].low - 2) });
+        //   }
+        // }
+
+        // var markers = [];
+
+        // if (obj.hasOwnProperty("ICO132_B")) {
+        //   markers.push({ time: madata.time, position: 'belowBar', color: '#e91e63', shape: 'arrowUp', });
+        // }
+        // if (obj.hasOwnProperty("ICO132_S")) {
+        //   markers.push({ time: madata.time, position: 'aboveBar', color: '#2196F3', shape: 'arrowDown', });
+        // }
+
+
+        if (obj.hasOwnProperty("ICO137_B")) {
+          markers.push({ time: madata.time, position: 'belowBar', color: '#e91e63', shape: 'arrowUp', });
+        }
+        if (obj.hasOwnProperty("ICO137_S")) {
+          markers.push({ time: madata.time, position: 'aboveBar', color: '#2196F3', shape: 'arrowDown', });
+        }
+
+        candleSeries.setMarkers(markers);
+        // m144.setMarkers(markers);
+        // ------ mark  显示买卖信号 ---- end ----------------------------------------------------------------------
+
+
+      }
+
+      // add websocket ----- end   ===========================================================================
+
+
+
+      // function generateData(startValue, startDate) {
+      //   const res = [];
+      //   const time = startDate ?? (new Date(Date.UTC(2018, 0, 1, 0, 0, 0, 0)));
+      //   for (let i = 0; i < 500; ++i) {
+      //     res.push({
+      //       time: time.getTime() / 1000,
+      //       value: i / 10 + startValue,
+      //     });
+
+      //     time.setUTCDate(time.getUTCDate() + 1);
+      //   }
+      //   return res;
+      // }
+
+
+      // 调整右边价格刻度显示宽度  ===========================================================================
+
+
+      //  series1.setData(generateData(0));
+      // series2.setData(generateData(100));
+      // series3.setData(generateData(100));
+
+      //   const crosshair1 = chart1.addCrosshair();
+      //   const crosshair2 = chart2.addCrosshair();
+
+
+
+
+      var data = [
+        { time: '2018-10-19', open: 54.62, high: 55.50, low: 54.52, close: 54.90 },
+        { time: '2018-10-22', open: 55.08, high: 55.27, low: 54.61, close: 54.98 },
+        { time: '2018-10-23', open: 56.09, high: 57.47, low: 56.09, close: 57.21 },
+        { time: '2018-10-24', open: 57.00, high: 58.44, low: 56.41, close: 57.42 },
+        { time: '2018-10-25', open: 57.46, high: 57.63, low: 56.17, close: 56.43 },
+        { time: '2018-10-26', open: 56.26, high: 56.62, low: 55.19, close: 55.51 },
+        { time: '2018-10-29', open: 55.81, high: 57.15, low: 55.72, close: 56.48 },
+        { time: '2018-10-30', open: 56.92, high: 58.80, low: 56.92, close: 58.18 },
+      ];
+      //    candleSeries.setData(data);
+
+
+      // ---- 动态数据 ------------------- begin ------------------------------========================
+
+      var currentBar = {
+        open: null,
+        high: null,
+        low: null,
+        close: null,
+        time: null,
+      };
+
+      var volumeBar = {
+        color: '#26a69a',
+        value: null,
+        time: null,
+      };
+
+      var series1Bar = {
+        value: null,
+        time: null,
+      };
+
+      var madata = {
+        value: null,
+        time: null,
+        //  color: '#aa369a',
+      };
+
+      var k3data = {
+        value: null,
+        time: null,
+        color: null,
+        lineWidth: null,
+      };
+
+
+
+      // ---- 动态数据 ------------------- end ----------------------------------------------====================
+
+
+      // // ------ mark 显示买卖信号 ----- begin -------------------------------------------------------------------
+      // var datesForMarkers = [data[data.length - 39], data[data.length - 19]];
+      // var indexOfMinPrice = 0;
+      // for (var i = 1; i < datesForMarkers.length; i++) {
+      //   if (datesForMarkers[i].high < datesForMarkers[indexOfMinPrice].high) {
+      //     indexOfMinPrice = i;
+      //   }
+      // }
+
+      // var markers = [{ time: data[data.length - 48].time, position: 'aboveBar', color: '#f68410', shape: 'circle', text: 'D' }];
+      // for (var i = 0; i < datesForMarkers.length; i++) {
+      //   if (i !== indexOfMinPrice) {
+      //     markers.push({ time: datesForMarkers[i].time, position: 'aboveBar', color: '#e91e63', shape: 'arrowDown', text: 'Sell @ ' + Math.floor(datesForMarkers[i].high + 2) });
+      //   } else {
+      //     markers.push({ time: datesForMarkers[i].time, position: 'belowBar', color: '#2196F3', shape: 'arrowUp', text: 'Buy @ ' + Math.floor(datesForMarkers[i].low - 2) });
+      //   }
+      // }
+      // //  candleSeries.setMarkers(markers);
+      // // ------ mark  显示买卖信号 ---- end ----------------------------------------------------------------------
+
+
+
+
+
+      //  一个主图，两个副图 同步 =================================================================================
+      // chart1.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+      //   chart2.timeScale().setVisibleLogicalRange(timeRange);
+      //   chart3.timeScale().setVisibleLogicalRange(timeRange);
+      // });
+
+      // chart2.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+      //   chart1.timeScale().setVisibleLogicalRange(timeRange);
+      //   chart3.timeScale().setVisibleLogicalRange(timeRange);
+      // });
+
+      // chart3.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+      //   chart1.timeScale().setVisibleLogicalRange(timeRange);
+      //   chart2.timeScale().setVisibleLogicalRange(timeRange);
+      // });
+
+      // 下面的功能主要是用于十字同时显示：-------------------------------------------
+      // function getCrosshairDataPoint(series, param) {
+      //   if (!param.time) {
+      //     return null;
+      //   }
+      //   const dataPoint = param.seriesData.get(series);
+      //   return dataPoint || null;
+      // }
+
+      // function syncCrosshair(chart, series, dataPoint) {
+      //   if (dataPoint) {
+      //     chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
+      //     return;
+      //   }
+      //   chart.clearCrosshairPosition();
+      // }
+
+      // chart1.subscribeCrosshairMove(param => {
+      //   const dataPoint = getCrosshairDataPoint(series1, param);
+      //   syncCrosshair(chart2, series2, dataPoint);
+      //   syncCrosshair(chart3, series3, dataPoint);
+      // });
+      // chart2.subscribeCrosshairMove(param => {
+      //   const dataPoint = getCrosshairDataPoint(series2, param);
+      //   syncCrosshair(chart1, series1, dataPoint);
+      //   syncCrosshair(chart3, series3, dataPoint);
+      // });
+      // chart3.subscribeCrosshairMove(param => {
+      //   const dataPoint = getCrosshairDataPoint(series3, param);
+      //   syncCrosshair(chart1, series1, dataPoint);
+      //   syncCrosshair(chart2, series2, dataPoint);
+      // });
+      //  一个主图，两个副图 同步 =================================================================================
+
+
+    });
+
+
+
+
+  </script>
+</body>
+
+</html>

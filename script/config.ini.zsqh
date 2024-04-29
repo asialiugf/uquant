@@ -1,0 +1,47 @@
+[config]
+# openctp 仿真  FrontAddr=tcp://121.36.146.182:20002
+# openctp 仿真  FrontMdAddr=tcp://121.36.146.182:20004
+# openctp 仿真 UserID=5451
+# openctp 7*24小时  http://121.37.80.177:50080/detail.html
+# openctp 7*24小时 FrontAddr=tcp://121.37.80.177:20002
+# openctp 7*24小时 FrontMdAddr=tcp://121.37.80.177:20004
+# openctp 7*24小时 UserID=5647
+# Password=123456
+# InvestorID=068520
+# UserProductInfo=aaa
+# AuthCode=0000000000000000
+# AppID=simnow_client_test
+
+# 招商期货
+#FrontAddr=tcp://116.246.25.180:53205
+#FrontMdAddr=tcp://116.246.25.180:53213
+FrontAddr=tcp://180.169.241.154:41405
+FrontMdAddr=tcp://180.169.241.154:41413
+BrokerID=8060
+#UserID=99683265
+#Password=456123
+UserID=99029481
+Password=Test518@918ok
+AppID=client_UQUANT_1.0.0
+AuthCode=LC6ZT6MEZE3ARN4U
+
+# simnow的 仿真环境
+#FrontAddr=tcp://180.168.146.187:10201
+#FrontMdAddr=tcp://180.168.146.187:10211
+# FrontAddr=tcp://180.168.146.187:10202
+# FrontMdAddr=tcp://180.168.146.187:10212
+# simnow的 7*24
+# FrontAddr=tcp://180.168.146.187:10130
+# FrontMdAddr=tcp://180.168.146.187:10131
+# BrokerID=9999
+# UserID=068520
+# 密码必须填写simnow的密码T@k
+# Password=Test518@918ok
+InvestorID=068520
+UserProductInfo=aaa
+#AuthCode=0000000000000000
+#AppID=simnow_client_test
+InstrumentID=ag2309
+ExchangeID=SHFE
+bIsUsingUdp=1
+bIsMulticast=0

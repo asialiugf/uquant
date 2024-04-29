@@ -1,0 +1,17 @@
+[config]
+# 中信期货 仿真环境 https://m.citicsf.com/e-futures/csc/app?type=9
+#FrontAddr=tcp://116.246.25.180:53205
+#FrontMdAddr=tcp://116.246.25.180:53213
+# 生产版本 仿真
+FrontAddr=tcp://116.246.25.180:51305
+FrontMdAddr=tcp://116.246.25.180:51313
+BrokerID=66666
+InvestorID=7120105737
+UserID=7120105737
+Password=!q2w3e4r
+AuthCode=9QNGJGUVXIHWVHFM
+AppID=client_UQUANT_1.0.0
+InstrumentID=ag2306
+ExchangeID=SHFE
+bIsUsingUdp=1
+bIsMulticast=0

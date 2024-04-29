@@ -1,0 +1,633 @@
+#include <string.h>
+#include <unistd.h>
+
+#include <algorithm>
+#include <array>
+#include <cfloat>
+#include <cmath>
+#include <functional>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string_view>
+#include <thread>
+#include <vector>
+
+#include <fmt/core.h>
+// #include "../third/fmt/include/fmt/core.h"
+
+#include "../base/base.h"
+#include "../base/error_log.h"
+
+#include "../base/future_period.h"
+#include "../base/ini_loader.h"
+#include "../base/new_talib.h"
+#include "../base/timestamp.h"
+#include "../umath/umath.h"
+// #include "./common/trade_config.h"
+
+#include <glog/logging.h>
+
+// 这里将MA 变成 static MA
+#include "../base/talib_define.h"
+
+using namespace uBEE;
+
+#define fu2305 7
+#define au2306 8
+#define xu1801 0
+#define tu1801 1
+#define ru1805 2
+#define ru1809 3
+#define xu1807 4
+#define zz1805 5
+#define ag1912 6
+#define fu2305 7
+#define fu2309 8
+#define LOCAL_DATA false // 是否使用本地数据
+
+int main1(int argc, char **argv) {
+    int64_t before;
+    int64_t latency;
+
+    FLAGS_logtostderr = 1;              // 输出到控制台
+    google::InitGoogleLogging(argv[0]); // 初始化
+
+    std::string test = "this is test";
+    int i = 2, number = 8;
+
+    // LOG test -------------------------------------------------------------------
+    LOG(INFO) << "it is info"; // 打印log：“hello glog.  类似于C++ stream。
+    LOG_IF(INFO, number > 10) << "number >  10";
+    LOG_IF(INFO, number < 10) << "number <  10";
+    for (i = 0; i < 20; i++) {
+        LOG_EVERY_N(INFO, 5) << "log i = " << i;
+    }
+    LOG(WARNING) << "It is error info";
+    LOG(ERROR) << "It is error info";
+    DLOG(INFO) << "it is debug mode";
+    DLOG_IF(INFO, number > 10) << "debug number > 10";
+
+    fmt::print("Hello, {}!", "world");
+    // LOG test -------------------------------------------------------------------
+
+    static Base bb;
+    bb.mode_ = Mode::BACK_TEST;
+    // bb.remote_ = true;
+    bb.remote_ = false;
+
+    time_test_before(before);
+    time_test_finish(latency, before);
+
+    // LogDebug("%d", before);
+    // uBEE::ErrLog(1000, "qrqwer", 1, 0, 0);
+    uBEE::ERR_LOG("test");
+
+    // std::map<std::string, std::vector<int>> future_map2;
+    // future_map2["fu2309"] = {8, period_1F, period_5F};
+
+    // FutureInit() 为策略OHLCV等分配内存
+    printf("here!");
+    bb.FutureInit("./tbl/trade.json", LOCAL_DATA);
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+    bb.onInit([]() {
+        printf("B: onInit() !!\n");
+        bb.GetData(FUNCTIONS::FUN_GET_HISTORY_KBAR, "kkkk");
+        printf("E: onInit() !!\n");
+    });
+
+    // todo 2023-11-14
+    // Future<8, period_1F>需要解决前面这个合约序号问题，最好自动生成？
+
+    static Future<8, period_1F> x(&bb); //  Future<8, 9> x(&bb);
+    static Future<8, period_5F> y(&bb); //  Future<8, 12> y(&bb);
+
+    // FutureSerial<> O('o');
+    static FutureSerial<8, 9> O('o');
+    static FutureSerial<8, 9> H('h');
+    static FutureSerial<8, 9> L('l');
+    static FutureSerial<8, 9> C('c');
+    static FutureSerial<8, 9> V('v');
+    static FutureSerial<8, 12> C8_12('c');
+
+    const static int A1 = 9;
+    const static int B1 = 3;
+
+    const static int V2 = 4;
+    const static int A2 = 9 * V2;
+    const static int B2 = 3 * V2;
+
+    const static int V3 = 4 * 4;
+    const static int A3 = 9 * V3;
+    const static int B3 = 3 * V3;
+
+    const static int V4 = 4 * 4 * 4;
+    const static int A4 = 9 * V4;
+    const static int B4 = 3 * V4;
+
+    const static int V5 = 4 * 4 * 4 * 4;
+    const static int A5 = 9 * V5;
+    const static int B5 = 3 * V5;
+
+    const static int V6 = 4 * 4 * 4 * 4 * 4;
+    const static int A6 = 9 * V6;
+    const static int B6 = 3 * V6;
+
+    static FutureSerial<8, 9> DIF22;
+    static FutureSerial<8, 9> DIF33;
+    static FutureSerial<8, 9> DIF44;
+
+    // ohlcv::CC 是在 new_talib.h中定义：  enum ohlcv { OO, HH, LL, CC, VV };
+    // EMA_T<8, 12> EMA_812(ohlcv::CC, 10);
+    // 也可以用下面的写法，直接用序列做构造函数入参。 C8_12见前面的定义，指future<8,12>的 close序列。
+    EMA_T<8, 12> EMA_812(C8_12, 10);
+    static FutureSerial<8, 12> DIF55;
+
+    // MACD 2
+    const static int S2 = 12;
+    const static int L2{26};
+    const static int M2{9};
+    static FutureSerial<8, 9> DIF2;
+    EMA_T<8, 9> X2;
+    EMA_T<8, 9> DEA2;
+
+    // MACD 3
+    const static int S3 = 12 * V2;
+    const static int L3{26 * V2};
+    const static int M3{9 * V2};
+    static FutureSerial<8, 9> DIF3;
+    EMA_T<8, 9> X3;
+    EMA_T<8, 9> DEA3;
+
+    // MACD 4
+    const static int S4 = 12 * V3;
+    const static int L4{26 * V3};
+    const static int M4{9 * V3};
+    static FutureSerial<8, 9> DIF4;
+    EMA_T<8, 9> X4;
+    EMA_T<8, 9> DEA4;
+
+    // MACD 5
+    const static int S5 = 12 * V2;
+    const static int L5{26 * V2};
+    const static int M5{9 * V2};
+    static FutureSerial<8, 9> DIF5;
+    EMA_T<8, 9> X5;
+    EMA_T<8, 9> DEA5;
+
+    // MACD 6
+    const static int S6 = 12 * V2;
+    const static int L6{26 * V2};
+    const static int M6{9 * V2};
+    static FutureSerial<8, 9> DIF6;
+    EMA_T<8, 9> X6;
+    EMA_T<8, 9> DEA6;
+
+    int iii = 0;
+    bb.onBars([&](int e) {
+        iii++;
+        std::cout << " onBars data:     " << std::endl;
+
+        std::cout << " test  ==================================================== BBB :     " << std::endl;
+        static FutureSerial<8, 9> TEST0;
+        TEST0 = 5;
+        TEST0 = 6.0;
+        TEST0 = 6.123;
+
+        static FutureSerial<8, 9> TEST1;
+        TEST1 = 5;
+        TEST1 = 6.0;
+        TEST1 = 6.123;
+
+        static FutureSerial<8, 9> TEST2;
+
+        TEST2 = TEST1 + 0;
+
+        //  static FutureSerial<8, 9> XXX1;
+        //  static FutureSerial<8, 9> XXX2;
+        //  static FutureSerial<8, 9> XXX3;
+
+        static FutureSerial<8, 9> XXX1 = 3;
+        static FutureSerial<8, 9> XXX2 = 3.0;
+        static FutureSerial<8, 9> XXX3 = 3.15;
+
+        std::cout << " XXX2  : " << XXX2 + 0 << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+        std::cout << " XXX3  : " << XXX3 + 0 << std::endl;
+        std::cout << "XXX3-XXX2 : " << XXX3 - XXX2 << " " << XXX3.cur() - XXX2.ref(0) << " " << XXX3.cur() << " " << XXX2.ref(0) << std::endl;
+        if (4 == iii) {
+            for (int j = 0; j < iii; j++) {
+                std::cout << "XXX3-XXX2 : " << XXX3 - XXX2 << " " << XXX3.cur() - XXX2.ref(0) << " " << XXX3.cur() << " " << XXX2.ref(j) << std::endl;
+            }
+            exit(0);
+        }
+
+        EMA_T<8, 9> EE1;
+        EMA_T<8, 9> XXX4 = EE1;
+        EMA_T<8, 9> XXX5 = 3.0;
+        EMA_T<8, 9> XXX6 = TEST2 + 3.0;
+
+        EMA_T<8, 9> d0tt0;
+        EMA_T<8, 9> d0tt1 = 3;
+        EMA_T<8, 9> d0tt2 = 3.0;
+        EMA_T<8, 9> d0tt3 = EE1;
+        EMA_T<8, 9> d0tt4 = TEST1 + TEST2;
+        EMA_T<8, 9> d0tt5 = TEST1 + TEST2 + 100.5;
+
+        RSV_T<8, 9> RR00;
+        EMA_T<8, 9> dtt1(3);
+        EMA_T<8, 9> dtt2(3.0);
+        EMA_T<8, 9> dtt3(EE1);
+        EMA_T<8, 9> dtt4(TEST1 + EE1);
+        EMA_T<8, 9> dtt5(TEST1 + EE1 + 100.5);
+
+        // EMA_T<8, 9> dtt3(RR00);
+
+        EMA_T<8, 9> d2tt0{};
+        EMA_T<8, 9> d2tt1{3};
+        EMA_T<8, 9> d2tt2{3.0};
+        EMA_T<8, 9> d2tt3{EE1};
+        EMA_T<8, 9> d2tt4{TEST1 + EE1};
+        EMA_T<8, 9> d2tt5{TEST1 + EE1 + 100.5};
+
+        //  RSV_T<8, 9> RR00;
+
+        EMA_T<8, 9> ES9;
+        ES9.EMA(RR00, 12);
+
+        EMA_T<8, 9> ES91(RR00, 35);
+        ES91.EMA();
+
+        EMA_T<8, 4> ES4;
+        // ES4.EMA(RR00, 12);
+        ES4 = RR00 + 0;
+        ES9 = RR00;
+
+        static FutureSerial<8, 9> XrX1;
+        XrX1 = ES4 + 0;
+        XrX1 = ES9;
+
+        // EMA_T<8, 4> ES41(RR00, 35);
+        // ES41.EMA();
+
+        std::cout << " test  ==================================================== EEE :     " << std::endl;
+
+        // KD 2
+        // 这里的RSV使用的是close, 不可变。
+        // RSV_T<8,9> 相当于是一个type。 用其定义一个对象。 // 源代码参看：new_talib.h
+        RSV_T<8, 9> RSV1(A1); // RSV1:=(C-LLV(C,A1))/(HHV(C,A1)-LLV(C,A1))*100
+        EMA_T<8, 9> R1(RSV1, 1);
+        SMA_T<8, 9> K1(RSV1, B1, 1);
+
+        // KD 2
+        RSV_T<8, 9> RSV2(A2);
+        EMA_T<8, 9> R2(RSV2, 1);
+        SMA_T<8, 9> K2(R2, B2, 1);
+        EMA_T<8, 9> D2(K2, B2 / 2);
+        SMA_T<8, 9> K22(R2, B1 * 2, 1);
+        EMA_T<8, 9> D22(K22, 2);
+        SMA_T<8, 9> K23(R2, B1, 1);
+        EMA_T<8, 9> D23(K23, 2);
+        double k2 = K2 + 0;
+        double d2 = D2 + 0;
+        double kk = K2.cur();
+
+        TEST2 = 3;
+        TEST1 = 3.3;
+        TEST2 = TEST1;
+        TEST1 = TEST2;
+
+        TEST2 = TEST1;
+        TEST1 = (D23.ema() - D22.ema()) / 1.5;
+        TEST1 = 10.1;
+        TEST2 = D2 + K2;
+        // SM1 = D2 + K2;
+
+        static FutureSerial<8, 9> dif55(5.0);
+
+        // EMA_T<8, 9> D23 = TEST2;
+
+        /*
+        std::cout << "RSV2 " << RSV2.data[RSV2.unit->index] << " ";
+        std::cout << "R2 " << R2.data[R2.unit->index] << " ";
+        std::cout << "K2: " << K2.data[K2.unit->index] << " ";
+        std::cout << "D2: " << D2.data[D2.unit->index] << " ";
+
+        std::cout << "k2.index: " << K2.unit->index << " ";
+        std::cout << "k2.O: " << K2.unit->O[K2.unit->index] << " ";
+        std::cout << "k2.H: " << K2.unit->H[K2.unit->index] << " ";
+        std::cout << "k2.L: " << K2.unit->L[K2.unit->index] << " ";
+        std::cout << "k2.C: " << K2.unit->C[K2.unit->index] << " ";
+        std::cout << "k2.V: " << K2.unit->V[K2.unit->index] << " ";
+        std::cout << "k2: " << k2 << "     d2: " << d2 << std::endl;
+        */
+
+        // KD 3
+        RSV_T<8, 9> RSV3(A3);
+        EMA_T<8, 9> R3(RSV3, 8);
+        SMA_T<8, 9> K3(R3, B3, 1);
+        EMA_T<8, 9> D3(K3, B2 / 2);
+        SMA_T<8, 9> K32(R3, B2 * 2, 1);
+        EMA_T<8, 9> D32(K32, 2);
+        SMA_T<8, 9> K33(R3, B2, 1);
+        EMA_T<8, 9> D33(K33, 2);
+        std::cout << "\n k3k3d3d3:  " << K3.cur() << "  " << D3.cur() << "\n";
+
+        // KD 4
+        RSV_T<8, 9> RSV4(A4);
+        EMA_T<8, 9> R4(RSV4, 13);
+        SMA_T<8, 9> K4(R4, B4, 55);
+        EMA_T<8, 9> D4(K4, B4 / 2);
+        SMA_T<8, 9> K42(R4, B3 * 2, 1);
+        EMA_T<8, 9> D42(K42, 2);
+        SMA_T<8, 9> K43(R4, B3, 1);
+        EMA_T<8, 9> D43(K43, 2);
+
+        // KD 5
+        RSV_T<8, 9> RSV5(A5);
+        EMA_T<8, 9> R5(RSV5, 55);
+        SMA_T<8, 9> K5(R5, B5, 1);
+        EMA_T<8, 9> D5(K5, B5 / 2);
+        SMA_T<8, 9> K52(R5, B4 * 2, 1);
+        EMA_T<8, 9> D52(K52, B4);
+        SMA_T<8, 9> K53(R5, B4, 1);
+        EMA_T<8, 9> D53(K53, B4 / 2);
+
+        // KD 6
+        RSV_T<8, 9> RSV6(A6);
+        RSV6.rsv();
+        EMA_T<8, 9> R6(RSV6, 55);
+        R6.ema();
+        SMA_T<8, 9> K6(R6, B6, 1);
+        EMA_T<8, 9> D6(K6, B6 / 2);
+        SMA_T<8, 9> K62(R6, B4 * 2, 1);
+        EMA_T<8, 9> D62(K62, B4);
+        SMA_T<8, 9> K63(R6, B4, 1);
+        EMA_T<8, 9> D63(K63, B4 / 2);
+
+        // MACD 2
+        // const static int S2 = 12;
+        // const static int L2{26};
+        // const static int M2{9};
+        // static FutureSerial<8,9> dif2;
+        // EMA_T<8,9> x2;
+        // EMA_T<8,9> dea2;
+        EMA_T<8, 9> EMA_S2(ohlcv::CC, S2);
+        EMA_T<8, 9> EMA_L2(ohlcv::CC, L2);
+        DIF2 = EMA_S2 - EMA_L2;
+        X2.EMA(DIF2, 1);
+        DEA2.EMA(X2, M2);
+
+        EMA_T<8, 9> TR1;
+        // TR1.ema();
+        EMA_T<8, 9> TR2;
+        TR2.ema(TR1, 10); // 这种情况，TR1没有初始化就被用到，如何检查？难道要写一个检查程序？
+
+        EMA_T<8, 9> TR3;
+        TR3 = (TR1 + TR2) / 2;
+        TR3 = (TR1.ema(R6, S2) + TR2.ema(K6, L2)) / 2;
+
+        // MACD 3
+        // const static int S3 = 12 * V2;
+        // const static int L3{26 * V2};
+        // const static int M3{9 * V2};
+        // static FutureSerial<8,9> dif3;
+        // EMA_T<8,9> x3;
+        // EMA_T<8,9> dea3;
+        EMA_T<8, 9> EMA_S3(ohlcv::CC, S3);
+        EMA_T<8, 9> EMA_L3(ohlcv::CC, L3);
+        DIF3 = (EMA_S3.ema() - EMA_L3.ema()) / 1.5;
+        X3.ema(DIF3, 1);
+        DEA3.ema(X3, M3);
+
+        // MACD 4
+        // const static int S4 = 12 * V3;
+        // const static int L4{26 * V3};
+        // const static int M4{9 * V3};
+        // static FutureSerial<8,9> DIF4;
+        // EMA_T<8,9> X4;
+        // EMA_T<8,9> DEA4;
+        EMA_T<8, 9> EMA_S4(ohlcv::CC, S4);
+        EMA_T<8, 9> EMA_L4(ohlcv::CC, L4);
+        DIF4 = (EMA_S4 - EMA_L4) / 1.5 / 1.5;
+        X4.EMA(DIF4, 1);
+        DEA4.EMA(X4, M4);
+
+        // MACD 5
+        // const static int S5 = 12 * V2;
+        // const static int L5{26 * V2};
+        // const static int M5{9 * V2};
+        // static FutureSerial<8,9> DIF5;
+        // EMA_T<8,9> X5;
+        // EMA_T<8,9> DEA5;
+        EMA_T<8, 9> EMA_S5(ohlcv::CC, S5);
+        EMA_T<8, 9> EMA_L5(ohlcv::CC, L5);
+        DIF5 = (EMA_S5 - EMA_L5) / 1.5 / 1.5 / 1.5;
+        X5.EMA(DIF5, 1);
+        DEA5.EMA(X5, M5);
+
+        // MACD 6
+        // const static int S6 = 12 * V2;
+        // const static int L6{26 * V2};
+        // const static int M6{9 * V2};
+        // static FutureSerial<8,9> DIF6;
+        // EMA_T<8,9> X6;
+        // EMA_T<8,9> DEA6;
+        EMA_T<8, 9> EMA_S6(ohlcv::CC, S6);
+        EMA_T<8, 9> EMA_L6(ohlcv::CC, L6);
+        DIF6 = (EMA_S6 - EMA_L6) / 1.5 / 1.5 / 1.5 / 1.5;
+        X6.EMA(DIF6, 1);
+        DEA6.EMA(X6, M6);
+
+        static bool X_B32 = X2 < 0 && X3 < 0 && X2 > X3;
+        static bool X_B43 = X3 < 0 && X4 < 0 && X3 > X4;
+        static bool X_B54 = X4 < 0 && X5 < 0 && X4 > X5;
+        static bool X_S32 = X2 > 0 && X3 > 0 && X2 < X3;
+        static bool X_S43 = X3 > 0 && X4 > 0 && X3 < X4;
+        static bool X_S54 = X4 > 0 && X5 > 0 && X4 < X5;
+
+        static bool m_line = C >= O;                     // 阳线 收盘价大于开盘价
+        static bool f_line = C <= O;                     // 阴线 收盘价小于开盘价
+        static bool m_pin = C >= O && (C - L) < (H - C); // 阳线 长影线
+        static bool f_pin = C <= O && (C - L) > (H - C); // 阴线 长影线
+        static bool BC = K1 > K1.ref(1) || C > C.ref(1) || m_line || f_pin;
+        static bool SC = K1 < K1.ref(1) || C < C.ref(1) || f_line || m_pin;
+
+        static bool YB1 = RSV1 > RSV1.ref(1) && RSV1.ref(1) < 6;
+        static bool YS1 = RSV1 < RSV1.ref(1) && RSV1.ref(1) > 94;
+        static bool YB2 = RSV2 > RSV2.ref(1) && RSV2.ref(1) < 6;
+        static bool YS2 = RSV2 < RSV2.ref(1) && RSV2.ref(1) > 94;
+        static bool YB3 = RSV3 > RSV3.ref(1) && RSV3.ref(1) < 6;
+        static bool YS3 = RSV3 < RSV3.ref(1) && RSV3.ref(1) > 94;
+        static bool YB4 = RSV4 > RSV4.ref(1) && RSV4.ref(1) < 6;
+        static bool YS4 = RSV4 < RSV4.ref(1) && RSV4.ref(1) > 94;
+        static bool YB5 = RSV5 > RSV5.ref(1) && RSV5.ref(1) < 6;
+        static bool YS5 = RSV5 < RSV5.ref(1) && RSV5.ref(1) > 94;
+
+        //---------------------【红蓝绿粉】>>>
+        //*****************************************************************************
+        static bool YB_32 = RSV2 >= RSV3 && RSV2.ref(1) >= RSV3.ref(1); //*****
+        static bool YB_43 = RSV3 >= RSV4 && RSV3.ref(1) >= RSV4.ref(1); //*****
+        static bool YB_54 = RSV4 >= RSV5 && RSV4.ref(1) >= RSV5.ref(1); //*****
+        static bool YS_32 = RSV2 <= RSV3 && RSV2.ref(1) <= RSV3.ref(1); //*****
+        static bool YS_43 = RSV3 <= RSV4 && RSV3.ref(1) <= RSV4.ref(1); //*****
+        static bool YS_54 = RSV4 <= RSV5 && RSV4.ref(1) <= RSV5.ref(1); //*****
+        //------------------【5：RSV粉线到底为0】-------------------------------------------------------------------------------------------------------------------
+        static bool YB5_2 = YB2 && YB_32 && YB_43 && YB_54; //*****
+        static bool YB5_3 = YB3 && YB_43 && YB_54;          //*****
+        static bool YB5_4 = YB4 && YB_54;                   //*****
+        static bool YB5_5 = YB5;                            //*****
+        static bool YS5_2 = YS2 && YS_32 && YS_43 && YS_54; //*****
+        static bool YS5_3 = YS3 && YS_43 && YS_54;          //*****
+        static bool YS5_4 = YS4 && YS_54;                   //*****
+        static bool YS5_5 = YS5;                            //*****
+        //------------------【4：RSV蓝线到底为0】------------------------------------------------
+        static bool YB4_2 = YB2 && YB_32 && YB_43; //  ->>>- //*****
+        static bool YB4_3 = YB3 && YB_43;          //  -->>- //*****
+        static bool YB4_4 = YB4;                   //*****
+        static bool YS4_2 = YS2 && YS_32 && YS_43; //*****
+        static bool YS4_3 = YS3 && YS_43;          //*****
+        static bool YS4_4 = YS4;                   //*****
+        //------------------【3：RSV绿线到底为0】------------------------------------------------
+        static bool YB3_2 = YB2 && YB_32; //*****
+        static bool YB3_3 = YB3;          //*****
+        static bool YS3_2 = YS2 && YS_32; //*****
+        static bool YS3_3 = YS3;          //*****
+
+        static bool H_KPB2 = (K23 > K2 || K22 > K2);
+        static bool H_KPS2 = (K23 < K2 || K22 < K2);
+
+        // static bool H_KPP2 = H_KPB2 && H_KPS2;        // 【重叠部分】
+        // static bool H_KCB2 = BARSLAST(!(H_KPB2));   //  粉线上涨周期
+        // static bool H_KCS2 = BARSLAST(!(H_KPS2));   // 粉线下跌周期
+        // static bool H_KDB2 = COUNT(H_KPS2 && !(REF(H_KPS2, 1)),
+        //                            H_KCB2 + 1);  // 粉线上涨周期内，有多少次  MACD 和 KD同时上涨
+        // static bool H_KDS2 = COUNT(H_KPB2 && !(REF(H_KPB2, 1)), H_KCS2 + 1);
+        // static bool H_KTB2 = (H_KPP2 && !(H_KDB2));  //  上涨的 头部
+        // static bool H_KTS2 = (H_KPP2 && !(H_KDS2));
+        // static bool H_KB2 = (H_KPB2 && !(H_KTS2));  //
+        // static bool H_KS2 = (H_KPS2 && !(H_KTB2));  //
+
+        static bool H_XPB2 = (K23 > K2 || K22 > K2 || X2 > X2.ref(1));
+        static bool H_XPS2 = (K23 < K2 || K22 < K2 || X2 < X2.ref(1));
+
+        // static bool H_XPP2 = H_XPB2 && H_XPS2;  // 【重叠部分】
+        // static bool H_XCB2 = BARSLAST(!(H_XPB2));  //  粉线上涨周期
+        // static bool H_XCS2 = BARSLAST(!(H_XPS2));  // 粉线下跌周期
+        // static bool H_XDB2 = COUNT(H_XPS2 && !(REF(H_XPS2, 1)),
+        //                            H_XCB2 + 1);  // 粉线上涨周期内，有多少次  MACD 和 KD同时上涨
+        // static bool H_XDS2 = COUNT(H_XPB2 && !(REF(H_XPB2, 1)), H_XCS2 + 1);
+        // static bool H_XTB2 = (H_XPP2 && !(H_XDB2));  //  上涨的 头部
+        // static bool H_XTS2 = (H_XPP2 && !(H_XDS2));
+        // static bool H_XB2 = (H_XPB2 && !(H_XTS2));  //
+        // static bool H_XS2 = (H_XPS2 && !(H_XTB2));  //
+
+        static bool H_KPB3 = (K33 > K3 || K32 > K3 || X3 > REF(X3, 1));
+        static bool H_KPS3 = (K33 < K3 || K32 < K3 || X3 < REF(X3, 1));
+
+        // static bool H_KPP3 = H_KPB3 && H_KPS3;       // 【重叠部分】
+        // static bool H_KCB3 = BARSLAST(!(H_KPB3));  //  粉线上涨周期
+        // static bool H_KCS3 = BARSLAST(!(H_KPS3));  // 粉线下跌周期
+        // static bool H_KDB3 = COUNT(H_KPS3 && !(REF(H_KPS3, 1)),
+        //                            H_KCB3 + 1);  // 粉线上涨周期内，有多少次  MACD 和 KD同时上涨
+        // static bool H_KDS3 = COUNT(H_KPB3 && !(REF(H_KPB3, 1)), H_KCS3 + 1);
+        // static bool H_KTB3 = (H_KPP3 && !(H_KDB3));  //  上涨的 头部
+        // static bool H_KTS3 = (H_KPP3 && !(H_KDS3));
+        // static bool H_KB3 = (H_KPB3 && !(H_KTS3));  //
+        // static bool H_KS3 = (H_KPS3 && !(H_KTB3));  //
+
+        static bool H_KPB4 = (K43 > K4 || K42 > K4 || X4 > REF(X4, 1));
+        static bool H_KPS4 = (K43 < K4 || K42 < K4 || X4 < REF(X4, 1));
+
+        // static bool H_KPP4 = H_KPB4 && H_KPS4;       // 【重叠部分】
+        // static bool H_KCB4 = BARSLAST(!(H_KPB4));  //  粉线上涨周期
+        // static bool H_KCS4 = BARSLAST(!(H_KPS4));  // 粉线下跌周期
+        // static bool H_KDB4 = COUNT(H_KPS4 && !(REF(H_KPS4, 1)),
+        //                H_KCB4 + 1);  // 粉线上涨周期内，有多少次 MACD
+        // 和 KD同时上涨 //static bool H_KDS4 = COUNT(H_KPB4 && !(REF(H_KPB4, 1)), H_KCS4 + 1);
+        // static bool H_KTB4 = (H_KPP4 && !(H_KDB4));  //  上涨的 头部
+        // static bool H_KTS4 = (H_KPP4 && !(H_KDS4));
+        // static bool H_KB4 = (H_KPB4 && !(H_KTS4));  //             || (H_KPP4
+        //&&  K4>REF(K4,1)) static bool H_KS4 = (H_KPS4 && !(H_KTB4));  //           || (H_KPP4
+        //&&  K4<REF(K4,1))
+
+        static bool H_KPB5 = (K53 > K5 || K52 > K5 || X5 > REF(X5, 1));
+        static bool H_KPS5 = (K53 < K5 || K52 < K5 || X5 < REF(X5, 1));
+
+        // static bool H_KPP5 = H_KPB5 && H_KPS5;          // 【重叠部分】P
+        // static bool H_KCB5 = BARSLAST(!(H_KPB5));     //  粉线上涨周期
+        // static bool H_KCS5 = BARSLAST(!(H_KPS5));     // 粉线下跌周期
+        // static bool H_KDB5 = COUNT(H_KPS5 && !(REF(H_KPS5, 1)),
+        //                        H_KCB5 + 1);  // 粉线上涨周期内，有多少次  MACD 和 KD同时上涨
+        // static bool H_KDS5 = COUNT(H_KPB5 && !(REF(H_KPB5, 1)), H_KCS5 + 1);
+        // static bool H_KTB5 = (H_KPP5 && !(H_KDB5));  //  上涨的 头部
+        // static bool H_KTS5 = (H_KPP5 && !(H_KDS5));
+        // static bool H_KB5 = (H_KPB5 && !(H_KTS5));  //             || (H_KPP5  &&  K5>REF(K5,1))
+        // static bool H_KS5 = (H_KPS5 && !(H_KTB5));  //             || (H_KPP5  &&  K5<REF(K5,1))
+
+        static bool BBP = (YB2 || YB3 || YB4 || YB5); // BC &&
+        static bool SSP = (YS2 || YS3 || YS4 || YS5); // SC &&
+
+        static bool B_2345 = YB2 && YB3 && YB4 && YB5; // 2345全部
+        static bool S_2345 = YS2 && YS3 && YS4 && YS5; // 2345全部
+
+        static bool B_234X = YB2 && YB3 && YB4 && !(YB5); // 234买
+        static bool S_234X = YS2 && YS3 && YS4 && !(YS5); // 234卖
+
+        static bool B_23XX = YB2 && YB3 && !(YB4) && !(YB5); // 23买
+        static bool S_23XX = YS2 && YS3 && !(YS4) && !(YS5); // 23卖
+
+        static bool B_X345 = !(YB2) && YB3 && YB4 && YB5; // 345买
+        static bool S_X345 = !(YS2) && YS3 && YS4 && YS5; // 345卖
+
+        static bool B_XX45 = !(YB2) && !(YB3) && YB4 && YB5; // 45买
+        static bool S_XX45 = !(YS2) && !(YS3) && YS4 && YS5; // 45卖
+
+        static bool BK_5 = !(H_KPB5) && H_KPB4; //  大粉线空缺处
+        static bool SK_5 = !(H_KPS5) && H_KPS4; // 大粉线空缺处
+
+        // static bool TB01 = H_KB4 && H_KB3;
+        // static bool TS01 = H_KS4 && H_KS3;
+
+        static bool TB02 = H_KPB5 || H_KPB4 || H_KPB3;
+        static bool TS02 = H_KPS5 || H_KPS4 || H_KPS3;
+
+        static bool TBALL5 = K53 > REF(K53, 1) && K52 > REF(K52, 1) && K5 > REF(K5, 1);
+        static bool TSALL5 = K53 < REF(K53, 1) && K52 < REF(K52, 1) && K5 < REF(K5, 1);
+
+        static bool TBALL4 = K43 > REF(K43, 1) && K42 > REF(K42, 1) && K4 > REF(K4, 1);
+        static bool TSALL4 = K43 < REF(K43, 1) && K42 < REF(K42, 1) && K4 < REF(K4, 1);
+
+        static bool TBALL3 = K33 > REF(K33, 1) && K32 > REF(K32, 1) && K3 > REF(K3, 1);
+        static bool TSALL3 = K33 < REF(K33, 1) && K32 < REF(K32, 1) && K3 < REF(K3, 1);
+
+        // 牛头
+        static bool BB01 = TB02 && X_B32 && X_B43 && D3 < 30 && D4 < 30 && BC && K2 > REF(K2, 1) && REF(K2, 1) < REF(K2, 2) && REF(K2, 1) < 20 && YB5_4 && K53 < 10; //&& KB3 && KB4
+        static bool SS01 = TS02 && X_S32 && X_S43 && D3 > 70 && D4 > 70 && SC && K2 < REF(K2, 1) && REF(K2, 1) > REF(K2, 2) && REF(K2, 1) > 80 && YS5_4 && K53 > 90; //&& KS3 && KS4
+        //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        static bool ICO137 = TB02 && BBP && (K33 < 20);               //  ----【绿桃心】 绿80
+        static bool ICO138 = TS02 && SSP && (K33 > 80);               //---- 【橙三角】 绿80  红80
+        static bool ICO112 = TB02 && BBP && (K33 < 20) && (K23 < 20); //
+        static bool ICO113 = TS02 && SSP && (K33 > 80) && (K23 > 80); //
+
+        static bool ICO148 = TB02 && BBP && (K33 < 10); // , -50, 'ICO148');  // ---- 【绿心】 绿90
+        static bool ICO149 = TS02 && SSP && (K33 > 90); // , 140, 'ICO148');  //
+
+        static bool ICO92 = TB02 && BBP && (K33 < 10) && (K23 < 10); // ---- 【太阳花】 绿90  红90
+        static bool ICO93 = TS02 && SSP && (K33 > 90) && (K23 > 90); //
+
+        static bool ICO158 = TB02 && BBP && (K33 < 10) && (K32 < 10); // ---- 【红水滴】 绿90 绿90
+        static bool ICO159 = TS02 && SSP && (K33 > 90) && (K32 > 90); //
+
+        // static bool ICO = BBP && ((H_KPB3 && !(H_KS5 && H_KS4)) || (H_KB5 && H_KB4));
+        // static bool ICO = SSP && ((H_KPS3 && !(H_KB5 && H_KB4)) || (H_KS5 && H_KS4));
+
+        static bool ICO1 = YB2 && YB3 && YB4 && YB5 && H_KPB5; //
+        static bool ICO2 = YS2 && YS3 && YS4 && YS5 && H_KPS5; //
+    });
+
+    bb.Run();
+    return 0;
+}

@@ -1,0 +1,2 @@
+find . -name '*.cpp' -exec grep -H "cJSON" {} \;
+find -name '.gitmodu*' | xargs perl -pi -e 's|github.com|hub.fastgit.org|g' 

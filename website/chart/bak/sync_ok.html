@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lightweight Charts Crosshair Syncing Example</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    #chartContainer1 {
+      width: 100%;
+      height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="chartContainer1"></div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const chart1 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 300,
+      });
+
+      const chart2 = LightweightCharts.createChart(document.getElementById('chartContainer1'), {
+        width: document.getElementById('chartContainer1').clientWidth,
+        height: 300,
+      });
+
+      const series1 = chart1.addLineSeries();
+      const series2 = chart2.addLineSeries();
+
+
+      function generateData(startValue, startDate) {
+        const res = [];
+        const time = startDate ?? (new Date(Date.UTC(2018, 0, 1, 0, 0, 0, 0)));
+        for (let i = 0; i < 500; ++i) {
+          res.push({
+            time: time.getTime() / 1000,
+            value: i + startValue,
+          });
+
+          time.setUTCDate(time.getUTCDate() + 1);
+        }
+        return res;
+      }
+
+      series1.setData(generateData(1200));
+      series2.setData(generateData(100));
+
+      //   const crosshair1 = chart1.addCrosshair();
+      //   const crosshair2 = chart2.addCrosshair();
+
+      chart1.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart2.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      chart2.timeScale().subscribeVisibleLogicalRangeChange(timeRange => {
+        chart1.timeScale().setVisibleLogicalRange(timeRange);
+      });
+
+      function getCrosshairDataPoint(series, param) {
+        if (!param.time) {
+          return null;
+        }
+        const dataPoint = param.seriesData.get(series);
+        return dataPoint || null;
+      }
+
+      function syncCrosshair(chart, series, dataPoint) {
+        if (dataPoint) {
+          chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
+          return;
+        }
+        chart.clearCrosshairPosition();
+      }
+      chart1.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(mainSeries1, param);
+        syncCrosshair(chart2, mainSeries2, dataPoint);
+      });
+      chart2.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(mainSeries2, param);
+        syncCrosshair(chart1, mainSeries1, dataPoint);
+      });
+
+
+    });
+
+
+
+
+  </script>
+</body>
+
+</html>

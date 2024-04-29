@@ -1,0 +1,15 @@
+db = database("dfs://stock1f")
+
+//请注意更换目录dataDir
+dataDir="/home/rabbit/udata/x_201708"
+
+xxy=extractTextSchema("/home/rabbit/udata/x_201708/x_603999.SH_20170801_20170831.csv")
+update xxy set type=`SYMBOL where name=`stockid;
+
+def importTxtFiles(dataDir, db,sch){
+    dataFiles = exec filename from files(dataDir) where isDir=false
+    for(f in dataFiles){
+        loadTextEx(db, `stock1f, `date`stockid, dataDir + "/" + f, schema=sch, sortColumns=`stockid`date`time)
+    }
+}
+importTxtFiles(dataDir, db,xxy);

@@ -1,0 +1,110 @@
+{
+    "-------------------------------------------------": "define begin",
+    "###_trading_mode": "BACK_TEST, REAL_CTP, SIMULATION ",
+    "###_period0": " period_TK 0",
+    "###_period1": " period_1S 1",
+    "###_period2": " period_2S 2",
+    "###_period3": " period_3S 3",
+    "###_period4": " period_5S 4",
+    "###_period5": " period_10S 5",
+    "###_period6": " period_15S 6",
+    "###_period7": " period_20S 7",
+    "###_period8": " period_30S 8",
+    "###_period9": " period_1F 9",
+    "###_period10": " period_2F 10",
+    "###_period11": " period_3F 11",
+    "###_period12": " period_5F 12",
+    "###_period13": " period_10F 13",
+    "###_period14": " period_15F 14",
+    "###_period15": " period_20F 15",
+    "###_period16": " period_30F 16",
+    "###_period17": " period_1H 17",
+    "###_period18": " period_2H 18",
+    "###_period19": " period_3H 19",
+    "###_period20": " period_4H 20",
+    "###_period21": " period_5H 21",
+    "###_period22": " period_6H 22",
+    "###_period23": " period_8H 23",
+    "###_period24": " period_10H 24",
+    "###_period25": " period_12H 25",
+    "###_period26": " period_1D 26",
+    "###_period27": " period_1W 27",
+    "###_period28": " period_1M 28",
+    "###_period29": " period_1J 29",
+    "###_period30": " period_1Y 30",
+    "------------------------------------------------": "define ended",
+    "trading_mode": 1, // 1   BACK_TEST,  2  REAL_CTP, 3  SIMULATION
+    "futures": [
+        {
+            "instrument_id": "fu2301", // -- test
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2302",
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2303",
+            "periods": [
+                "period_1S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2304",
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2305",
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2306",
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2307",
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2308",
+            "periods": [
+                "period_1S",
+                "period_5S",
+                "period_1F"
+            ]
+        },
+        {
+            "instrument_id": "fu2309",
+            "periods": [
+                "period_1F",
+                "period_5F",
+                "period_1S"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,56 @@
+<html lang="en" encoding="utf-8">
+
+<head>
+  <title>Demo</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+
+<body style="">
+</body>
+
+<script>
+
+  const chart = LightweightCharts.createChart(document.body, {
+    width: 1400, height: 300,
+    localization: {
+      timeFormatter: businessDayOrTimestamp => {
+        // return Date(businessDayOrTimestamp); //or whatever JS formatting you want here
+        const date = new Date(businessDayOrTimestamp * 1000) // 时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        let Y = `${date.getFullYear()}-`
+        let M = `${date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-`
+        let D = `${date.getDate()} `
+        const h = `${date.getHours()}:`
+        const m = `${date.getMinutes()}`
+        // s = date.getSeconds()
+        return Y + M + D + h + m
+      },
+    },
+    timeVisible: true,
+    secondsVisible: true,
+  });
+  const lineSeries = chart.addLineSeries();
+  lineSeries.setData([
+    { time: Date.parse('2019-04-11 09:43') / 1000, value: 82.89 },
+    { time: Date.parse('2019-04-11 10:43') / 1000, value: 81.89 },
+    { time: Date.parse('2019-04-11 11:43') / 1000, value: 83.89 },
+    { time: Date.parse('2019-04-11 12:43') / 1000, value: 80.89 },
+    { time: Date.parse('2019-04-11 12:44') / 1000, value: 82.89 },
+    { time: Date.parse('2019-04-11 12:45') / 1000, value: 81.89 },
+    { time: Date.parse('2019-04-11 12:46') / 1000, value: 83.89 },
+    { time: Date.parse('2019-04-11 12:47') / 1000, value: 80.89 },
+    { time: Date.parse('2019-04-11 12:48') / 1000, value: 82.89 },
+    { time: Date.parse('2019-04-11 12:49') / 1000, value: 81.89 },
+    { time: Date.parse('2019-04-11 12:50') / 1000, value: 83.89 },
+    { time: Date.parse('2019-04-11 12:51') / 1000, value: 80.89 },
+    { time: Date.parse('2019-04-11 12:52') / 1000, value: 82.89 },
+    { time: Date.parse('2019-04-11 12:53') / 1000, value: 81.89 },
+    { time: Date.parse('2019-04-11 12:54') / 1000, value: 83.89 },
+    { time: Date.parse('2019-04-11 12:55') / 1000, value: 80.89 },
+    { time: Date.parse('2019-04-11 12:56') / 1000, value: 82.89 },
+    { time: Date.parse('2019-04-11 12:57') / 1000, value: 81.89 },
+    { time: Date.parse('2019-04-11 12:58') / 1000, value: 83.89 },
+    { time: Date.parse('2019-04-11 12:59') / 1000, value: 80.89 },
+  ]);
+</script>
+
+</html>

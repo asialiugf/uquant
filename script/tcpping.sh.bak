@@ -1,0 +1,28 @@
+$ nc -zvw3 116.246.25.180 53205
+$ nmap 116.246.25.180 -Pn
+$ nmap 192.168.1.8 -p 80
+
+nc: connect to 116.246.25.180 port 53205 (tcp) failed: Connection refused
+rabbit@DESKTOP-7DB3IOM:~/xquant/uquant/build$ 
+rabbit@DESKTOP-7DB3IOM:~/xquant/uquant/build$ nmap 116.246.25.180 -Pn
+Starting Nmap 7.80 ( https://nmap.org ) at 2023-03-22 19:43 CST
+Nmap scan report for 116.246.25.180
+Host is up (0.031s latency).
+Not shown: 987 filtered ports
+PORT      STATE  SERVICE
+6666/tcp  closed irc
+6668/tcp  closed irc
+8001/tcp  open   vcom-tunnel
+8002/tcp  open   teradataordbms
+8021/tcp  open   ftp-proxy
+8180/tcp  open   unknown
+8888/tcp  open   sun-answerbook
+9099/tcp  open   unknown
+9101/tcp  open   jetdirect
+9999/tcp  closed abyss
+19101/tcp closed unknown
+20000/tcp open   dnp
+30000/tcp open   ndmps
+
+Nmap done: 1 IP address (1 host up) scanned in 13.90 seconds
+rabbit@DESKTOP-7DB3IOM:~/xquant/uquant/build$ 
