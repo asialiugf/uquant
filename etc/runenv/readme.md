@@ -39,3 +39,8 @@ To                         Action      From
 先执行 bin下面的 ./broadcast.x
 然后执行 run下面的 ./tmain.x 
 
+# proxyip.sh使用
+ 在script目录下, proxyip.sh 通过 ss -t 命令找出笔记本电脑的ip，并将其设置为 git的环境。
+ 注意：要通过 vscode 连接到服务器上， ss -t 才能查出 ssh连接，找出IP。
+       只能有一个ssh连接，否则会出错。
+
