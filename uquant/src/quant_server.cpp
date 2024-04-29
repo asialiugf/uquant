@@ -21,6 +21,11 @@ extern char **environ;
 int Menu();
 
 int main(int argc, char **argv) {
+
+    // daemon(1,0) : 1表示 不改目录， 第二个参数 0 表示 将 0,1,2 标准输入输出错误，改为 /dev/null
+    if (daemon(1, 0) == -1)
+        exit(EXIT_FAILURE);
+
     using namespace uBEE;
     int rtn;
     int pid;
@@ -123,31 +128,31 @@ int ForkCtp() {
     pid = fork();
 
     switch (pid) {
-        case -1:
-            return -1;
-        case 0: {
-            // uBEE::HubCtp hub;  // ------- for test
-            /*
-            std::cout << " 99999 enter fork ForkCtp !" << std::endl;
-            uBEE::HubCtp hub;
-            std::cout << " 99999 enter fork ForkCtp !" << std::endl;
-            pid = getpid();
-            uBEE::InitSetProcTitle();
-            uBEE::SetProcTitle("HubCtp:", "DataServ: ");
+    case -1:
+        return -1;
+    case 0: {
+        // uBEE::HubCtp hub;  // ------- for test
+        /*
+        std::cout << " 99999 enter fork ForkCtp !" << std::endl;
+        uBEE::HubCtp hub;
+        std::cout << " 99999 enter fork ForkCtp !" << std::endl;
+        pid = getpid();
+        uBEE::InitSetProcTitle();
+        uBEE::SetProcTitle("HubCtp:", "DataServ: ");
 
-            std::cout << "befor HubCtp.Init!" << std::endl;
-            hub.Init();
-            sleep(2);
-            std::cout << "after HubCtp.Init!" << std::endl;
+        std::cout << "befor HubCtp.Init!" << std::endl;
+        hub.Init();
+        sleep(2);
+        std::cout << "after HubCtp.Init!" << std::endl;
 
-            std::thread t([&hub] { uBEE::MkCtp(hub.sg); });
-            t.detach();
-            hub.Start();
-            */
-            std::cout << "end hub.Start!!" << std::endl;
-        } break;
-        default:
-            break;
+        std::thread t([&hub] { uBEE::MkCtp(hub.sg); });
+        t.detach();
+        hub.Start();
+        */
+        std::cout << "end hub.Start!!" << std::endl;
+    } break;
+    default:
+        break;
     }
 
     return 0;

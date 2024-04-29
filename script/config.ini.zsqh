@@ -21,7 +21,7 @@ BrokerID=8060
 #UserID=99683265
 #Password=456123
 UserID=99029481
-Password=Test518@918ok
+Password=T@k
 AppID=client_UQUANT_1.0.0
 AuthCode=LC6ZT6MEZE3ARN4U
 
@@ -36,7 +36,7 @@ AuthCode=LC6ZT6MEZE3ARN4U
 # BrokerID=9999
 # UserID=068520
 # 密码必须填写simnow的密码T@k
-# Password=Test518@918ok
+# Password=T@k
 InvestorID=068520
 UserProductInfo=aaa
 #AuthCode=0000000000000000
