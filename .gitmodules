@@ -1,3 +1,9 @@
 [submodule "uquant/uWebSockets"]
 	path = uquant/uWebSockets
 	url = https://github.com/uNetworking/uWebSockets.git
+[submodule "uquant/uws-legacy"]
+	path = uquant/uws-legacy
+	url = https://github.com/uNetworking/uws-legacy.git
+[submodule "uquant/uSockets"]
+	path = uquant/uSockets
+	url = https://github.com/uNetworking/uSockets.git
