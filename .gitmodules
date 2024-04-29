@@ -7,3 +7,6 @@
 [submodule "uquant/uSockets"]
 	path = uquant/uSockets
 	url = https://github.com/uNetworking/uSockets.git
+[submodule "uquant/extern/yyjson"]
+	path = uquant/extern/yyjson
+	url = https://github.com/ibireme/yyjson.git
