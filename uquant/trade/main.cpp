@@ -89,6 +89,7 @@ int main_01(const std::string &kbarfile) {
     StopsegsList<8, 9> segs;
 
     // ----------------------------------------------
+    // 交易处理 Trader<> 这里要改成 localCTP ?
     Trader<8, 9> trader;
     PLOT(trader, 100);
     // ###########################################################

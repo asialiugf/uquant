@@ -22,11 +22,13 @@ include_directories(../)
 # 输出可执行文件:xquant。
 add_executable(xquant "")
 add_executable(broadcast "")
+add_executable(back_test_server "")
 
 message(" ${data_headers} ")
 
 set(quant_server_list ${data_sources})
 set(broadcast_list ${data_sources})
+set(back_test_server_list ${data_sources})
 
 message( "------------------" )
 message( " ${quant_server_list} " )
@@ -34,7 +36,13 @@ message( " ${gettick_list} " )
 message( "------------------" )
 
 list(REMOVE_ITEM quant_server_list broadcast.cpp)
+list(REMOVE_ITEM quant_server_list back_test_server.cpp)
+
 list(REMOVE_ITEM broadcast_list quant_server.cpp)
+list(REMOVE_ITEM broadcast_list back_test_server.cpp)
+
+list(REMOVE_ITEM back_test_server_list broadcast.cpp)
+list(REMOVE_ITEM back_test_server_list quant_server.cpp)
 
 message( "------------------" )
 message( " ${quant_server_list} " )
@@ -42,6 +50,7 @@ message( " ${broadcast_list} " )
 message( "------------------" )
 
 set(broadcast_list broadcast.cpp)
+set(back_test_server_list back_test_server.cpp)
 
 target_sources(xquant
   PRIVATE
@@ -53,6 +62,12 @@ target_sources(broadcast
   PRIVATE
     ${data_headers}
     ${broadcast_list}
+  )
+
+target_sources(back_test_server
+  PRIVATE
+    ${data_headers}
+    ${back_test_server_list}
   )
 
 target_link_directories(xquant PUBLIC ../ctp)
@@ -91,6 +106,29 @@ target_link_libraries(broadcast
     -lglog
     # -luuid -lssl -pthread -lz
   )
+
+#  在 ../uSockets 和 ../ctp 目录下找链接库
+target_link_directories(back_test_server PUBLIC 
+../uWebSockets/uSockets
+../ctp
+~/xquant/exe/lib
+)
+target_link_libraries(back_test_server
+  PUBLIC
+    # clickhouse-cpp-lib
+    libuBEEBase.a
+    mduser1
+    trader1
+    uWS
+    cjson
+    -flto
+    -lz
+    libuSockets.a
+    -ldeflate
+    -lglog
+    # -luuid -lssl -pthread -lz
+  )
+
 
 message("${Green} -------- Uquant/src  -----------  ${ColourReset}")
 

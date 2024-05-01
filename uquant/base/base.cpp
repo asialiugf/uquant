@@ -128,6 +128,7 @@ void Base::MainHubOnDisconnInit() {
         }
     });
 }
+
 void Base::MainHubOnErrorInit() {
     main_hub_->onError([this](void *user) {
         printf("Error: %s, errno:%d\n", strerror(errno), errno);
@@ -407,6 +408,7 @@ int Base::FutureInit(const std::string &tradejson) {
 
     return 0;
 }
+
 void Base::SaveWebSock(uWSclient *ws, uWS::HttpRequest req) {
     long xx = (long)ws->getUserData();
     std::cout << "ppppppppppppp:  " << (long)ws->getUserData() << std::endl;
@@ -630,7 +632,7 @@ void Base::sendTradingData() {
 
 // 初始化时，会将 ohlcv数据文件名 赋值给 this->kbarfile_
 // onMessages会读取这个文件，进行策略处理，【this->onBarsHandler(i);】
-// 每个切片处理完成后，会传给前端显示。 【this->sendTradingData();】
+// 每个切片处理完成后，会传给前端显示。 【this->senTradingData();】
 void Base::onMessages() {
     std::cout << "B: onMessages! " << std::endl;
     char cBE[30]; // "xx:xx:xx--xx:xx:xx"

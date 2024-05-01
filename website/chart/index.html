@@ -336,8 +336,8 @@
         let value;
 
         // let socket = new WebSocket('ws://192.168.1.26:9001');
-        // let socket = new WebSocket('ws://192.168.1.26:8300');
-        let socket = new WebSocket('ws://124.221.96.31:8300/');
+        let socket = new WebSocket('ws://192.168.1.25:8300');
+        // let socket = new WebSocket('ws://124.221.96.31:8300/');
 
         let shareOfInterest = shares[parseInt(Math.random() * shares.length)];
         socket.onopen = () => {
