@@ -19,6 +19,8 @@ struct MSG_T {
     char google[512];
 };
 
+ struct us_listen_socket_t *test_sock;
+
 uWS::App *globalApp;
 int i{0};
 void set_timer(int x) {
@@ -66,8 +68,11 @@ void set_timer(int x) {
         1000, 2000);
 }
 
+int g_id = 0;
+
 struct PerSocketData {
     /* Fill with user data */
+    int id;
     uWS::Loop *loop;
     std::string name;
 };
@@ -116,8 +121,9 @@ int main() {
                               /* Settings */
                               .compression = uWS::SHARED_COMPRESSOR,
                               .maxPayloadLength = 16 * 1024 * 1024,
-                              .idleTimeout = 16,
-                              .maxBackpressure = 1 * 1024 * 1024,
+                              .idleTimeout = 60,
+                              // .maxBackpressure = 1 * 1024 * 1024,
+                              .maxBackpressure = 100,
                               .closeOnBackpressureLimit = false,
                               .resetIdleTimeoutOnSend = false,
                               .sendPingsAutomatically = true,
@@ -129,6 +135,8 @@ int main() {
                                        * PerSocketData struct */
                                       // ws->subscribe("broadcast");
                                       auto x = ws->getUserData();
+                                      x->id = g_id;
+                                      g_id ++;
                                       x->name = "tttt";
                                       x->loop = uWS::Loop::get(); // 一个线程一个loop, 一个线程可以有多个 uWS::App app1,app2
                                                                   //  std::thread th1(LoopFunc, ws);
@@ -137,6 +145,25 @@ int main() {
                                       //  ws->subscribe("xxxx");
                                       //  ws->subscribe("GOOG");
                                       std::cout << ".open!" << std::endl;
+
+                                      std::string message = "{ from open hellow !!!!!! }" ;
+
+                                      int x1 = 0;
+                                      while(ws->getBufferedAmount() < 100) {
+                                       //  std::cout << " hello: " << message << std::endl;
+                                       //  std::cout << ws->getBufferedAmount() << std::endl;
+                                        std::string str = std::to_string(x1);
+                                        std::string s(message) ;
+                                        std::string sss = s + " " + str; 
+                                        auto xxx = ws->send( sss ) ;
+                                       //  std::cout << "xxxx is: " << xxx  << std::endl;
+                                        x1++ ;
+                                      } 
+                                      std::cout << "id: " << x->id << " hhhh go out while in messge() : buffer amount:  "  << ws->getBufferedAmount() << "  " << x << std::endl;
+
+
+
+
                                   },
                               .message =
                                   [&](auto *ws, std::string_view message, uWS::OpCode /*opCode*/) {
@@ -149,7 +176,25 @@ int main() {
 
                                       std::string s(message); // 这里有一个copy动作。 todo性能
                                       std::cout << s << " : " << s.length() << "  from .s  !\n";
+                                    
+                                    /*
+                                      int x = 0;
+                                      while(ws->getBufferedAmount() < 100) {
+                                        std::cout << " hello: " << message << std::endl;
+                                        std::cout << ws->getBufferedAmount() << std::endl;
+                                        std::string str = std::to_string(x);
+                                        std::string s(message) ;
+                                        std::string sss = s + " " + str; 
+                                        auto xxx = ws->send( sss ) ;
+                                        std::cout << "xxxx is: " << xxx  << std::endl;
+                                        x++ ;
+                                      } 
+                                      std::cout << "hhhh go out while in messge() : buffer amount:  "  << ws->getBufferedAmount() << "  " << x << std::endl;
+                                      */
 
+
+                                      
+                                      /*
                                       globalApp->publish("xxxx", message, uWS::OpCode::BINARY, false);
 
                                       yyjson_doc *doc = yyjson_read(s.c_str(), s.length(), 0);
@@ -169,10 +214,30 @@ int main() {
 
                                       yyjson_doc_free(doc);
                                       std::cout << s << " : " << s.length() << "  from .s sss !\n";
+                                      */
                                   },
                               .drain =
-                                  [](auto * /*ws*/) {
+                                  [](auto * ws) {
                                       /* Check ws->getBufferedAmount() here */
+                                    int amount = ws->getBufferedAmount() ; 
+                                    std::string str = std::to_string(amount);
+                                    std::string result = "{ This is a message, let's call it " + str + "}"; 
+                                    std::cout << result << std::endl;
+                                    while ( ws->getBufferedAmount() < 100) {
+                                        ws->send(result);
+                                        amount = ws->getBufferedAmount() ; 
+                                       //  std::cout << " in drain while : " << amount << std::endl; 
+                                    }
+                                     auto x = ws->getUserData();
+                                     amount = ws->getBufferedAmount() ; 
+                                     std::cout << " id : " << x->id <<  " tttttttttttt out drain while : " << amount << std::endl; 
+                                    /*
+                                    while (ws.getBufferedAmount() < backpressure) {
+                                        ws.send("This is a message, let's call it " ); //+ messageNumber
+                                        messageNumber++;
+                                        messages++;
+                                    }
+                                    */
                                   },
                               .ping =
                                   [](auto * /*ws*/, std::string_view) {
@@ -183,14 +248,21 @@ int main() {
                                       /* Not implemented yet */
                                   },
                               .close =
-                                  [](auto * /*ws*/, int /*code*/, std::string_view /*message*/) {
+                                  [](auto * ws, int code, std::string_view message) {
                                       /* You may access ws->getUserData() here */
+                                      std::cout << " go into .close ! code is: " << code << std::endl;
                                   },
                           });
 
     app.listen(9001, [](auto *listen_socket) {
-        if (listen_socket)
+        test_sock = listen_socket;
+        if (listen_socket) {
             std::cout << "Listening on port " << 9001 << std::endl;
+        }
+        else {
+            us_listen_socket_close(0,test_sock);
+            test_sock = nullptr;
+        }
     });
 
     app.listen(7001, [](auto *listen_socket) {
