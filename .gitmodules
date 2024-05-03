@@ -10,3 +10,6 @@
 [submodule "uquant/extern/yyjson"]
 	path = uquant/extern/yyjson
 	url = https://github.com/ibireme/yyjson.git
+[submodule "uquant/contribs/clickhouse-cpp"]
+	path = uquant/contribs/clickhouse-cpp
+	url = https://github.com/ClickHouse/clickhouse-cpp.git

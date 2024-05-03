@@ -1,18 +1,18 @@
 #pragma once
 
+#include "absl/numeric/int128.h"
+
 #include <atomic>
 #include <map>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <vector>
-
-#include "absl/numeric/int128.h"
+#include <stdexcept>
 
 namespace clickhouse {
 
 using Int128 = absl::int128;
-using Int64  = int64_t;
+using Int64 = int64_t;
 
 using TypeRef = std::shared_ptr<class Type>;
 
@@ -83,8 +83,8 @@ public:
     bool IsEqual(const Type& other) const {
         // Types are equal only if both code_ and type_unique_id_ are equal.
         return this == &other
-               // GetTypeUniqueId() is relatively heavy, so avoid calling it when comparing obviously different types.
-               || (this->GetCode() == other.GetCode() && this->GetTypeUniqueId() == other.GetTypeUniqueId());
+                // GetTypeUniqueId() is relatively heavy, so avoid calling it when comparing obviously different types.
+                || (this->GetCode() == other.GetCode() && this->GetTypeUniqueId() == other.GetTypeUniqueId());
     }
 
     bool IsEqual(const TypeRef& other) const { return IsEqual(*other); }
@@ -147,13 +147,15 @@ private:
     mutable std::atomic<uint64_t> type_unique_id_;
 };
 
-inline bool operator==(const Type& left, const Type& right) {
-    if (&left == &right) return true;
-    if (typeid(left) == typeid(right)) return left.IsEqual(right);
+inline bool operator==(const Type & left, const Type & right) {
+    if (&left == &right)
+        return true;
+    if (typeid(left) == typeid(right))
+        return left.IsEqual(right);
     return false;
 }
 
-inline bool operator==(const TypeRef& left, const TypeRef& right) {
+inline bool operator==(const TypeRef & left, const TypeRef & right) {
     return *left == *right;
 }
 
@@ -185,18 +187,20 @@ private:
     const size_t precision_, scale_;
 };
 
-namespace details {
-class TypeWithTimeZoneMixin {
+namespace details
+{
+class TypeWithTimeZoneMixin
+{
 public:
     TypeWithTimeZoneMixin(std::string timezone);
 
     /// Timezone associated with a data column.
-    const std::string& Timezone() const;
+    const std::string & Timezone() const;
 
 private:
     std::string timezone_;
 };
-}  // namespace details
+}
 
 class DateTimeType : public Type, public details::TypeWithTimeZoneMixin {
 public:
@@ -205,14 +209,13 @@ public:
     std::string GetName() const;
 };
 
-class DateTime64Type : public Type, public details::TypeWithTimeZoneMixin {
+class DateTime64Type: public Type, public details::TypeWithTimeZoneMixin {
 public:
     explicit DateTime64Type(size_t precision, std::string timezone_);
 
     std::string GetName() const;
 
     inline size_t GetPrecision() const { return precision_; }
-
 private:
     size_t precision_;
 };
@@ -247,6 +250,8 @@ public:
     explicit FixedStringType(size_t n);
 
     std::string GetName() const { return std::string("FixedString(") + std::to_string(size_) + ")"; }
+
+    inline size_t GetSize() const { return size_; }
 
 private:
     size_t size_;
