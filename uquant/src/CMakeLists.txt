@@ -88,6 +88,7 @@ target_link_libraries(xquant
 #  在 ../uSockets 和 ../ctp 目录下找链接库
 target_link_directories(broadcast PUBLIC 
 ../uWebSockets/uSockets
+../uSockets
 ../ctp
 ~/xquant/exe/lib
 )
@@ -110,6 +111,7 @@ target_link_libraries(broadcast
 #  在 ../uSockets 和 ../ctp 目录下找链接库
 target_link_directories(back_test_server PUBLIC 
 ../uWebSockets/uSockets
+../uSockets
 ../ctp
 ~/xquant/exe/lib
 )
