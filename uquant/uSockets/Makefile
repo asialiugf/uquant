@@ -60,10 +60,10 @@ endif
 
 ifeq ($(WITH_QUIC),1)
 	override CFLAGS += -DLIBUS_USE_QUIC -pthread -std=c11 -Isrc -Ilsquic/include
-	override LDFLAGS += -pthread -lz -lm uSockets.a lsquic/src/liblsquic/liblsquic.a
+	override LDFLAGS += -pthread -lz -lm libuSockets.a lsquic/src/liblsquic/liblsquic.a
 else
 	override CFLAGS += -std=c11 -Isrc
-	override LDFLAGS += uSockets.a
+	override LDFLAGS += libuSockets.a
 endif
 
 # Also link liburing for io_uring support
@@ -71,7 +71,7 @@ ifeq ($(WITH_IO_URING),1)
 	override LDFLAGS += /usr/lib/liburing.a
 endif
 
-# By default we build the uSockets.a static library
+# By default we build the libuSockets.a static library
 default:
 	rm -f *.o
 	$(CC) $(CFLAGS) -O3 -c src/*.c src/eventing/*.c src/crypto/*.c src/io_uring/*.c
@@ -88,7 +88,7 @@ ifeq ($(WITH_BORINGSSL),1)
 	$(CXX) $(CXXFLAGS) -std=c++17 -flto -O3 -c src/crypto/*.cpp
 endif
 # Create a static library (try windows, then unix)
-	lib.exe /out:uSockets.a *.o || $(AR) rvs uSockets.a *.o
+	lib.exe /out:libuSockets.a *.o || $(AR) rvs libuSockets.a *.o
 
 # BoringSSL needs cmake and golang
 .PHONY: boringssl
@@ -101,7 +101,7 @@ examples: default
 	for f in examples/*.c; do $(CC) -O3 $(CFLAGS) -o $$(basename "$$f" ".c")$(EXEC_SUFFIX) "$$f" $(LDFLAGS); done
 
 swift_examples:
-	swiftc -O -I . examples/swift_http_server/main.swift uSockets.a -o swift_http_server
+	swiftc -O -I . examples/swift_http_server/main.swift libuSockets.a -o swift_http_server
 
 clean:
 	rm -f *.o

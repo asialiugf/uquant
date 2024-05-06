@@ -23,8 +23,8 @@ int Menu();
 int main(int argc, char **argv) {
 
     // daemon(1,0) : 1表示 不改目录， 第二个参数 0 表示 将 0,1,2 标准输入输出错误，改为 /dev/null
-    if (daemon(1, 0) == -1)
-        exit(EXIT_FAILURE);
+    // if (daemon(1, 0) == -1)
+    //     exit(EXIT_FAILURE);
 
     using namespace uBEE;
     int rtn;
