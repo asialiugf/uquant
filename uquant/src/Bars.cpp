@@ -120,15 +120,15 @@ TimeBlock::TimeBlock() {
     cJSON_Delete(jRoot);
 }
 
-int TimeBlock::Init(stTimeType TT[]) { return 0; }
+int TimeBlock::Init(TimeType TT[]) { return 0; }
 
 /*
   // 初始化 bar block(BarBlock) !!! ，每个 future block (FutureBlock) 有 50个 BarBlock ;
-  // 每个future的交易时间类型不一样 每个 FutureBlock 有一个不同的pTimeType
-  // 根据period + pTimeType， 初始化 BarBlock的 （Segment     *seg[100] ;）
+  // 每个future的交易时间类型不一样 每个 FutureBlock 有一个不同的p_time_type
+  // 根据period + p_time_type， 初始化 BarBlock的 （Segment     *seg[100] ;）
   // new BarBlock("5F",300,pt);
 */
-BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
+BarBlock::BarBlock(const char *pF, int period_value, TimeType *p_time_type) {
     char cB[9];
     char cE[9];
 
@@ -154,18 +154,18 @@ BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
         iS = 0;
         memcpy(cF, pF, strlen(pF));
 
-        for (int i = 0; i < pTimeType->iSegNum; i++) {
-            iB = pTimeType->aSgms[i].iB;
-            iE = pTimeType->aSgms[i].iE;
+        for (int i = 0; i < p_time_type->iSegNum; i++) {
+            iB = p_time_type->aSgms[i].iB;
+            iE = p_time_type->aSgms[i].iE;
             seg[i] = new Segment();
-            memcpy(seg[i]->cB, pTimeType->aSgms[i].cB, 9);
-            memcpy(seg[i]->cE, pTimeType->aSgms[i].cE, 9);
+            memcpy(seg[i]->cB, p_time_type->aSgms[i].cB, 9);
+            memcpy(seg[i]->cE, p_time_type->aSgms[i].cE, 9);
             seg[i]->iB = iB;
             seg[i]->iE = iE;
             seg[i]->mark = 0;
         }
 
-        iSegNum = pTimeType->iSegNum;
+        iSegNum = p_time_type->iSegNum;
         curiX = 0;
         see_memzero(curB, 9); // 当第一次调用DealBar()时，判断tick一定不在这个区间，于是走到
                               // （MARK<0）这个流程中去.
@@ -183,15 +183,15 @@ BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
 
     int last = 0; // 一个bar跨seg，在后面一个seg还差的时间数量
     int idx = 0;
-    for (int i = 0; i < pTimeType->iSegNum; i++) {
-        iB = pTimeType->aSgms[i].iB;
-        iE = pTimeType->aSgms[i].iE;
+    for (int i = 0; i < p_time_type->iSegNum; i++) {
+        iB = p_time_type->aSgms[i].iB;
+        iE = p_time_type->aSgms[i].iE;
 
         if (T________) {
-            sprintf(ca_errmsg, "------ i:%d iSegNum:%d iB:%d  iE:%d last:%d ", i, pTimeType->iSegNum, iB, iE, last);
+            sprintf(ca_errmsg, "------ i:%d iSegNum:%d iB:%d  iE:%d last:%d ", i, p_time_type->iSegNum, iB, iE, last);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
-            sprintf(ca_errmsg, "------ pTimeType->aSgms[i].cB:%s .cE:%s", pTimeType->aSgms[i].cB,
-                    pTimeType->aSgms[i].cE);
+            sprintf(ca_errmsg, "------ p_time_type->aSgms[i].cB:%s .cE:%s", p_time_type->aSgms[i].cB,
+                    p_time_type->aSgms[i].cE);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         }
 
@@ -261,7 +261,7 @@ BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
                 memcpy(seg[idx]->barB, cT, 9);
                 seg[idx]->bariB = iT;
                 seg[idx]->barBx = idxT;
-                if (i == pTimeType->iSegNum - 1) {
+                if (i == p_time_type->iSegNum - 1) {
                     for (int j = 0; j < mark; j++) { // 【A】
                         int k = idx - j;
                         memcpy(seg[k]->barE, seg[idx]->cE, 9);
@@ -346,7 +346,7 @@ BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
             memcpy(seg[idx]->barB, seg[idx]->cB, 9);
             seg[idx]->bariB = seg[idx]->iB;
             seg[idx]->barBx = idx;
-            if (i == pTimeType->iSegNum - 1) {
+            if (i == p_time_type->iSegNum - 1) {
                 memcpy(seg[idx]->barE, seg[idx]->cE, 9);
                 seg[idx]->bariE = seg[idx]->iE;
                 seg[idx]->barEx = idx;
@@ -479,7 +479,7 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
         fn[1] = 0;
     }
 
-    // 初始化 pTimeType [stTimeType  *pTimeType]
+    // 初始化 p_time_type [TimeType  *p_time_type]
     std::map<std::string, int>::const_iterator it;
     it = M_FuTime.find(fn);
     if (it == M_FuTime.end()) {
@@ -490,7 +490,7 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
         sprintf(ca_errmsg, "FutureBlock::FutureBlock(): future:%s %s timetype:%d, TimeType:", InstrumentID, fn,
                 it->second);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
-        pTimeType = &tmbo->TT[it->second];
+        p_time_type = &tmbo->TT[it->second];
     }
 
     // -- 初始化 BarBlock[50] ;  BarBlock ----------------------------------------
@@ -523,7 +523,7 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
             sprintf(ca_errmsg, "FutureBlock::FutureBlock(): idx:%d  %s: %d", i, it->first.c_str(), it->second);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
 
-            pBarBlock[i] = new BarBlock(it->first.c_str() + 4, it->second, pTimeType); // +4:去掉前面100_ 101_
+            pBarBlock[i] = new BarBlock(it->first.c_str() + 4, it->second, p_time_type); // +4:去掉前面100_ 101_
         }
         i++;
         if (i >= 50) {

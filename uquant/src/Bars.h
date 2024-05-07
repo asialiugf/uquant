@@ -331,7 +331,7 @@ struct Segment {
     Segment();
 };
 
-struct stTimeType {
+struct TimeType {
     int iType;   /* 不同的交易时间类型 */
     int iSegNum; /* 多少个segment */
     Segment aSgms[SGM_NUM];
@@ -339,12 +339,12 @@ struct stTimeType {
 
 // time block ----------
 struct TimeBlock {
-    stTimeType TT[7]; // 有7种交易时间类型。参见 M_TimeType
+    TimeType TT[7]; // 有7种交易时间类型。参见 M_TimeType
   public:
     TimeBlock();
 
   private:
-    int Init(stTimeType TT[]);
+    int Init(TimeType TT[]);
 };
 
 // ----- End ----------- 时间结构定义 ----------------------------------------
@@ -383,7 +383,7 @@ struct BarBlock {
     int iSegNum;        // segment 数量
     Segment *seg[100];  // segment array
   public:
-    BarBlock(const char *pF, int fr, stTimeType *pTimeType);
+    BarBlock(const char *pF, int fr, TimeType *p_time_type);
     // int MakeTime(char *caTime, int T) ;
 };
 
@@ -399,7 +399,7 @@ struct FutureBlock {
     char caFileName[1024];   // 用于记录"/home/rabbit/see/dat/rcv_dat/au/au1801",要组合
                              // period
     int iTickValid;          // 用于记录收到tick时，是否有效
-    stTimeType *pTimeType;   // TimeType
+    TimeType *p_time_type;   // TimeType
     BarBlock *pBarBlock[50]; // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
   public:
     // FutureBlock(char *fuID, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg);
