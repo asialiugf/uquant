@@ -190,7 +190,8 @@ BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
         if (T________) {
             sprintf(ca_errmsg, "------ i:%d iSegNum:%d iB:%d  iE:%d last:%d ", i, pTimeType->iSegNum, iB, iE, last);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
-            sprintf(ca_errmsg, "------ pTimeType->aSgms[i].cB:%s .cE:%s", pTimeType->aSgms[i].cB, pTimeType->aSgms[i].cE);
+            sprintf(ca_errmsg, "------ pTimeType->aSgms[i].cB:%s .cE:%s", pTimeType->aSgms[i].cB,
+                    pTimeType->aSgms[i].cE);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         }
 
@@ -337,7 +338,8 @@ BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
             MakeTime(seg[idx]->cE, seg[idx]->iE);
 
             if (T________) {
-                sprintf(ca_errmsg, "8888--- idx:%d mark:%d mo:%d seg B:%s seg E:%s", idx, mark, mo, seg[idx]->cB, seg[idx]->cE);
+                sprintf(ca_errmsg, "8888--- idx:%d mark:%d mo:%d seg B:%s seg E:%s", idx, mark, mo, seg[idx]->cB,
+                        seg[idx]->cE);
                 uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
             }
 
@@ -485,7 +487,8 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         return;
     } else {
-        sprintf(ca_errmsg, "FutureBlock::FutureBlock(): future:%s %s timetype:%d, TimeType:", InstrumentID, fn, it->second);
+        sprintf(ca_errmsg, "FutureBlock::FutureBlock(): future:%s %s timetype:%d, TimeType:", InstrumentID, fn,
+                it->second);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         pTimeType = &tmbo->TT[it->second];
     }
@@ -613,12 +616,15 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
         // 00:00:00           图中seg3 4 5
         //  situation 1:  ticK is out of segB--segE(same curB--curE), but still
         //  in same barB--barE
-        if ((memcmp(SEGE, ticK, 8) < 0 && memcmp(ticK, barE, 8) < 0) || (memcmp(ticK, SEGE, 8) > 0 && memcmp(SEGE, barE, 8) > 0) || (memcmp(SEGE, barE, 8) > 0 && memcmp(barE, ticK, 8) > 0)) {
+        if ((memcmp(SEGE, ticK, 8) < 0 && memcmp(ticK, barE, 8) < 0) ||
+            (memcmp(ticK, SEGE, 8) > 0 && memcmp(SEGE, barE, 8) > 0) ||
+            (memcmp(SEGE, barE, 8) > 0 && memcmp(barE, ticK, 8) > 0)) {
             int i = curiX; // do while ==> keep curiX not changing .because
                            // maybe this tick is invalid.
             do {
                 i++;
-            } while ((memcmp(barE, babo->seg[i]->barE, 8) == 0) && (memcmp(ticK, babo->seg[i]->cB, 8) < 0 || memcmp(ticK, babo->seg[i]->cE, 8) > 0));
+            } while ((memcmp(barE, babo->seg[i]->barE, 8) == 0) &&
+                     (memcmp(ticK, babo->seg[i]->cB, 8) < 0 || memcmp(ticK, babo->seg[i]->cE, 8) > 0));
             if (memcmp(barE, babo->seg[i]->barE, 8) != 0) { // invalid tick
                 future_block->iTickValid = -1;
                 return 0;
@@ -646,7 +652,8 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
         // barB segB -- segE barE -- 00:00:00  -- tick 【3】：segE >tick> barE
         // 外  ==>  e     barB segB -- segE -- 00:00:00 -- barE -- tick
         //  situation 2: tick is out of bar !!
-        if ((memcmp(SEGE, barE, 8) <= 0 && (memcmp(barE, ticK, 8) < 0 || memcmp(ticK, SEGE, 8) < 0)) || (memcmp(SEGE, ticK, 8) > 0 && memcmp(ticK, barE, 8) > 0)) {
+        if ((memcmp(SEGE, barE, 8) <= 0 && (memcmp(barE, ticK, 8) < 0 || memcmp(ticK, SEGE, 8) < 0)) ||
+            (memcmp(SEGE, ticK, 8) > 0 && memcmp(ticK, barE, 8) > 0)) {
         bbbb:
             if (curiX < babo->iSegNum - 1) {
                 if (memcmp(ticK, "20:50:00", 8) >= 0) {
@@ -804,12 +811,12 @@ int HhmmssToSec(const char *str) {
 
 // https://blog.51cto.com/waleon/5671078
 // 目前发现效率最高！！
-#define PRINTF_2D_WITH_TWO_DIGIT(buff, num)                                                                                                                                                                                                                                            \
-    {                                                                                                                                                                                                                                                                                  \
-        int32_t tmp2 = (num) / 10;                                                                                                                                                                                                                                                     \
-        int32_t tmp = (num)-tmp2 * 10;                                                                                                                                                                                                                                                 \
-        *buff++ = (char)('0' + tmp2);                                                                                                                                                                                                                                                  \
-        *buff++ = (char)('0' + tmp);                                                                                                                                                                                                                                                   \
+#define PRINTF_2D_WITH_TWO_DIGIT(buff, num)                                                                            \
+    {                                                                                                                  \
+        int32_t tmp2 = (num) / 10;                                                                                     \
+        int32_t tmp = (num)-tmp2 * 10;                                                                                 \
+        *buff++ = (char)('0' + tmp2);                                                                                  \
+        *buff++ = (char)('0' + tmp);                                                                                   \
     }
 
 // 要注意，小时不能超过24吧？ T的值不能大于某个数
@@ -945,7 +952,9 @@ int ReadTick(const char *file_name) {
         libdeflate_deflate_decompress(decompressor, indata, in_len, outdata, 2048, &decsize);
         CThostFtdcDepthMarketDataField *tick = (CThostFtdcDepthMarketDataField *)outdata;
 
-        snprintf(ca_errmsg1, 8192, "A:%s %s %s T:%s O:%g H:%g L:%g C:%g V:%d \n", tick->ActionDay, tick->InstrumentID, tick->TradingDay, tick->UpdateTime, tick->LastPrice, tick->AskPrice1, tick->BidPrice1, tick->AskPrice2, tick->Volume);
+        snprintf(ca_errmsg1, 8192, "A:%s %s %s T:%s O:%g H:%g L:%g C:%g V:%d \n", tick->ActionDay, tick->InstrumentID,
+                 tick->TradingDay, tick->UpdateTime, tick->LastPrice, tick->AskPrice1, tick->BidPrice1, tick->AskPrice2,
+                 tick->Volume);
         std::cout << ca_errmsg1 << std::endl;
     }
 
@@ -1050,7 +1059,9 @@ int SaveTick(uBEE::FutureBlock *future_block, TICK *tick) {
     snprintf(ca_errmsg, ERR_MSG_LEN,
              "A:%s %s %06d S:%d T:%s H:%g L:%g LP:%g AP:%g AV:%d BP:%g BV:%d "
              "OI:%g V:%d",
-             tick->ActionDay, tick->UpdateTime, tick->UpdateMillisec * 1000, 0, tick->TradingDay, tick->HighestPrice, tick->LowestPrice, tick->LastPrice, tick->AskPrice1, tick->AskVolume1, tick->BidPrice1, tick->BidVolume1, tick->OpenInterest, tick->Volume);
+             tick->ActionDay, tick->UpdateTime, tick->UpdateMillisec * 1000, 0, tick->TradingDay, tick->HighestPrice,
+             tick->LowestPrice, tick->LastPrice, tick->AskPrice1, tick->AskVolume1, tick->BidPrice1, tick->BidVolume1,
+             tick->OpenInterest, tick->Volume);
     SaveLine(f, ca_errmsg);
     return 0;
 }
@@ -1248,8 +1259,11 @@ int SaveBar(uBEE::FutureBlock *future_block, sKbar *KK, int period) {
     char f[512];
     BarBlock *babo = future_block->pBarBlock[period];
 
-    snprintf(f, 512, "../data/%s_%02d_%02d_%02d.%d.%di", future_block->InstrumentID, babo->iH, babo->iM, babo->iS, babo->period_value_, period);
-    snprintf(ca_errmsg, ERR_MSG_LEN, "%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d", future_block->InstrumentID, future_block->ActionDay, future_block->TradingDay, KK->cB, KK->cE, KK->o, KK->h, KK->l, KK->c, KK->v, KK->vsum);
+    snprintf(f, 512, "../data/%s_%02d_%02d_%02d.%d.%di", future_block->InstrumentID, babo->iH, babo->iM, babo->iS,
+             babo->period_value_, period);
+    snprintf(ca_errmsg, ERR_MSG_LEN, "%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d", future_block->InstrumentID,
+             future_block->ActionDay, future_block->TradingDay, KK->cB, KK->cE, KK->o, KK->h, KK->l, KK->c, KK->v,
+             KK->vsum);
     SaveLine(f, ca_errmsg);
     return 0;
 }
@@ -1292,7 +1306,8 @@ int MarkBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index) {
     }
 
     if (MARK > 0) {
-        if ((memcmp(SEGE, barE, 8) <= 0 && (memcmp(barE, ticK, 8) < 0 || memcmp(ticK, SEGE, 8) < 0)) || (memcmp(SEGE, ticK, 8) > 0 && memcmp(ticK, barE, 8) > 0)) {
+        if ((memcmp(SEGE, barE, 8) <= 0 && (memcmp(barE, ticK, 8) < 0 || memcmp(ticK, SEGE, 8) < 0)) ||
+            (memcmp(SEGE, ticK, 8) > 0 && memcmp(ticK, barE, 8) > 0)) {
             if (b1->sent == 0) {
                 b1->sent = 1;
             }
@@ -1330,7 +1345,8 @@ int Display(uBEE::FutureBlock *future_block, TICK *tick, int period_index, const
         sprintf(ca_errmsg,
                 "%s p:%d fr:%d tick:%s ms:%d crBE:%s-%s brBE:%s-%s sgBE:%s-%s "
                 "curiX:%d",
-                msg, period_index, fr, tick->UpdateTime, tick->UpdateMillisec, curB, curE, barB, barE, SEGB, SEGE, curiX);
+                msg, period_index, fr, tick->UpdateTime, tick->UpdateMillisec, curB, curE, barB, barE, SEGB, SEGE,
+                curiX);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
     }
     return 0;
@@ -1341,7 +1357,9 @@ int DispBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, const
     stBar *b1 = babo->b1;
 
     if (T________) {
-        sprintf(ca_errmsg, "%s fr:%d  T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d", msg, babo->period_value_, future_block->TradingDay, future_block->ActionDay, b1->cB, b1->cE, b1->h, b1->o, b1->c, b1->l, b1->v, b1->vsum);
+        sprintf(ca_errmsg, "%s fr:%d  T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d", msg,
+                babo->period_value_, future_block->TradingDay, future_block->ActionDay, b1->cB, b1->cE, b1->h, b1->o,
+                b1->c, b1->l, b1->v, b1->vsum);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
     }
     std::cout << ca_errmsg << std::endl;
@@ -1349,7 +1367,8 @@ int DispBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, const
 }
 
 int DispKbar(const char *InstrumentID, const char *TradingDay, const char *ActionDay, sKbar *bar) {
-    snprintf(ca_errmsg, ERR_MSG_LEN, "%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d", InstrumentID, TradingDay, ActionDay, bar->cB, bar->cE, bar->o, bar->h, bar->l, bar->c, bar->v, bar->vsum);
+    snprintf(ca_errmsg, ERR_MSG_LEN, "%s T:%s A:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d", InstrumentID, TradingDay,
+             ActionDay, bar->cB, bar->cE, bar->o, bar->h, bar->l, bar->c, bar->v, bar->vsum);
     std::cout << ca_errmsg << std::endl;
     uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
     return 0;
