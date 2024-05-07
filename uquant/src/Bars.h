@@ -339,12 +339,12 @@ struct TimeType {
 
 // time block ----------
 struct TimeBlock {
-    TimeType TT[7]; // 有7种交易时间类型。参见 M_TimeType
+    TimeType time_types_[7]; // 有7种交易时间类型。参见 M_TimeType
   public:
     TimeBlock();
 
   private:
-    int Init(TimeType TT[]);
+    int Init(TimeType time_types_[]);
 };
 
 // ----- End ----------- 时间结构定义 ----------------------------------------

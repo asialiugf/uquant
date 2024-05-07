@@ -62,56 +62,56 @@ TimeBlock::TimeBlock() {
     MP = &M_TimeType;
 
     for (auto it = (*MP).begin(); it != (*MP).end(); ++it) {
-        TT[it->first].iType = it->first;
+        time_types_[it->first].iType = it->first;
         for (i = 0; i < SGM_NUM; i++) {
-            TT[it->first].aSgms[i].iB = -1;
-            TT[it->first].aSgms[i].iE = -1;
-            TT[it->first].aSgms[i].iI = -1;
+            time_types_[it->first].aSgms[i].iB = -1;
+            time_types_[it->first].aSgms[i].iE = -1;
+            time_types_[it->first].aSgms[i].iI = -1;
         }
 
         jRoot = cJSON_Parse(it->second.c_str());
         jTime = cJSON_GetObjectItem(jRoot, "time");
         n = cJSON_GetArraySize(jTime);
 
-        TT[it->first].iSegNum = n;
-        // std::cout << TT[it->first].iSegNum << "pppppppppppppppppppppp" <<
+        time_types_[it->first].iSegNum = n;
+        // std::cout << time_types_[it->first].iSegNum << "pppppppppppppppppppppp" <<
         // std::endl;
         for (i = 0; i < n; i++) {
             jTemp = cJSON_GetArrayItem(jTime, i);
 
             std::cout << jTemp->valuestring << std::endl;
-            see_memzero(TT[it->first].aSgms[i].cB, 9);
-            see_memzero(TT[it->first].aSgms[i].cE, 9);
+            see_memzero(time_types_[it->first].aSgms[i].cB, 9);
+            see_memzero(time_types_[it->first].aSgms[i].cE, 9);
 
-            memcpy(TT[it->first].aSgms[i].cB, jTemp->valuestring, 5);
-            memcpy(TT[it->first].aSgms[i].cB + 5, ":00", 3);
-            memcpy(TT[it->first].aSgms[i].cE, jTemp->valuestring + 6, 5);
-            memcpy(TT[it->first].aSgms[i].cE + 5, ":00", 3);
-            std::cout << "cE: " << TT[it->first].aSgms[i].cE << std::endl;
-
-            see_memzero(ca_h, 3);
-            see_memzero(ca_m, 3);
-            memcpy(ca_h, TT[it->first].aSgms[i].cB, 2);
-            memcpy(ca_m, TT[it->first].aSgms[i].cB + 3, 2);
-            ih = atoi(ca_h);
-            im = atoi(ca_m);
-            TT[it->first].aSgms[i].iB = ih * 3600 + im * 60;
+            memcpy(time_types_[it->first].aSgms[i].cB, jTemp->valuestring, 5);
+            memcpy(time_types_[it->first].aSgms[i].cB + 5, ":00", 3);
+            memcpy(time_types_[it->first].aSgms[i].cE, jTemp->valuestring + 6, 5);
+            memcpy(time_types_[it->first].aSgms[i].cE + 5, ":00", 3);
+            std::cout << "cE: " << time_types_[it->first].aSgms[i].cE << std::endl;
 
             see_memzero(ca_h, 3);
             see_memzero(ca_m, 3);
-            memcpy(ca_h, TT[it->first].aSgms[i].cE, 2);
-            memcpy(ca_m, TT[it->first].aSgms[i].cE + 3, 2);
+            memcpy(ca_h, time_types_[it->first].aSgms[i].cB, 2);
+            memcpy(ca_m, time_types_[it->first].aSgms[i].cB + 3, 2);
             ih = atoi(ca_h);
             im = atoi(ca_m);
-            TT[it->first].aSgms[i].iE = ih * 3600 + im * 60;
+            time_types_[it->first].aSgms[i].iB = ih * 3600 + im * 60;
+
+            see_memzero(ca_h, 3);
+            see_memzero(ca_m, 3);
+            memcpy(ca_h, time_types_[it->first].aSgms[i].cE, 2);
+            memcpy(ca_m, time_types_[it->first].aSgms[i].cE + 3, 2);
+            ih = atoi(ca_h);
+            im = atoi(ca_m);
+            time_types_[it->first].aSgms[i].iE = ih * 3600 + im * 60;
 
             if (i == 0) {
-                TT[it->first].aSgms[i].iI = 0;
+                time_types_[it->first].aSgms[i].iI = 0;
             } else {
-                if (TT[it->first].aSgms[i].iB >= TT[it->first].aSgms[i - 1].iE) {
-                    TT[it->first].aSgms[i].iI = TT[it->first].aSgms[i].iB - TT[it->first].aSgms[i - 1].iE;
+                if (time_types_[it->first].aSgms[i].iB >= time_types_[it->first].aSgms[i - 1].iE) {
+                    time_types_[it->first].aSgms[i].iI = time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE;
                 } else {
-                    TT[it->first].aSgms[i].iI = TT[it->first].aSgms[i].iB - TT[it->first].aSgms[i - 1].iE + 86400;
+                    time_types_[it->first].aSgms[i].iI = time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE + 86400;
                 }
             }
         }
@@ -120,7 +120,7 @@ TimeBlock::TimeBlock() {
     cJSON_Delete(jRoot);
 }
 
-int TimeBlock::Init(TimeType TT[]) { return 0; }
+int TimeBlock::Init(TimeType time_types_[]) { return 0; }
 
 /*
   // 初始化 bar block(BarBlock) !!! ，每个 future block (FutureBlock) 有 50个 BarBlock ;
@@ -490,7 +490,7 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
         sprintf(ca_errmsg, "FutureBlock::FutureBlock(): future:%s %s timetype:%d, TimeType:", InstrumentID, fn,
                 it->second);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
-        p_time_type = &tmbo->TT[it->second];
+        p_time_type = &tmbo->time_types_[it->second];
     }
 
     // -- 初始化 BarBlock[50] ;  BarBlock ----------------------------------------
