@@ -41,6 +41,41 @@ Segment::Segment() {
 }
 
 // ---------------------------------------------------------
+
+/* TimeBlock::TimeBlock() 生成的 time_blocks如下:
+----:09:00:00----:10:15:00----:32400----:36900----:0
+----:10:30:00----:11:30:00----:37800----:41400----:900
+----:13:30:00----:15:00:00----:48600----:54000----:7200
+
+----:21:00:00----:23:00:00----:75600----:82800----:0
+----:09:00:00----:10:15:00----:32400----:36900----:36000
+----:10:30:00----:11:30:00----:37800----:41400----:900
+----:13:30:00----:15:00:00----:48600----:54000----:7200
+
+----:21:00:00----:23:30:00----:75600----:84600----:0
+----:09:00:00----:10:15:00----:32400----:36900----:34200
+----:10:30:00----:11:30:00----:37800----:41400----:900
+----:13:30:00----:15:00:00----:48600----:54000----:7200
+
+----:21:00:00----:24:00:00----:75600----:86400----:0
+----:00:00:00----:01:00:00----:0----:3600----:0
+----:09:00:00----:10:15:00----:32400----:36900----:28800
+----:10:30:00----:11:30:00----:37800----:41400----:900
+----:13:30:00----:15:00:00----:48600----:54000----:7200
+
+----:21:00:00----:24:00:00----:75600----:86400----:0
+----:00:00:00----:02:30:00----:0----:9000----:0
+----:09:00:00----:10:15:00----:32400----:36900----:23400
+----:10:30:00----:11:30:00----:37800----:41400----:900
+----:13:30:00----:15:00:00----:48600----:54000----:7200
+
+----:09:30:00----:11:30:00----:34200----:41400----:0
+----:13:00:00----:15:00:00----:46800----:54000----:5400
+
+----:09:15:00----:11:30:00----:33300----:41400----:0
+----:13:00:00----:15:15:00----:46800----:54900----:5400
+*/
+
 /*
  init Time Block.
  TT:member 成员变量
@@ -53,10 +88,6 @@ TimeBlock::TimeBlock() {
     cJSON *jRoot;
     cJSON *jTime;
     cJSON *jTemp;
-    char ca_h[3];
-    char ca_m[3];
-    int ih;
-    int im;
     int i, n;
     const std::map<int, std::string> *MP;
     MP = &M_TimeType;
@@ -73,9 +104,8 @@ TimeBlock::TimeBlock() {
         jTime = cJSON_GetObjectItem(jRoot, "time");
         n = cJSON_GetArraySize(jTime);
 
-        time_types_[it->first].iSegNum = n;
-        // std::cout << time_types_[it->first].iSegNum << "pppppppppppppppppppppp" <<
-        // std::endl;
+        time_types_[it->first].iSegNum = n; // segment数量
+
         for (i = 0; i < n; i++) {
             jTemp = cJSON_GetArrayItem(jTime, i);
 
@@ -83,39 +113,30 @@ TimeBlock::TimeBlock() {
             see_memzero(time_types_[it->first].aSgms[i].cB, 9);
             see_memzero(time_types_[it->first].aSgms[i].cE, 9);
 
+            // 字符串类型的起止时间
             memcpy(time_types_[it->first].aSgms[i].cB, jTemp->valuestring, 5);
             memcpy(time_types_[it->first].aSgms[i].cB + 5, ":00", 3);
             memcpy(time_types_[it->first].aSgms[i].cE, jTemp->valuestring + 6, 5);
             memcpy(time_types_[it->first].aSgms[i].cE + 5, ":00", 3);
             std::cout << "cE: " << time_types_[it->first].aSgms[i].cE << std::endl;
 
-            see_memzero(ca_h, 3);
-            see_memzero(ca_m, 3);
-            memcpy(ca_h, time_types_[it->first].aSgms[i].cB, 2);
-            memcpy(ca_m, time_types_[it->first].aSgms[i].cB + 3, 2);
-            ih = atoi(ca_h);
-            im = atoi(ca_m);
-            time_types_[it->first].aSgms[i].iB = ih * 3600 + im * 60;
+            // 以秒计的整形起止时间
+            time_types_[it->first].aSgms[i].iB = HhmmssToSec(time_types_[it->first].aSgms[i].cB);
+            time_types_[it->first].aSgms[i].iE = HhmmssToSec(time_types_[it->first].aSgms[i].cE);
 
-            see_memzero(ca_h, 3);
-            see_memzero(ca_m, 3);
-            memcpy(ca_h, time_types_[it->first].aSgms[i].cE, 2);
-            memcpy(ca_m, time_types_[it->first].aSgms[i].cE + 3, 2);
-            ih = atoi(ca_h);
-            im = atoi(ca_m);
-            time_types_[it->first].aSgms[i].iE = ih * 3600 + im * 60;
-
+            // 两个前后时间段之间的间隔 秒数。
             if (i == 0) {
                 time_types_[it->first].aSgms[i].iI = 0;
             } else {
                 if (time_types_[it->first].aSgms[i].iB >= time_types_[it->first].aSgms[i - 1].iE) {
-                    time_types_[it->first].aSgms[i].iI = time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE;
+                    time_types_[it->first].aSgms[i].iI =
+                        time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE;
                 } else {
-                    time_types_[it->first].aSgms[i].iI = time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE + 86400;
+                    time_types_[it->first].aSgms[i].iI =
+                        time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE + 86400;
                 }
             }
         }
-        // std::cout << "mmmm " << jTemp->valuestring << std::endl;
     }
     cJSON_Delete(jRoot);
 }
@@ -155,13 +176,11 @@ BarBlock::BarBlock(const char *pF, int period_value, TimeType *p_time_type) {
         memcpy(cF, pF, strlen(pF));
 
         for (int i = 0; i < p_time_type->iSegNum; i++) {
-            iB = p_time_type->aSgms[i].iB;
-            iE = p_time_type->aSgms[i].iE;
             seg[i] = new Segment();
             memcpy(seg[i]->cB, p_time_type->aSgms[i].cB, 9);
             memcpy(seg[i]->cE, p_time_type->aSgms[i].cE, 9);
-            seg[i]->iB = iB;
-            seg[i]->iE = iE;
+            seg[i]->iB = p_time_type->aSgms[i].iB;
+            seg[i]->iE = p_time_type->aSgms[i].iE;
             seg[i]->mark = 0;
         }
 
@@ -446,7 +465,7 @@ BarBlock::BarBlock(const char *pF, int period_value, TimeType *p_time_type) {
         sprintf(ca_errmsg, "--------------------------------------out BarBlock\n\n");
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
     }
-}
+} // BarBlock() end
 
 /*
   Future Block !
@@ -458,6 +477,7 @@ BarBlock::BarBlock(const char *pF, int period_value, TimeType *p_time_type) {
 FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
     if (T________) {
         uBEE::ErrLog(1000, " FutureBlock::FutureBlock():enter!", 1, 0, 0);
+        std::cout << __FUNCTION__ << std::endl;
     }
 
     // SG = sg;
@@ -480,6 +500,7 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
     }
 
     // 初始化 p_time_type [TimeType  *p_time_type]
+    //  【注意】 新合约需要更新 M_FuTure这个map，否则，这个合约找不到对应的 timetype交易时间类型
     std::map<std::string, int>::const_iterator it;
     it = M_FuTime.find(fn);
     if (it == M_FuTime.end()) {
@@ -539,6 +560,8 @@ FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
 // ---------------------------------------------------------
 /*
   下面的period，是指在 future_block->aBarBo[]数组的下标
+ * 在 FutureBlock里，有一个 BarBlock的指针数组pBarBlock[50]，如果定义了某个周期需要计算，那么就初始化这个
+ * BarBlock，其它的为 nullptr;
 */
 int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int flag) {
     stBar *b1 = future_block->pBarBlock[period_index]->b1;
@@ -785,6 +808,7 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
 
 // todo
 // 目前测试，下面这个方法是最快的 -O3
+// 把 形如 "12:23:15" 字符串，转成 整形的秒
 int HhmmssToSec(const char *str) {
     /*
     int s = 0;
@@ -819,6 +843,8 @@ int HhmmssToSec(const char *str) {
         *buff++ = (char)('0' + tmp);                                                                                   \
     }
 
+// 把 T 秒数，转成 字符串 12:35:17这种格式
+// caT的长度为9，最后 caT[8] = 0 字符串结尾
 // 要注意，小时不能超过24吧？ T的值不能大于某个数
 int MakeTime(char *caT, int T) {
     int h, m, s;
@@ -1133,6 +1159,8 @@ int HandleTick(uBEE::FutureBlock *future_block, TICK *tick, int flag) {
     nData->iType = T_BARS;
 
     // ----------  period   idx from 1 to 49 ---------------
+    // todo 每次这样 for一次，性能影响？ 是否可以把 要计算的周期先统计出来，放在一个数组里
+    // 然后只for这个数组，数量要少多了。
     x = 0;
     for (i = 1; i < 50; ++i) {
         if (future_block->pBarBlock[i] != nullptr) {

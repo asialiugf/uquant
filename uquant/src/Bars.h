@@ -190,7 +190,7 @@ constexpr int TICK_LEN = sizeof(TICK);
 // HubSim根据tick生成kbar用的，如果不需要，可以将后面的值改为-1即可。
 // 如果想要定义自己的级别，可以在后面的131_cu 添加，值以秒计.
 // 日 周 月 季 年 todo!!
-
+// 下面不为 -1的，表示要计算 kbar的 周期 下面这种做法，不太好？todo 改成配置文件?
 static const std::map<std::string, int> M_FF = {
     {"100_T", 0},    // 0 tick!!!
     {"101_1S", 1},   // 1 1
