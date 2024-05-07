@@ -48,8 +48,8 @@ Segment::Segment() {
  从 M_TimeType 取内容，初始化 TT这个数组，TT的每个时间类型，都包括了time
  segments.
 */
-TmBo::TmBo() {
-    uBEE::ErrLog(1000, " enter into TmBo()!", 1, 0, 0);
+TimeBlock::TimeBlock() {
+    uBEE::ErrLog(1000, " enter into TimeBlock()!", 1, 0, 0);
     cJSON *jRoot;
     cJSON *jTime;
     cJSON *jTemp;
@@ -120,15 +120,15 @@ TmBo::TmBo() {
     cJSON_Delete(jRoot);
 }
 
-int TmBo::Init(stTimeType TT[]) { return 0; }
+int TimeBlock::Init(stTimeType TT[]) { return 0; }
 
 /*
-  // 初始化 bar block(BaBo) !!! ，每个 future block (FuBo) 有 50个 BaBo ;
-  // 每个future的交易时间类型不一样 每个 FuBo 有一个不同的pTimeType
-  // 根据period + pTimeType， 初始化 BaBo的 （Segment     *seg[100] ;）
-  // new BaBo("5F",300,pt);
+  // 初始化 bar block(BarBlock) !!! ，每个 future block (FutureBlock) 有 50个 BarBlock ;
+  // 每个future的交易时间类型不一样 每个 FutureBlock 有一个不同的pTimeType
+  // 根据period + pTimeType， 初始化 BarBlock的 （Segment     *seg[100] ;）
+  // new BarBlock("5F",300,pt);
 */
-BaBo::BaBo(const char *pF, int period_value, stTimeType *pTimeType) {
+BarBlock::BarBlock(const char *pF, int period_value, stTimeType *pTimeType) {
     char cB[9];
     char cE[9];
 
@@ -142,9 +142,8 @@ BaBo::BaBo(const char *pF, int period_value, stTimeType *pTimeType) {
     int iI;
     int mark;
 
-    if (T________) {
-        sprintf(ca_errmsg, "--------------------------------------in BaBo: pF: %s  period_value:%d ", pF, period_value);
-        uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
+    for (int i = 0; i < 100; i++) {
+        seg[i] = nullptr;
     }
 
     // ------------  tick ---------------------
@@ -154,10 +153,6 @@ BaBo::BaBo(const char *pF, int period_value, stTimeType *pTimeType) {
         iM = 0;
         iS = 0;
         memcpy(cF, pF, strlen(pF));
-
-        for (int i = 0; i < 100; i++) {
-            seg[i] = nullptr;
-        }
 
         for (int i = 0; i < pTimeType->iSegNum; i++) {
             iB = pTimeType->aSgms[i].iB;
@@ -185,10 +180,6 @@ BaBo::BaBo(const char *pF, int period_value, stTimeType *pTimeType) {
     iM = (period_value - iH * 3600) / 60;
     iS = period_value % 60;
     memcpy(cF, pF, strlen(pF));
-
-    for (int i = 0; i < 100; i++) {
-        seg[i] = nullptr;
-    }
 
     int last = 0; // 一个bar跨seg，在后面一个seg还差的时间数量
     int idx = 0;
@@ -450,7 +441,7 @@ BaBo::BaBo(const char *pF, int period_value, stTimeType *pTimeType) {
     memcpy((char *)b1, &tmpBar, sizeof(stBar));
 
     if (T________) {
-        sprintf(ca_errmsg, "--------------------------------------out BaBo\n\n");
+        sprintf(ca_errmsg, "--------------------------------------out BarBlock\n\n");
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
     }
 }
@@ -458,13 +449,13 @@ BaBo::BaBo(const char *pF, int period_value, stTimeType *pTimeType) {
 /*
   Future Block !
   char *caFuture : future name
-  uBEE::TmBo *tmbo : 时间块
+  uBEE::TimeBlock *tmbo : 时间块
 */
 
-// FuBo::FuBo(char *caFuture, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg) {
-FuBo::FuBo(const char *caFuture, uBEE::TmBo *tmbo) {
+// FutureBlock::FutureBlock(char *caFuture, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg) {
+FutureBlock::FutureBlock(const char *caFuture, uBEE::TimeBlock *tmbo) {
     if (T________) {
-        uBEE::ErrLog(1000, " FuBo::FuBo():enter!", 1, 0, 0);
+        uBEE::ErrLog(1000, " FutureBlock::FutureBlock():enter!", 1, 0, 0);
     }
 
     // SG = sg;
@@ -490,16 +481,16 @@ FuBo::FuBo(const char *caFuture, uBEE::TmBo *tmbo) {
     std::map<std::string, int>::const_iterator it;
     it = M_FuTime.find(fn);
     if (it == M_FuTime.end()) {
-        sprintf(ca_errmsg, "FuBo::FuBo() :M_FuTime error:not defined: %s %s", InstrumentID, fn);
+        sprintf(ca_errmsg, "FutureBlock::FutureBlock() :M_FuTime error:not defined: %s %s", InstrumentID, fn);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         return;
     } else {
-        sprintf(ca_errmsg, "FuBo::FuBo(): future:%s %s timetype:%d, TimeType:", InstrumentID, fn, it->second);
+        sprintf(ca_errmsg, "FutureBlock::FutureBlock(): future:%s %s timetype:%d, TimeType:", InstrumentID, fn, it->second);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         pTimeType = &tmbo->TT[it->second];
     }
 
-    // -- 初始化 BaBo[50] ;  BarBlock ----------------------------------------
+    // -- 初始化 BarBlock[50] ;  BarBlock ----------------------------------------
     /*
     // 不同的周期，相当于不同的 frequency : fr     fr= 1 表示周期为1秒     fr= 60 表示周期为60秒
     //  默认周期有以下30个：
@@ -509,27 +500,27 @@ FuBo::FuBo(const char *caFuture, uBEE::TmBo *tmbo) {
     1W 1M 1J 1Y
     //
     //  用户自定义周期，可以有19个。
-    // pBaBo[50] : pBaBo[0-30] pBaBo[30-49]
+    // pBarBlock[50] : pBarBlock[0-30] pBarBlock[30-49]
     */
     // 默认的周期
-    // 初始化--------------------------------------------------------- 每个 FuBo
-    // --> future block 有 50个不同的周期 每个周期一个 BaBo ( bar block )
+    // 初始化--------------------------------------------------------- 每个 FutureBlock
+    // --> future block 有 50个不同的周期 每个周期一个 BarBlock ( bar block )
     if (T________) {
-        uBEE::ErrLog(1000, "FuBo::FuBo():kkkkk!!\n\n", 1, 0, 0);
+        uBEE::ErrLog(1000, "FutureBlock::FutureBlock():kkkkk!!\n\n", 1, 0, 0);
     }
 
     int i = 0;
     for (i = 0; i < 50; i++) {
-        pBaBo[i] = nullptr;
+        pBarBlock[i] = nullptr;
     }
 
     i = 0;
     for (auto it = M_FF.begin(); it != M_FF.end(); ++it) {
         if (it->second >= 0) { // 在M_FF中定义.
-            sprintf(ca_errmsg, "FuBo::FuBo(): idx:%d  %s: %d", i, it->first.c_str(), it->second);
+            sprintf(ca_errmsg, "FutureBlock::FutureBlock(): idx:%d  %s: %d", i, it->first.c_str(), it->second);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
 
-            pBaBo[i] = new BaBo(it->first.c_str() + 4, it->second, pTimeType); // +4:去掉前面100_ 101_
+            pBarBlock[i] = new BarBlock(it->first.c_str() + 4, it->second, pTimeType); // +4:去掉前面100_ 101_
         }
         i++;
         if (i >= 50) {
@@ -538,37 +529,37 @@ FuBo::FuBo(const char *caFuture, uBEE::TmBo *tmbo) {
     }
 
     if (T________) {
-        uBEE::ErrLog(1000, "FuBo::FuBo():out!!\n\n", 1, 0, 0);
+        uBEE::ErrLog(1000, "FutureBlock::FutureBlock():out!!\n\n", 1, 0, 0);
     }
 }
 
 // ---------------------------------------------------------
 /*
-  下面的period，是指在 fubo->aBarBo[]数组的下标
+  下面的period，是指在 future_block->aBarBo[]数组的下标
 */
-int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
-    stBar *b1 = fubo->pBaBo[period_index]->b1;
+int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int flag) {
+    stBar *b1 = future_block->pBarBlock[period_index]->b1;
 
-    char *curB = fubo->pBaBo[period_index]->curB;
-    char *curE = fubo->pBaBo[period_index]->curE;
-    int &curiB = fubo->pBaBo[period_index]->curiB;
-    int &curiE = fubo->pBaBo[period_index]->curiE;
-    int &curiX = fubo->pBaBo[period_index]->curiX;
+    char *curB = future_block->pBarBlock[period_index]->curB;
+    char *curE = future_block->pBarBlock[period_index]->curE;
+    int &curiB = future_block->pBarBlock[period_index]->curiB;
+    int &curiE = future_block->pBarBlock[period_index]->curiE;
+    int &curiX = future_block->pBarBlock[period_index]->curiX;
 
     char *barB = b1->cB;
     char *barE = b1->cE;
     int x = 0;
     int i = 0;
-    int fr = fubo->pBaBo[period_index]->period_value_;
+    int fr = future_block->pBarBlock[period_index]->period_value_;
 
-    BaBo *babo = fubo->pBaBo[period_index];
+    BarBlock *babo = future_block->pBarBlock[period_index];
 
-#define SEGB fubo->pBaBo[period_index]->seg[curiX]->cB
-#define SEGE fubo->pBaBo[period_index]->seg[curiX]->cE
+#define SEGB future_block->pBarBlock[period_index]->seg[curiX]->cB
+#define SEGE future_block->pBarBlock[period_index]->seg[curiX]->cE
 #define MARK babo->seg[curiX]->mark
 #define ticK tick->UpdateTime
 
-    // Display(fubo,tick,period_index,"eeee:enter:");
+    // Display(future_block,tick,period_index,"eeee:enter:");
 
     // 只要tick落在 curB---curE之间，即UPDATE。 -----------------------
     // ticK == BarE，在这里就return了。
@@ -579,16 +570,16 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
     if (memcmp(ticK, barE, 8) == 0) { // >=500 在 Markbar()已经update
         if (tick->UpdateMillisec < 500) {
             UPDATE_B1;
-            // Display(fubo,tick,period_index,"eeee:uuu---");
+            // Display(future_block,tick,period_index,"eeee:uuu---");
         }
-        fubo->iTickValid = 1;
+        future_block->iTickValid = 1;
         return 0;
     }
 
     if (memcmp(ticK, curB, 8) >= 0 && memcmp(ticK, curE, 8) <= 0) {
         UPDATE_B1;
-        // Display(fubo,tick,period_index,"eeee:uuu---");
-        fubo->iTickValid = 1;
+        // Display(future_block,tick,period_index,"eeee:uuu---");
+        future_block->iTickValid = 1;
         return 0;
     }
 
@@ -608,7 +599,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
         // 【D】：tick <barE<=segE   外   ==>  e  24:00:00
         // situation 2: tick is out of  segB--segE, out of  barB--barE
         if (memcmp(SEGE, ticK, 8) < 0 || memcmp(ticK, barE, 8) < 0) {
-            // Display(fubo,tick,period_index,"eeee:1:E,F---");
+            // Display(future_block,tick,period_index,"eeee:1:E,F---");
             goto bbbb;
         } //------- E F
     }     // MARK ==0
@@ -629,7 +620,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
                 i++;
             } while ((memcmp(barE, babo->seg[i]->barE, 8) == 0) && (memcmp(ticK, babo->seg[i]->cB, 8) < 0 || memcmp(ticK, babo->seg[i]->cE, 8) > 0));
             if (memcmp(barE, babo->seg[i]->barE, 8) != 0) { // invalid tick
-                fubo->iTickValid = -1;
+                future_block->iTickValid = -1;
                 return 0;
             }
 
@@ -646,7 +637,7 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
             }
             */
 
-            fubo->iTickValid = 1;
+            future_block->iTickValid = 1;
             return 0;
         } // A 1 2 ------------
 
@@ -683,23 +674,23 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
                 if (i >= babo->iSegNum) {
                     //-----------------------
                     if (memcmp(ticK, "20:59:", 6) == 0) {
-                        memcpy(fubo->UpdateTime, ticK,
+                        memcpy(future_block->UpdateTime, ticK,
                                9); // save tick->UpdateTime "20:59:??" ...
-                        fubo->iChange = 1;
+                        future_block->iChange = 1;
                         memcpy(ticK, "21:00:00",
                                8); // 对于 "20:50:0x" 第一个周期走到这里
                         i = 0;
                         break;
                     } else if (memcmp(ticK, "08:59:", 6) == 0) {
-                        memcpy(fubo->UpdateTime, ticK,
+                        memcpy(future_block->UpdateTime, ticK,
                                9); // save tick->UpdateTime "20:59:??" ...
-                        fubo->iChange = 1;
+                        future_block->iChange = 1;
                         memcpy(ticK, "09:00:00",
                                8); // 对于 "20:50:0x" 第一个周期走到这里
                         i = 0;
                         goto for8;
                     } else {
-                        fubo->iTickValid = -1;
+                        future_block->iTickValid = -1;
                         return 0;
                     }
                     //-----------------------
@@ -710,8 +701,8 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
                 b1->vold = 0;
                 b1->vsum = 0;
             }
-            snprintf(fubo->ActionDay, 9, "%s", tick->ActionDay);
-            snprintf(fubo->TradingDay, 9, "%s", tick->TradingDay);
+            snprintf(future_block->ActionDay, 9, "%s", tick->ActionDay);
+            snprintf(future_block->TradingDay, 9, "%s", tick->TradingDay);
 
             if (MARK == 0) {
                 curiE = babo->seg[curiX]->iB - 1; // for do while below!!
@@ -734,12 +725,12 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
                     NEW_B1;
                     memcpy(barB, curB, 9);
                     memcpy(barE, curE, 9);
-                    // Display(fubo,tick,period_index,"eeee:011---");
+                    // Display(future_block,tick,period_index,"eeee:011---");
 
                     goto rrr;
                     // return 0; //虽然没有用，但还是留着。
                 } // (memcmp(ticK,SEGE,8)<0)
-                fubo->iTickValid = 1;
+                future_block->iTickValid = 1;
                 return 0;
             }
 
@@ -751,22 +742,22 @@ int DealBar(uBEE::FuBo *fubo, TICK *tick, int period_index, int flag) {
                 memcpy(curE, babo->seg[curiX]->cE, 9);
                 memcpy(barB, babo->seg[curiX]->barB, 9);
                 memcpy(barE, babo->seg[curiX]->barE, 9);
-                // Display(fubo,tick,period_index,"eeee:012---");
+                // Display(future_block,tick,period_index,"eeee:012---");
             rrr:
                 if (memcmp(ticK, barE, 8) == 0) {
                     if (tick->UpdateMillisec >= 500) {
-                        // Display(fubo, tick, period_index, "eeee:goo---0");
-                        MarkBar(fubo, tick, period_index);
-                        SendBar(fubo, period_index, flag);
+                        // Display(future_block, tick, period_index, "eeee:goo---0");
+                        MarkBar(future_block, tick, period_index);
+                        SendBar(future_block, period_index, flag);
                     }
                 }
-                fubo->iTickValid = 1;
+                future_block->iTickValid = 1;
                 return 0;
             }
-            fubo->iTickValid = 1;
+            future_block->iTickValid = 1;
             return 0;
         } // ----------------------------
-        fubo->iTickValid = -1;
+        future_block->iTickValid = -1;
         return 0;
     } // MARK > 0
     // --------------------------------------------------------------------
@@ -841,11 +832,11 @@ int MakeTime(char *caT, int T) {
     return 0;
 }
 
-int SendTick(uBEE::FuBo *fubo, TICK *tick) {
-    char *curB = fubo->pBaBo[0]->curB;
-    char *curE = fubo->pBaBo[0]->curE;
-    int &curiX = fubo->pBaBo[0]->curiX;
-    BaBo *babo = fubo->pBaBo[0];
+int SendTick(uBEE::FutureBlock *future_block, TICK *tick) {
+    char *curB = future_block->pBarBlock[0]->curB;
+    char *curE = future_block->pBarBlock[0]->curE;
+    int &curiX = future_block->pBarBlock[0]->curiX;
+    BarBlock *babo = future_block->pBarBlock[0];
 #define ticK tick->UpdateTime
     int i = 0;
     if (memcmp(ticK, curB, 8) >= 0 && memcmp(ticK, curE, 8) <= 0) {
@@ -892,7 +883,7 @@ int SendTick(uBEE::FuBo *fubo, TICK *tick) {
         nTick->AskVolume1 = tick->AskVolume1;
         nTick->Volume = tick->Volume;
         // todo broadcast
-        // fubo->SG->broadcast((const char *)nTick, tLen, uWS::OpCode::BINARY);
+        // future_block->SG->broadcast((const char *)nTick, tLen, uWS::OpCode::BINARY);
     }
     return 0;
 }
@@ -1043,13 +1034,13 @@ int SaveTick(TICK *tick) {
     return 0;
 }
 
-int SaveTick(uBEE::FuBo *fubo, TICK *tick) {
+int SaveTick(uBEE::FutureBlock *future_block, TICK *tick) {
     char f[512];
 
-    if (fubo->iChange == 1) {
-        memcpy(tick->UpdateTime, fubo->UpdateTime,
+    if (future_block->iChange == 1) {
+        memcpy(tick->UpdateTime, future_block->UpdateTime,
                9); // save tick->UpdateTime "20:59:??" ...
-        fubo->iChange = 0;
+        future_block->iChange = 0;
     }
 
     snprintf(f, 512, "../data/tick/%s.%s.tick.bin", tick->InstrumentID, tick->ActionDay);
@@ -1071,7 +1062,7 @@ int SaveTick(uBEE::FuBo *fubo, TICK *tick) {
   4. 调用 SG->broadcast() 将bars ticks 传给 策略程序  ~/uquant/t/main.cpp
   5. flag == SEND_ALL || flag == SEND_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR)
 */
-int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag) {
+int HandleTick(uBEE::FutureBlock *future_block, TICK *tick, int flag) {
     // test begin ------------------------------------------
     /*
     int xxxx;
@@ -1123,19 +1114,19 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag) {
     stBar *b1;
 
     /*
-    snprintf(nData->InstrumentID,81,"%s",fubo->InstrumentID);
-    snprintf(nData->ActionDay,9,"%s",fubo->ActionDay);
-    snprintf(nData->TradingDay,9,"%s",fubo->TradingDay);
+    snprintf(nData->InstrumentID,81,"%s",future_block->InstrumentID);
+    snprintf(nData->ActionDay,9,"%s",future_block->ActionDay);
+    snprintf(nData->TradingDay,9,"%s",future_block->TradingDay);
     */
-    memcpy(nData->InstrumentID, fubo->InstrumentID, 49);
+    memcpy(nData->InstrumentID, future_block->InstrumentID, 49);
     nData->iType = T_BARS;
 
     // ----------  period   idx from 1 to 49 ---------------
     x = 0;
     for (i = 1; i < 50; ++i) {
-        if (fubo->pBaBo[i] != nullptr) {
-            b1 = fubo->pBaBo[i]->b1;
-            MarkBar(fubo, tick, i); //---------
+        if (future_block->pBarBlock[i] != nullptr) {
+            b1 = future_block->pBarBlock[i]->b1;
+            MarkBar(future_block, tick, i); //---------
             if (b1->sent == 1) {
                 b1->sent = 2; // 如果已经send过，在下面的
                               // DealBar中，可能会再次MarkBar() SendBar()
@@ -1149,32 +1140,32 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag) {
     if (flag == SEND_ALL || flag == SEND_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
         if (x > 0) {
             // todo
-            //  fubo->SG->broadcast((const char *)nData, hLen + bLen * x, uWS::OpCode::BINARY);
+            //  future_block->SG->broadcast((const char *)nData, hLen + bLen * x, uWS::OpCode::BINARY);
         }
     }
 
     //-------------  saving Klines Kbars !!!
     if (flag == SAVE_ALL || flag == SAVE_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
         for (k = 0; k < nData->iN; ++k) {
-            SaveBar(fubo, &nData->KK[k], nData->KK[k].iX);
+            SaveBar(future_block, &nData->KK[k], nData->KK[k].iX);
         }
     }
 
     //-------------  update or new  bar!!!
     for (i = 1; i < 50; ++i) {
-        if (fubo->pBaBo[i] != nullptr) {
+        if (future_block->pBarBlock[i] != nullptr) {
             // todo
-            DealBar(fubo, tick, i, flag); // latency 80 -- 284
+            DealBar(future_block, tick, i, flag); // latency 80 -- 284
         }
     }
 
     // ---------- send other updating bars : bar not end !!  ---------------
     if (flag == SEND_ALL || flag == SEND_BAR || flag == SEND_SAVE_ALL || flag == SEND_SAVE_BAR) {
-        if (fubo->iTickValid == 1) {
+        if (future_block->iTickValid == 1) {
             nData->iType = T_UPDATE;
             x = 0;
             for (i = 1; i < 50; ++i) {
-                if (fubo->pBaBo[i] != nullptr) {
+                if (future_block->pBarBlock[i] != nullptr) {
                     if (b1->sent == 0) {
                         memcpy((char *)&(nData->KK[x]), (char *)b1, bLen);
                         ++x;
@@ -1183,12 +1174,12 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag) {
             } // for --
             nData->iN = x;
             // todo
-            // fubo->SG->broadcast((const char *)nData, hLen + bLen * x, uWS::OpCode::BINARY);
+            // future_block->SG->broadcast((const char *)nData, hLen + bLen * x, uWS::OpCode::BINARY);
         }
     }
 
     if (flag == SEND_ALL || flag == SEND_TICK || flag == SEND_SAVE_ALL || flag == SEND_SAVE_TICK) {
-        if (fubo->iTickValid == 1) {
+        if (future_block->iTickValid == 1) {
             nTick->iType = T_TICK;
             snprintf(nTick->InstrumentID, 81, "%s", tick->InstrumentID);
             snprintf(nTick->TradingDay, 9, "%s", tick->TradingDay);
@@ -1206,12 +1197,12 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag) {
             nTick->AskVolume1 = tick->AskVolume1;
             nTick->Volume = tick->Volume;
             // todo
-            // fubo->SG->broadcast((const char *)nTick, tLen, uWS::OpCode::BINARY);
+            // future_block->SG->broadcast((const char *)nTick, tLen, uWS::OpCode::BINARY);
         }
     }
 
     if (flag == SAVE_ALL || flag == SAVE_TICK || flag == SEND_SAVE_ALL || flag == SEND_SAVE_TICK) {
-        SaveTick(fubo, tick);
+        SaveTick(future_block, tick);
     }
 
     return 0;
@@ -1224,10 +1215,10 @@ int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag) {
   策略进程。
 */
 // period 是指数组下标
-int SendBar(uBEE::FuBo *fubo, int period, int flag) {
-    stBar *b1 = fubo->pBaBo[period]->b1;
+int SendBar(uBEE::FutureBlock *future_block, int period, int flag) {
+    stBar *b1 = future_block->pBarBlock[period]->b1;
 
-    // snprintf(nData->InstrumentID,81,"%s",fubo->InstrumentID);
+    // snprintf(nData->InstrumentID,81,"%s",future_block->InstrumentID);
     // snprintf(nData->TradingDay,9,"%s",tick->TradingDay);
     // snprintf(nData->ActionDay,9,"%s",tick->ActionDay);
 
@@ -1240,43 +1231,43 @@ int SendBar(uBEE::FuBo *fubo, int period, int flag) {
 
         if (flag == SEND_BAR || flag == SEND_ALL || flag == SEND_SAVE_BAR || flag == SEND_SAVE_ALL) {
             // todo
-            // fubo->SG->broadcast((const char *)nData, oLen, uWS::OpCode::BINARY);
+            // future_block->SG->broadcast((const char *)nData, oLen, uWS::OpCode::BINARY);
         }
 
         if (flag == SAVE_BAR || flag == SAVE_ALL || flag == SEND_SAVE_BAR || flag == SEND_SAVE_ALL) {
             // todo
             // std::cout << "\n not here ?? \n" << std::endl;
-            SaveBar(fubo, &nData->KK[0], period);
+            SaveBar(future_block, &nData->KK[0], period);
         }
     }
     return 0;
 }
 
 // period 是指数组下标
-int SaveBar(uBEE::FuBo *fubo, sKbar *KK, int period) {
+int SaveBar(uBEE::FutureBlock *future_block, sKbar *KK, int period) {
     char f[512];
-    BaBo *babo = fubo->pBaBo[period];
+    BarBlock *babo = future_block->pBarBlock[period];
 
-    snprintf(f, 512, "../data/%s_%02d_%02d_%02d.%d.%di", fubo->InstrumentID, babo->iH, babo->iM, babo->iS, babo->period_value_, period);
-    snprintf(ca_errmsg, ERR_MSG_LEN, "%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d", fubo->InstrumentID, fubo->ActionDay, fubo->TradingDay, KK->cB, KK->cE, KK->o, KK->h, KK->l, KK->c, KK->v, KK->vsum);
+    snprintf(f, 512, "../data/%s_%02d_%02d_%02d.%d.%di", future_block->InstrumentID, babo->iH, babo->iM, babo->iS, babo->period_value_, period);
+    snprintf(ca_errmsg, ERR_MSG_LEN, "%s A:%s T:%s %s--%s O:%g H:%g L:%g C:%g V:%d vsam:%d", future_block->InstrumentID, future_block->ActionDay, future_block->TradingDay, KK->cB, KK->cE, KK->o, KK->h, KK->l, KK->c, KK->v, KK->vsum);
     SaveLine(f, ca_errmsg);
     return 0;
 }
 
 // period 是指数组下标
-int MarkBar(uBEE::FuBo *fubo, TICK *tick, int period_index) {
-    stBar *b1 = fubo->pBaBo[period_index]->b1;
-    char *curB = fubo->pBaBo[period_index]->curB;
-    char *curE = fubo->pBaBo[period_index]->curE;
-    int &curiX = fubo->pBaBo[period_index]->curiX;
+int MarkBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index) {
+    stBar *b1 = future_block->pBarBlock[period_index]->b1;
+    char *curB = future_block->pBarBlock[period_index]->curB;
+    char *curE = future_block->pBarBlock[period_index]->curE;
+    int &curiX = future_block->pBarBlock[period_index]->curiX;
 
     char *barB = b1->cB;
     char *barE = b1->cE;
 
-    BaBo *babo = fubo->pBaBo[period_index];
+    BarBlock *babo = future_block->pBarBlock[period_index];
 
-#define SEGB fubo->pBaBo[period_index]->seg[curiX]->cB
-#define SEGE fubo->pBaBo[period_index]->seg[curiX]->cE
+#define SEGB future_block->pBarBlock[period_index]->seg[curiX]->cB
+#define SEGE future_block->pBarBlock[period_index]->seg[curiX]->cE
 #define MARK babo->seg[curiX]->mark
 #define ticK tick->UpdateTime
 
@@ -1316,8 +1307,8 @@ int MarkBar(uBEE::FuBo *fubo, TICK *tick, int period_index) {
     return 0;
 }
 
-int Display(uBEE::FuBo *fubo, TICK *tick, int period_index, const char *msg) {
-    BaBo *babo = fubo->pBaBo[period_index];
+int Display(uBEE::FutureBlock *future_block, TICK *tick, int period_index, const char *msg) {
+    BarBlock *babo = future_block->pBarBlock[period_index];
     stBar *b1 = babo->b1;
 
     char *curB = babo->curB;
@@ -1345,12 +1336,12 @@ int Display(uBEE::FuBo *fubo, TICK *tick, int period_index, const char *msg) {
     return 0;
 }
 
-int DispBar(uBEE::FuBo *fubo, TICK *tick, int period_index, const char *msg) {
-    BaBo *babo = fubo->pBaBo[period_index];
+int DispBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, const char *msg) {
+    BarBlock *babo = future_block->pBarBlock[period_index];
     stBar *b1 = babo->b1;
 
     if (T________) {
-        sprintf(ca_errmsg, "%s fr:%d  T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d", msg, babo->period_value_, fubo->TradingDay, fubo->ActionDay, b1->cB, b1->cE, b1->h, b1->o, b1->c, b1->l, b1->v, b1->vsum);
+        sprintf(ca_errmsg, "%s fr:%d  T:%s A:%s B:%s--%s H:%lf O:%lf C:%lf L:%lf V:%d vsam:%d", msg, babo->period_value_, future_block->TradingDay, future_block->ActionDay, b1->cB, b1->cE, b1->h, b1->o, b1->c, b1->l, b1->v, b1->vsum);
         uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
     }
     std::cout << ca_errmsg << std::endl;

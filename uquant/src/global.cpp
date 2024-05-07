@@ -6,8 +6,8 @@
 
 namespace uBEE {
 
-uBEE::TmBo *g_time_block;
-std::map<std::string, uBEE::FuBo *> map_futures_block;
+uBEE::TimeBlock *g_time_block;
+std::map<std::string, uBEE::FutureBlock *> map_futures_block;
 
 FILE *logfile;
 std::string g_file_instruments;
@@ -124,10 +124,10 @@ int InitFuturesBlock() {
         char *p = (char *)it->c_str(); // char *Future, const char *pFile
         cout << p << " ---------\n";
         // todo new 抛出异常，需要处理！
-        uBEE::FuBo *fubo = new uBEE::FuBo(p, g_time_block);
-        // uBEE::FuBo *fubo = new uBEE::FuBo(it->c_str(), g_time_block);
+        uBEE::FutureBlock *fubo = new uBEE::FutureBlock(p, g_time_block);
+        // uBEE::FutureBlock *fubo = new uBEE::FutureBlock(it->c_str(), g_time_block);
         cout << p << " 8888888\n";
-        map_futures_block.insert(std::pair<std::string, uBEE::FuBo *>(p, fubo));
+        map_futures_block.insert(std::pair<std::string, uBEE::FutureBlock *>(p, fubo));
         cout << p << " 99999999\n";
     }
     return 0;
@@ -135,7 +135,7 @@ int InitFuturesBlock() {
 
 int InitAll() {
     g_tick_queue = new TickQueue;
-    g_time_block = new uBEE::TmBo(); // 初始化time_block
+    g_time_block = new uBEE::TimeBlock(); // 初始化time_block
     g_compressor = libdeflate_alloc_compressor(9);
     g_file_instruments = "instruments_" + getCurrentSystemTime();
 

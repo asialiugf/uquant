@@ -33,10 +33,10 @@ typedef char FrontAddr[128];
 typedef char FrontMdAddr[128];
 
 // ------------------------------------------------------------
-extern uBEE::TmBo *g_time_block;
+extern uBEE::TimeBlock *g_time_block;
 
-// 每个future有一个 future_block: uBEE::FuBo
-extern std::map<std::string, uBEE::FuBo *> map_futures_block;
+// 每个future有一个 future_block: uBEE::FutureBlock
+extern std::map<std::string, uBEE::FutureBlock *> map_futures_block;
 // extern uWS::Group<uWS::SERVER> *sg;
 extern int InitAll();
 extern int ConfigInit(const char *config_ini);

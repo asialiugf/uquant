@@ -287,7 +287,7 @@ static const std::map<std::string, int> M_FF = {
 */
 #define NEW_B1                                                    \
     b1->iX = period_index;                                        \
-    b1->period_value_ = fubo->pBaBo[period_index]->period_value_; \
+    b1->period_value_ = future_block->pBarBlock[period_index]->period_value_; \
     b1->o = tick->LastPrice;                                      \
     b1->h = tick->LastPrice;                                      \
     b1->l = tick->LastPrice;                                      \
@@ -340,10 +340,10 @@ struct stTimeType {
 };
 
 // time block ----------
-struct TmBo {
+struct TimeBlock {
     stTimeType TT[7];  // 有7种交易时间类型。参见 M_TimeType
    public:
-    TmBo();
+    TimeBlock();
 
    private:
     int Init(stTimeType TT[]);
@@ -366,7 +366,7 @@ struct stBar {
     int sent;           // 有没有sent 或者写入  ==2 已写 ==1 已sent 但没有写 ==0 没发没写
 };
 
-struct BaBo {
+struct BarBlock {
     stBar bar1;
     stBar *b1;
     char curB[9];       // 记录当前tick所在的段
@@ -385,11 +385,11 @@ struct BaBo {
     int iSegNum;        // segment 数量
     Segment *seg[100];  // segment array
    public:
-    BaBo(const char *pF, int fr, stTimeType *pTimeType);
+    BarBlock(const char *pF, int fr, stTimeType *pTimeType);
     // int MakeTime(char *caTime, int T) ;
 };
 
-struct FuBo {
+struct FutureBlock {
     // std::shared_ptr<uBEE::DBPool> dbpool;
     // uWS::Group<uWS::SERVER> *SG;
     // uWS::WebSocket<uWS::SERVER> *ws;  // HubBck 需要。
@@ -402,10 +402,10 @@ struct FuBo {
                             // period
     int iTickValid;         // 用于记录收到tick时，是否有效
     stTimeType *pTimeType;  // TimeType
-    BaBo *pBaBo[50];        // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
+    BarBlock *pBarBlock[50];        // 1s 2s 3s ... 1f 2f 3f 5f ... 1h 5h ... 1y tick
    public:
-    // FuBo(char *fuID, uBEE::TmBo *tmbo, uWS::Group<uWS::SERVER> *sg);
-    FuBo(const char *fuID, uBEE::TmBo *tmbo);
+    // FutureBlock(char *fuID, uBEE::TimeBlock *tmbo, uWS::Group<uWS::SERVER> *sg);
+    FutureBlock(const char *fuID, uBEE::TimeBlock *tmbo);
 };
 
 // -------------------- for sending -----------------
@@ -469,17 +469,17 @@ int MakeTime(char *caT, int T);
 int HhmmssToSec(const char *str);
 
 int ReadTick(const char *file_name);
-int SendTick(uBEE::FuBo *fubo, TICK *tick);
-int SaveTick(uBEE::FuBo *fubo, TICK *tick);
+int SendTick(uBEE::FutureBlock *future_block, TICK *tick);
+int SaveTick(uBEE::FutureBlock *future_block, TICK *tick);
 int SaveTick(TICK *tick);
-int HandleTick(uBEE::FuBo *fubo, TICK *tick, int flag);
-int MarkBar(uBEE::FuBo *fubo, TICK *tick, int period);
-int SendBar(uBEE::FuBo *fubo, int period, int flag);
-int SaveBar(uBEE::FuBo *fubo, sKbar *KK, int period);
-int DealBar(uBEE::FuBo *fubo, TICK *tick, int period, int flag);
+int HandleTick(uBEE::FutureBlock *future_block, TICK *tick, int flag);
+int MarkBar(uBEE::FutureBlock *future_block, TICK *tick, int period);
+int SendBar(uBEE::FutureBlock *future_block, int period, int flag);
+int SaveBar(uBEE::FutureBlock *future_block, sKbar *KK, int period);
+int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period, int flag);
 
-int Display(uBEE::FuBo *fubo, TICK *tick, int period, const char *msg);
-int DispBar(uBEE::FuBo *fubo, TICK *tick, int period, const char *msg);
+int Display(uBEE::FutureBlock *future_block, TICK *tick, int period, const char *msg);
+int DispBar(uBEE::FutureBlock *future_block, TICK *tick, int period, const char *msg);
 int DispKbar(const char *InstrumentID, const char *TradingDay, const char *ActionDay, sKbar *bar);
 int GetFrequencyIdx(int f);
 
