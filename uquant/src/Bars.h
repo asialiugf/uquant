@@ -334,7 +334,7 @@ struct Segment {
 struct TimeType {
     int iType;   /* 不同的交易时间类型 */
     int iSegNum; /* 多少个segment */
-    Segment aSgms[SGM_NUM];
+    Segment segments_[SGM_NUM];
 };
 
 // time block ----------

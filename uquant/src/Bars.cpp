@@ -95,9 +95,9 @@ TimeBlock::TimeBlock() {
     for (auto it = (*MP).begin(); it != (*MP).end(); ++it) {
         time_types_[it->first].iType = it->first;
         for (i = 0; i < SGM_NUM; i++) {
-            time_types_[it->first].aSgms[i].iB = -1;
-            time_types_[it->first].aSgms[i].iE = -1;
-            time_types_[it->first].aSgms[i].iI = -1;
+            time_types_[it->first].segments_[i].iB = -1;
+            time_types_[it->first].segments_[i].iE = -1;
+            time_types_[it->first].segments_[i].iI = -1;
         }
 
         jRoot = cJSON_Parse(it->second.c_str());
@@ -110,30 +110,30 @@ TimeBlock::TimeBlock() {
             jTemp = cJSON_GetArrayItem(jTime, i);
 
             std::cout << jTemp->valuestring << std::endl;
-            see_memzero(time_types_[it->first].aSgms[i].cB, 9);
-            see_memzero(time_types_[it->first].aSgms[i].cE, 9);
+            see_memzero(time_types_[it->first].segments_[i].cB, 9);
+            see_memzero(time_types_[it->first].segments_[i].cE, 9);
 
             // 字符串类型的起止时间
-            memcpy(time_types_[it->first].aSgms[i].cB, jTemp->valuestring, 5);
-            memcpy(time_types_[it->first].aSgms[i].cB + 5, ":00", 3);
-            memcpy(time_types_[it->first].aSgms[i].cE, jTemp->valuestring + 6, 5);
-            memcpy(time_types_[it->first].aSgms[i].cE + 5, ":00", 3);
-            std::cout << "cE: " << time_types_[it->first].aSgms[i].cE << std::endl;
+            memcpy(time_types_[it->first].segments_[i].cB, jTemp->valuestring, 5);
+            memcpy(time_types_[it->first].segments_[i].cB + 5, ":00", 3);
+            memcpy(time_types_[it->first].segments_[i].cE, jTemp->valuestring + 6, 5);
+            memcpy(time_types_[it->first].segments_[i].cE + 5, ":00", 3);
+            std::cout << "cE: " << time_types_[it->first].segments_[i].cE << std::endl;
 
             // 以秒计的整形起止时间
-            time_types_[it->first].aSgms[i].iB = HhmmssToSec(time_types_[it->first].aSgms[i].cB);
-            time_types_[it->first].aSgms[i].iE = HhmmssToSec(time_types_[it->first].aSgms[i].cE);
+            time_types_[it->first].segments_[i].iB = HhmmssToSec(time_types_[it->first].segments_[i].cB);
+            time_types_[it->first].segments_[i].iE = HhmmssToSec(time_types_[it->first].segments_[i].cE);
 
             // 两个前后时间段之间的间隔 秒数。
             if (i == 0) {
-                time_types_[it->first].aSgms[i].iI = 0;
+                time_types_[it->first].segments_[i].iI = 0;
             } else {
-                if (time_types_[it->first].aSgms[i].iB >= time_types_[it->first].aSgms[i - 1].iE) {
-                    time_types_[it->first].aSgms[i].iI =
-                        time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE;
+                if (time_types_[it->first].segments_[i].iB >= time_types_[it->first].segments_[i - 1].iE) {
+                    time_types_[it->first].segments_[i].iI =
+                        time_types_[it->first].segments_[i].iB - time_types_[it->first].segments_[i - 1].iE;
                 } else {
-                    time_types_[it->first].aSgms[i].iI =
-                        time_types_[it->first].aSgms[i].iB - time_types_[it->first].aSgms[i - 1].iE + 86400;
+                    time_types_[it->first].segments_[i].iI =
+                        time_types_[it->first].segments_[i].iB - time_types_[it->first].segments_[i - 1].iE + 86400;
                 }
             }
         }
@@ -177,10 +177,10 @@ BarBlock::BarBlock(const char *pF, int period_value, TimeType *p_time_type) {
 
         for (int i = 0; i < p_time_type->iSegNum; i++) {
             seg[i] = new Segment();
-            memcpy(seg[i]->cB, p_time_type->aSgms[i].cB, 9);
-            memcpy(seg[i]->cE, p_time_type->aSgms[i].cE, 9);
-            seg[i]->iB = p_time_type->aSgms[i].iB;
-            seg[i]->iE = p_time_type->aSgms[i].iE;
+            memcpy(seg[i]->cB, p_time_type->segments_[i].cB, 9);
+            memcpy(seg[i]->cE, p_time_type->segments_[i].cE, 9);
+            seg[i]->iB = p_time_type->segments_[i].iB;
+            seg[i]->iE = p_time_type->segments_[i].iE;
             seg[i]->mark = 0;
         }
 
@@ -203,14 +203,14 @@ BarBlock::BarBlock(const char *pF, int period_value, TimeType *p_time_type) {
     int last = 0; // 一个bar跨seg，在后面一个seg还差的时间数量
     int idx = 0;
     for (int i = 0; i < p_time_type->iSegNum; i++) {
-        iB = p_time_type->aSgms[i].iB;
-        iE = p_time_type->aSgms[i].iE;
+        iB = p_time_type->segments_[i].iB;
+        iE = p_time_type->segments_[i].iE;
 
         if (T________) {
             sprintf(ca_errmsg, "------ i:%d iSegNum:%d iB:%d  iE:%d last:%d ", i, p_time_type->iSegNum, iB, iE, last);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
-            sprintf(ca_errmsg, "------ p_time_type->aSgms[i].cB:%s .cE:%s", p_time_type->aSgms[i].cB,
-                    p_time_type->aSgms[i].cE);
+            sprintf(ca_errmsg, "------ p_time_type->segments_[i].cB:%s .cE:%s", p_time_type->segments_[i].cB,
+                    p_time_type->segments_[i].cE);
             uBEE::ErrLog(1000, ca_errmsg, 1, 0, 0);
         }
 

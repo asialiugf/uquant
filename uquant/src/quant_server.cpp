@@ -40,12 +40,12 @@ int main(int argc, char **argv) {
 
     for (int j = 0; j < 7; j++) {
         int i = 0;
-        while (i < SGM_NUM && uBEE::g_time_block->time_types_[j].aSgms[i].iI != -1) {
-            std::cout << "----:" << uBEE::g_time_block->time_types_[j].aSgms[i].cB;
-            std::cout << "----:" << uBEE::g_time_block->time_types_[j].aSgms[i].cE;
-            std::cout << "----:" << uBEE::g_time_block->time_types_[j].aSgms[i].iB;
-            std::cout << "----:" << uBEE::g_time_block->time_types_[j].aSgms[i].iE;
-            std::cout << "----:" << uBEE::g_time_block->time_types_[j].aSgms[i].iI << std::endl;
+        while (i < SGM_NUM && uBEE::g_time_block->time_types_[j].segments_[i].iI != -1) {
+            std::cout << "----:" << uBEE::g_time_block->time_types_[j].segments_[i].cB;
+            std::cout << "----:" << uBEE::g_time_block->time_types_[j].segments_[i].cE;
+            std::cout << "----:" << uBEE::g_time_block->time_types_[j].segments_[i].iB;
+            std::cout << "----:" << uBEE::g_time_block->time_types_[j].segments_[i].iE;
+            std::cout << "----:" << uBEE::g_time_block->time_types_[j].segments_[i].iI << std::endl;
             i++;
         }
         std::cout << std::endl;
