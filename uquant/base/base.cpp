@@ -111,7 +111,7 @@ void Base::MainHubOnDisconnInit() {
                 printf("reconnect in onDisconnection!!\n");
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                 this->MainHubConnection(); // 这里所有的连接都要重新来过一次吗?
-                main_hub_->run();          // 这里所有的连接都要重新来过一次吗? 这里会不会有问题?
+                main_hub_->run(); // 这里所有的连接都要重新来过一次吗? 这里会不会有问题?
             }
             // ws->close();
         }
@@ -164,7 +164,7 @@ void Base::MainHubInit() {
     this->MainHubOnDisconnInit(); // 设置
     this->MainHubOnErrorInit();   // 设置
     this->MainHubConnection();    // 这里是真正建立连接,可能会建立多个不同的连接，
-                                  // 建立完成后，onConnection设置的函数就会被调用：Base::MainHubOnConnectInit()
+                               // 建立完成后，onConnection设置的函数就会被调用：Base::MainHubOnConnectInit()
 
     // 这里执行 main_hub_->run();  通过上面的conect() 与相应的server进行 信息交互。
     // 通过 onMessage，接收来自 SERVER 的 tick \ bars数据。
@@ -190,6 +190,14 @@ void Base::MainHubInit() {
 }
 
 void Base::Run() {
+
+    /* todo 2014-05-11
+     *  一、 对接 xquant.x 用 websocket 接收数据
+     *  二、 对接 xquant.x 用 queue 接收数据
+     *  三、 直接 启动 xquant.x，或者 xquant.x 直接启动 策略程序， 实现无缝调用。
+     *  四、 对接 数据库 TDengine，获取数据
+     *  五、 打开文件，从文件中获取数据
+     */
 
     // main_hub_->run();
     // 程序何时结束 ？
@@ -380,7 +388,8 @@ int Base::FutureInit(const std::string &tradejson) {
                 // x->OO = ??
                 // x->HH ==??
 
-                std::cout << " Base::FutureInit()  remote_ == true , so  need to get data from websocket !!  " << std::endl;
+                std::cout << " Base::FutureInit()  remote_ == true , so  need to get data from websocket !!  "
+                          << std::endl;
                 // exit(-1);
                 // 下面这一段暂时分先分配内存： 不退出程序。
                 {
@@ -521,7 +530,8 @@ void Base::sendTradingData() {
         int color;
         auto tp2 = std::make_tuple(std::ref(name), std::ref(serial), std::ref(color)) = tp;
         //   double *serial = std::get<1>(tp); // 取出数组
-        LOG(INFO) << " from base.cpp      hahaha :: is ok ? :: " << name << " " << serial[this->unit_array_[8][9]->index];
+        LOG(INFO) << " from base.cpp      hahaha :: is ok ? :: " << name << " "
+                  << serial[this->unit_array_[8][9]->index];
         ret = snprintf(temp, 1024, ",\"%s\":\"%f\"",            //
                        name.c_str(),                            //
                        serial[this->unit_array_[8][9]->index]); //
@@ -538,7 +548,8 @@ void Base::sendTradingData() {
         auto tp2 = std::make_tuple(std::ref(name), std::ref(sections), std::ref(color)) = tp;
         if (!sections->empty()) {
             //  if (sections->back().type != -1) {                       // -1是自定义section_id的默认ID。不必上传
-            //     if (sections->back().type != INT_MIN) {                  // INT_MIN 是自定义section_id的默认ID。不必上传
+            //     if (sections->back().type != INT_MIN) {                  // INT_MIN
+            //     是自定义section_id的默认ID。不必上传
             if (sections->back().E == INT_MIN) {                     // 这个段处于结束状态，不再上传。
                 ret = snprintf(temp, 1024, ",\"%s_section\":\"%d\"", //
                                name.c_str(),                         //
@@ -549,13 +560,12 @@ void Base::sendTradingData() {
         }
     }
 
-    // ----------------从 pointslist_output 取出交易信号 -------------------------------- 每个index,每个变量只有一个值 ----
-    // 对应的是 trading策略中的
-    // PointsList<8, 9> ICO132_B; // 定义了一个买信号，类似一个bool类，如果在某个 index处，出现了买点，则会记录这个index在它自已的 vector 成员变量中。
-    // PointsList<8, 9> ICO132_S; //
-    // PLOT(ICO132_B, 0);  // 在这里， 信号 ICO132_B和ICO132_S的各自的成员vector的指针，被 push 到了 unit_array_[][]中的 pointslist_output中，
-    // PLOT(ICO132_S, 0);  //  pointslist_output是一个vector,它用于记录所有要显示到前端的 信号的vector指针。
-    // 每个 PointsList<8, 9>类型的变量，有一个vector<int>， pointslist_output会把他们都收集起来。
+    // ----------------从 pointslist_output 取出交易信号 -------------------------------- 每个index,每个变量只有一个值
+    // ---- 对应的是 trading策略中的 PointsList<8, 9> ICO132_B; // 定义了一个买信号，类似一个bool类，如果在某个
+    // index处，出现了买点，则会记录这个index在它自已的 vector 成员变量中。 PointsList<8, 9> ICO132_S; // PLOT(ICO132_B,
+    // 0);  // 在这里， 信号 ICO132_B和ICO132_S的各自的成员vector的指针，被 push 到了 unit_array_[][]中的
+    // pointslist_output中， PLOT(ICO132_S, 0);  //  pointslist_output是一个vector,它用于记录所有要显示到前端的
+    // 信号的vector指针。 每个 PointsList<8, 9>类型的变量，有一个vector<int>， pointslist_output会把他们都收集起来。
     for (auto tp : this->unit_array_[8][9]->pointslist_output) {
         memset(temp, '\0', 1024);
         std::string name;         //  1、名称
@@ -607,7 +617,7 @@ void Base::sendTradingData() {
     // 回测试结果输出 ---------------------------------------------------------------
     for (auto tp : this->unit_array_[8][9]->orderslist_output) {
         memset(temp, '\0', 1024);
-        std::string name;           // 名称
+        std::string name; // 名称
         std::vector<Order> *orders; // pointslist类型，它所存储的数据，是一个vector<int> 里面存储是index位置信息
         int color;
         auto tp2 = std::make_tuple(std::ref(name), std::ref(orders), std::ref(color)) = tp;
@@ -732,7 +742,8 @@ void Base::onMessages() {
         // this->main_hub_->getDefaultGroup<uWS::SERVER>().close();
         this->web_ws_->terminate();
     }
-    // todo 2023-11-26 在线程里面执行到这里时，如何退出 loop ？   请看 76行 新线程： main_hub_->onConnection([this](uWSclient *ws, uWS::HttpRequest req)
+    // todo 2023-11-26 在线程里面执行到这里时，如何退出 loop ？   请看 76行 新线程：
+    // main_hub_->onConnection([this](uWSclient *ws, uWS::HttpRequest req)
 };
 
 void Base::GetData(FUNCTIONS x, const char *para) {

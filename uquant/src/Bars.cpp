@@ -628,7 +628,7 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
             // Display(future_block,tick,period_index,"eeee:1:E,F---");
             goto bbbb;
         } //------- E F
-    }     // MARK ==0
+    } // MARK ==0
 
     // --------------------------------------------------------------------
     // here a bar has lots of segs:
@@ -725,7 +725,7 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
                     }
                     //-----------------------
                 }
-            }          // 找到 tick 在哪个段中
+            } // 找到 tick 在哪个段中
             curiX = i; // tick所在的段
             if (curiX == 0) {
                 b1->vold = 0;
@@ -738,6 +738,9 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
                 curiE = babo->seg[curiX]->iB - 1; // for do while below!!
             aaaa:
                 if (memcmp(ticK, SEGE, 8) <= 0) { // ---------
+                    // 在一个交易时间段内，有多个bar的情况。
+                    // 比如在9:00-10:15这个交易时间段内，要计算6F的bar，如果当前bar是 9:00-9:06,新来一个tick 是9:50的
+                    // 那么，这里要 do while 只到 找到 这个tick所对应的 bar的 起止： 9:48-9:54。这个tick是属于这个bar的
                     do {
                         curiB = curiE + 1;
                         curiE += fr;
@@ -768,7 +771,7 @@ int DealBar(uBEE::FutureBlock *future_block, TICK *tick, int period_index, int f
                 NEW_B1;
                 curiB = babo->seg[curiX]->iB;
                 curiE = babo->seg[curiX]->iE;
-                memcpy(curB, babo->seg[curiX]->cB, 9);
+                memcpy(curB, babo->seg[curiX]->cB, 9); // 这些memcpy应该没有必须，是否可以直接用于判断 todo
                 memcpy(curE, babo->seg[curiX]->cE, 9);
                 memcpy(barB, babo->seg[curiX]->barB, 9);
                 memcpy(barE, babo->seg[curiX]->barE, 9);
@@ -838,7 +841,7 @@ int HhmmssToSec(const char *str) {
 #define PRINTF_2D_WITH_TWO_DIGIT(buff, num)                                                                            \
     {                                                                                                                  \
         int32_t tmp2 = (num) / 10;                                                                                     \
-        int32_t tmp = (num)-tmp2 * 10;                                                                                 \
+        int32_t tmp = (num) - tmp2 * 10;                                                                               \
         *buff++ = (char)('0' + tmp2);                                                                                  \
         *buff++ = (char)('0' + tmp);                                                                                   \
     }
