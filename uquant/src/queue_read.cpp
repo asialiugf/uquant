@@ -30,15 +30,15 @@ void tick_save(int tid, int cpu) {
 
     auto reader = uBEE::g_tick_queue->getReader();
     while (true) {
-        CThostFtdcDepthMarketDataField* tick = reader.read();
+        CThostFtdcDepthMarketDataField *tick = reader.read();
         if (!tick) {
             uBEE::spin_loop_pause();
             continue;
         };
-        uBEE::SaveTick(tick);  // 这个是非线程安全的  有多个线程时会出错。
-        snprintf(ca_errmsg, ERR_MSG_LEN, "A:%s %s %s T:%s O:%g H:%g L:%g C:%g V:%d \n",
-                 tick->ActionDay, tick->InstrumentID, tick->TradingDay, tick->UpdateTime,
-                 tick->LastPrice, tick->AskPrice1, tick->BidPrice1, tick->AskPrice2, tick->Volume);
+        uBEE::SaveTick(tick); // 这个是非线程安全的  有多个线程时会出错。
+        snprintf(ca_errmsg, ERR_MSG_LEN, "A:%s %s %s T:%s O:%g H:%g L:%g C:%g V:%d \n", tick->ActionDay,
+                 tick->InstrumentID, tick->TradingDay, tick->UpdateTime, tick->LastPrice, tick->AskPrice1,
+                 tick->BidPrice1, tick->AskPrice2, tick->Volume);
         std::cout << ca_errmsg << std::endl;
     }
     std::cout << endl;
@@ -57,7 +57,7 @@ void kbar_save(int tid, int cpu) {
 
     auto reader = uBEE::g_tick_queue->getReader();
     while (true) {
-        CThostFtdcDepthMarketDataField* tick = reader.read();
+        CThostFtdcDepthMarketDataField *tick = reader.read();
         if (!tick) {
             uBEE::spin_loop_pause();
             continue;
@@ -77,7 +77,7 @@ void kbar_save(int tid, int cpu) {
     }
 }
 
-vector<thread> reader_threads;
+vector<std::jthread> reader_threads;
 
 void TickWrite() {
     int cpu_start = 0;
@@ -85,7 +85,9 @@ void TickWrite() {
         cpupin(cpu_start);
     }
     reader_threads.emplace_back(tick_save, 0, cpu_start);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(1s);
+    // std::this_thread::sleep_for(100ms);
+    // std::this_thread::sleep_for(100us);
 }
 
 void KbarHandle() {

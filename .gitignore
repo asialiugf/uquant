@@ -39,6 +39,7 @@ data/
 bin/
 trader/
 build/
+exe/
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

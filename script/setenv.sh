@@ -7,6 +7,7 @@ ALIAS_MM='alias mm="cd ~/xquant/uquant/build && make"'
 ALIAS_TT='alias tt="cd ~/xquant/uquant/build && make && cd ~/xquant/exe/bin && ./uquant_test.x"'
 
 SET_LD='export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64:/usr/local/lib'
+SET_CDPATH='export CDPATH=~/xquant:~/xquant/uquant'
 
 # 检查.bashrc文件是否存在
 if [ -f ~/.bashrc ]; then
@@ -25,6 +26,9 @@ if [ -f ~/.bashrc ]; then
     fi
     if ! grep -q "^$SET_LD\$" ~/.bashrc; then
         echo "$SET_LD" >> ~/.bashrc
+    fi
+    if ! grep -q "^$SET_CDPATH\$" ~/.bashrc; then
+        echo "$SET_CDPATH" >> ~/.bashrc
     fi
 else
     echo "创建新的.bashrc文件"
@@ -71,3 +75,5 @@ if [ -f ~/xquant/uquant/tests/mock/tbl/trade.json ]; then
 else
     echo " trader.json 不存在！" 
 fi
+
+

@@ -14,17 +14,13 @@ namespace uBEE {
 int ctp_make_mduser() {
     printf("g_front_mdaddr = %s\n", g_front_mdaddr);
 
-    CThostFtdcMdApi *p_mduser_api = CThostFtdcMdApi::CreateFtdcMdApi(".", false, false);
-    CSimpleMdHandler spi(p_mduser_api);
-    p_mduser_api->RegisterSpi(&spi);
-    // p_mduser_api->RegisterFront(const_cast<char *>(g_chFrontMdaddr.c_str()));
-    p_mduser_api->RegisterFront(g_front_mdaddr);
-    p_mduser_api->Init();
+    CThostFtdcMdApi *mduser_api = CThostFtdcMdApi::CreateFtdcMdApi(".", false, false);
+    CSimpleMdHandler mduser_spi(mduser_api);
+    mduser_api->RegisterSpi(&mduser_spi);
+    mduser_api->RegisterFront(g_front_mdaddr);
+    mduser_api->Init();
     //  INIT后，生成三个线程，一个是主线程，一个是 Spi
     //  用于接收行情等信息
-
-    // p_mduser_api->Join();
-    // WaitForSingleObject(xinhao, INFINITE);
 
     // 这里需要等待线程准备好。 否则下面的ash.ReqUserLogin()
     // 会失败。
@@ -34,9 +30,9 @@ int ctp_make_mduser() {
     std::cout << "thread  in make_mduser : --------- : " << this_id << "\n";
 
     // 这里需要ReqUserLogin() 否则后面无法订阅行情
-    spi.ReqUserLogin();
+    mduser_spi.ReqUserLogin();
     usleep(2000000);
-    spi.SubscribeMarketData();  // 订阅行情
+    mduser_spi.SubscribeMarketData(); // 订阅行情
     usleep(2000000);
 
     std::cout << "运行到这里了！ after SubscribeMarketData" << std::endl;
@@ -46,12 +42,9 @@ int ctp_make_mduser() {
     // spi.ReqQryMulticastInstrument();//请求查询组播合约
     // WaitForSingleObject(xinhao, INFINITE);
 
-    //  while (1) {
-    //      usleep(200000);
-    //  }
-    p_mduser_api->Join();
+    mduser_api->Join();
     std::cout << "运行到这里了！ after Join befor Release SubscribeMarketData" << std::endl;
-    p_mduser_api->Release();
+    mduser_api->Release();
     std::cout << "运行到这里了！ after Join befor Release SubscribeMarketData" << std::endl;
     return 0;
 }
@@ -110,4 +103,4 @@ int ctp_make_trader() {
 }
 */
 
-}  // namespace uBEE
+} // namespace uBEE

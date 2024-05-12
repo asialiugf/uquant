@@ -7,7 +7,7 @@
 #include <iostream>
 #include <thread>
 
-#include "base/CLI11.hpp"
+// #include "base/CLI11.hpp"
 #include "ctp_make_mduser.h"
 #include "ctp_make_trader.h"
 #include "global.h"
@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
     //     exit(EXIT_FAILURE);
 
     //======================================================================================================
+    /*
     CLI::App app{"xquant good luck! charmi and miao !"};         // 软件描述出现在第一行打印
     app.footer("my footer xquant good luck! charmi and miao !"); // 最后一行打印
     app.get_formatter()->column_width(40);                       // 列的宽度
@@ -91,6 +92,7 @@ int main(int argc, char **argv) {
     std::cout << "password:" << password << std::endl;
     exit(1);
     // ./xquant sub1 ddd -o test -t rrr -p wqeqwer  // 文件 ddd要存在 ， 目录 test要存在
+    */
     //======================================================================================================
 
     using namespace uBEE;

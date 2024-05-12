@@ -12,12 +12,15 @@ set(CMAKE_EXPORT_COMPILECOMMANDS ON)
 #set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 set(CMAKE_C_COMPILER "/usr/bin/gcc")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+set(XQUANT_DIR "~/xquant/uquant")
+set(XQUANT_UQUANT_DIR "~/xquant/uquant")
 
 add_compile_options(-O3)
 
 set(LINUX ON)
 set(WIN32 OFF)
 set(CMAKE_VERBOSE_MAKEFILE ON)
+
 
 # set output color system ，下面是设定输出的颜色系统。 使用 message输出，如下:
 # message("${Green} -------- Uquant  -----------  ${ColourReset}")
