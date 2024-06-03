@@ -54,7 +54,8 @@ void set_timer(int x) {
             msg1.latency = rdtsc() - before;
             before = rdtsc();
             msg1.before = before;
-            globalApp->publish("GOOG", std::string_view((char *)&msg1, sizeof(struct MSG_T)), uWS::OpCode::BINARY, false);
+            globalApp->publish("GOOG", std::string_view((char *)&msg1, sizeof(struct MSG_T)), uWS::OpCode::BINARY,
+                               false);
             // globalApp->publish("GOOG", (char *)&before, uWS::OpCode::BINARY, false);
             latency = rdtsc() - before;
             std::cout << "\n publish:: main " << before << " latency: " << latency << " i: " << std::endl;
@@ -92,7 +93,8 @@ void LoopFunc(uWS::WebSocket<false, true, PerSocketData> *ws) {
         msg1.before = rdtsc();
 
         // ws->getUserData()->loop->defer([ws, result]() { ws->send(result, uWS::TEXT, true); });
-        ws->getUserData()->loop->defer([ws, msg1]() { ws->send(std::string_view((char *)&msg1, sizeof(struct MSG_T)), uWS::BINARY, true); });
+        ws->getUserData()->loop->defer(
+            [ws, msg1]() { ws->send(std::string_view((char *)&msg1, sizeof(struct MSG_T)), uWS::BINARY, true); });
         std::cout << " Loop Thread defer E: " << std::this_thread::get_id() << std::endl;
     }
 }
@@ -130,9 +132,10 @@ int main() {
                                       // ws->subscribe("broadcast");
                                       auto x = ws->getUserData();
                                       x->name = "tttt";
-                                      x->loop = uWS::Loop::get(); // 一个线程一个loop, 一个线程可以有多个 uWS::App app1,app2
-                                                                  //  std::thread th1(LoopFunc, ws);
-                                                                  //  th1.detach();
+                                      x->loop =
+                                          uWS::Loop::get(); // 一个线程一个loop, 一个线程可以有多个 uWS::App app1,app2
+                                                            //  std::thread th1(LoopFunc, ws);
+                                                            //  th1.detach();
 
                                       //  ws->subscribe("xxxx");
                                       //  ws->subscribe("GOOG");
@@ -183,8 +186,10 @@ int main() {
                                       /* Not implemented yet */
                                   },
                               .close =
-                                  [](auto * /*ws*/, int /*code*/, std::string_view /*message*/) {
+                                  [](auto *ws, int /*code*/, std::string_view /*message*/) {
                                       /* You may access ws->getUserData() here */
+                                      auto x = ws->getUserData();
+                                      std::cout << " Close:  " << x->name << std::endl;
                                   },
                           });
 
@@ -227,11 +232,13 @@ int main() {
             msg1.latency = rdtsc() - before;
             before = rdtsc();
             msg1.before = before;
-            // globalApp->publish("GOOG", std::string_view((char *)&msg1, sizeof(struct MSG_T)), uWS::OpCode::BINARY, false);
+            // globalApp->publish("GOOG", std::string_view((char *)&msg1, sizeof(struct MSG_T)), uWS::OpCode::BINARY,
+            // false);
             latency = rdtsc() - before;
             // std::cout << "\n publish::  " << before << " latency: " << latency << std::endl;
             // globalApp->publish("broadcast", std::string_view((char *) millis, 6), uWS::OpCode::BINARY, false);
-            // globalApp->publish("broadcast", std::string_view((char *) &millis, sizeof(millis)), uWS::OpCode::BINARY, false);
+            // globalApp->publish("broadcast", std::string_view((char *) &millis, sizeof(millis)), uWS::OpCode::BINARY,
+            // false);
         },
         100, 100);
 
