@@ -1,1 +1,1 @@
-g++ Main.cpp Derived.cpp -o my_program
+g++ Main.cpp Derived01.cpp -o my_program
